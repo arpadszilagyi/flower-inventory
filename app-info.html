@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Informationen über diese App</title>
+  <link rel="icon" type="image/png" href="favicon.png">
+  <style>
+    :root {
+      color-scheme: light;
+      --text: #22211d;
+      --muted: #625f56;
+      --line: #d8d1c4;
+      --accent: #2f7d62;
+      --paper: #f7f4ee;
+      --white: #ffffff;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--text);
+      font-family: "Segoe UI", Arial, sans-serif;
+      line-height: 1.6;
+    }
+
+    main {
+      width: min(920px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 36px 0 48px;
+    }
+
+    header {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 28px;
+      padding-bottom: 18px;
+    }
+
+    header img {
+      width: 58px;
+      height: 58px;
+      border-radius: 14px;
+      object-fit: cover;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(30px, 5vw, 46px);
+      line-height: 1.15;
+    }
+
+    h2 {
+      margin: 28px 0 8px;
+      font-size: 22px;
+    }
+
+    p,
+    li {
+      color: var(--muted);
+      font-size: 17px;
+    }
+
+    section {
+      background: var(--white);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      margin-bottom: 14px;
+      padding: 20px 22px;
+    }
+
+    code {
+      background: #eee8dc;
+      border-radius: 5px;
+      padding: 2px 5px;
+    }
+
+    .note {
+      border-left: 4px solid var(--accent);
+      background: #edf6f1;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <img src="favicon.png" alt="">
+      <div>
+        <h1>Blumen-Inventar</h1>
+        <p>Lokale HTML-Anwendung zur Verwaltung deiner Blumen.</p>
+      </div>
+    </header>
+
+    <section>
+      <h2>Start</h2>
+      <p>Die Anwendung wird per Doppelklick auf <code>index.html</code> im Browser gestartet. Es wird kein lokaler Server, kein Node.js, kein Backend und keine Cloud benötigt.</p>
+    </section>
+
+    <section>
+      <h2>Speicherung</h2>
+      <p>Alle Blumen werden lokal im Browser mit IndexedDB gespeichert. Die Daten gehören zum Speicherbereich des Browsers und zu dieser lokalen Datei-Adresse.</p>
+    </section>
+
+    <section class="note">
+      <h2>Sicherung</h2>
+      <p>Für dauerhafte Sicherungen bitte regelmäßig den Export als JSON-Datei verwenden. Diese JSON-Datei enthält Blumen, Bilder, Beschreibungen und Links und kann später wieder importiert werden.</p>
+    </section>
+
+    <section>
+      <h2>Internetfunktionen</h2>
+      <p>Die App funktioniert offline. Nur die automatische Namensermittlung und die Suche nach einer Blume im Internet benötigen eine vorhandene Internetverbindung.</p>
+    </section>
+
+    <section>
+      <h2>Empfohlene Browser</h2>
+      <ul>
+        <li>Microsoft Edge</li>
+        <li>Google Chrome</li>
+        <li>Mozilla Firefox</li>
+      </ul>
+    </section>
+  </main>
+</body>
+</html>

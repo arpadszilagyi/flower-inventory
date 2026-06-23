@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Blumen-Inventar</title>
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="Blumenliste" data-i18n-attr="aria-label:flowerListLabel">
+      <div class="sidebar-header">
+        <div>
+          <p class="eyebrow" data-i18n="inventory">Inventar</p>
+          <h1 data-i18n="flowers">Blumen</h1>
+        </div>
+      </div>
+
+      <div class="toolbar">
+        <button id="exportButton" class="toolbar-icon-button" type="button" title="Exportieren" aria-label="Exportieren" data-i18n-attr="title:export;aria-label:export"><img src="icon-export.png" alt=""><span class="visually-hidden" data-i18n="export">Exportieren</span></button>
+        <button id="importButton" class="toolbar-icon-button" type="button" title="Importieren" aria-label="Importieren" data-i18n-attr="title:import;aria-label:import"><img src="icon-import.png" alt=""><span class="visually-hidden" data-i18n="import">Importieren</span></button>
+        <button id="addFlowerButton" class="toolbar-icon-button" type="button" title="Neue Blume" aria-label="Neue Blume" data-i18n-attr="title:newFlower;aria-label:newFlower"><img src="icon-add.png" alt=""><span class="visually-hidden" data-i18n="newFlower">Neue Blume</span></button>
+        <button id="createOnlineFlowerButton" class="toolbar-icon-button" type="button" title="Blume aus dem Internet erstellen" aria-label="Blume aus dem Internet erstellen" data-i18n-attr="title:createOnlineFlower;aria-label:createOnlineFlower"><img src="icon-internet-create.png" alt=""><span class="visually-hidden" data-i18n="createOnlineFlower">Blume aus dem Internet erstellen</span></button>
+        <button id="sortFlowersButton" class="toolbar-icon-button" type="button" title="Sortieren A-Z" aria-label="Sortieren A-Z"><img id="sortFlowersIcon" src="icon-sort-az.png" alt=""><span class="visually-hidden" id="sortFlowersLabel">Sortieren A-Z</span></button>
+        <input id="importFileInput" type="file" accept="application/json,.json" hidden>
+      </div>
+
+      <form id="searchForm" class="search-form" role="search">
+        <label class="visually-hidden" for="filterInput" data-i18n="filterFlower">Blume filtern</label>
+        <div class="search-field-row">
+          <span class="search-side-icon" aria-hidden="true"><img src="icon-filter.png" alt=""></span>
+          <div class="search-input-wrap">
+            <input id="filterInput" type="text" placeholder="Blume filtern" autocomplete="off" data-i18n-attr="placeholder:filterPlaceholder">
+            <button id="clearFilterButton" class="search-clear-button hidden" type="button" title="Filter löschen" aria-label="Filter löschen" data-i18n-attr="title:clearFilter;aria-label:clearFilter">×</button>
+          </div>
+        </div>
+        <label class="visually-hidden" for="searchInput" data-i18n="searchFlower">Blume suchen</label>
+        <div class="search-input-row">
+          <div class="search-field-row">
+            <span class="search-side-icon" aria-hidden="true"><img src="icon-search.png" alt=""></span>
+            <div class="search-input-wrap">
+              <input id="searchInput" type="search" placeholder="Blume suchen" autocomplete="off" data-i18n-attr="placeholder:searchPlaceholder">
+              <button id="clearSearchButton" class="search-clear-button hidden" type="button" title="Suche löschen" aria-label="Suche löschen" data-i18n-attr="title:clearSearch;aria-label:clearSearch">×</button>
+            </div>
+          </div>
+          <button id="searchPreviousButton" class="search-step-button" type="button" title="Vorheriger Treffer" aria-label="Vorheriger Treffer"><img src="icon-prev.png" alt=""></button>
+          <button id="searchNextButton" class="search-step-button" type="button" title="Nächster Treffer" aria-label="Nächster Treffer"><img src="icon-next.png" alt=""></button>
+        </div>
+        <p id="searchMessage" class="search-message" role="status" aria-live="polite"></p>
+      </form>
+
+      <div id="flowerList" class="flower-list" role="listbox" aria-label="Gespeicherte Blumen" data-i18n-attr="aria-label:savedFlowers"></div>
+    </aside>
+
+    <main class="main-panel">
+      <div class="main-toolbar">
+        <div id="topDetailActions" class="sticky-detail-actions hidden"></div>
+        <div class="language-switcher" aria-label="Sprache wählen" data-i18n-attr="aria-label:chooseLanguage">
+          <button type="button" data-lang="hu" title="Magyar" aria-label="Magyar"><img src="flag-hu.png" alt=""></button>
+          <button type="button" data-lang="de" title="Deutsch" aria-label="Deutsch"><img src="flag-de.png" alt=""></button>
+          <button type="button" data-lang="en" title="English" aria-label="English"><img src="flag-en.png" alt=""></button>
+        </div>
+      </div>
+
+      <section id="detailView" class="detail-view" aria-live="polite"></section>
+
+      <form id="flowerForm" class="flower-form hidden" novalidate>
+        <div class="form-header">
+          <div>
+            <p class="eyebrow" id="formModeLabel">Neue Blume</p>
+            <h2 data-i18n="flowerData">Blumendaten</h2>
+          </div>
+          <div class="form-actions top-actions">
+            <button id="cancelButton" class="form-icon-button" type="button" title="Abbrechen" aria-label="Abbrechen" data-i18n-attr="title:cancel;aria-label:cancel"><img src="icon-exit.png" alt=""><span class="visually-hidden" data-i18n="cancel">Abbrechen</span></button>
+            <button class="form-icon-button primary" type="submit" title="Speichern" aria-label="Speichern" data-i18n-attr="title:save;aria-label:save"><img src="icon-save.png" alt=""><span class="visually-hidden" data-i18n="save">Speichern</span></button>
+          </div>
+        </div>
+
+        <div class="form-grid">
+          <section class="image-editor" aria-label="Bild" data-i18n-attr="aria-label:image">
+            <div id="imagePreview" class="image-preview empty">
+              <span data-i18n="selectImageDrop">Bild auswählen / Drag & Drop</span>
+              <input id="imageInput" type="file" accept="image/*" multiple>
+            </div>
+            <p class="field-note" data-i18n="imageNote">Pflichtfeld. Das Bild wird lokal in IndexedDB gespeichert.</p>
+          </section>
+
+          <section class="fields" aria-label="Namen" data-i18n-attr="aria-label:names">
+            <label>
+              <span class="field-icon-label" title="Ungarischer Name" aria-label="Ungarischer Name" data-i18n-attr="title:magyarName;aria-label:magyarName"><img src="flag-hu.png" alt=""><span aria-hidden="true">*</span></span>
+              <input id="nameHu" type="text" autocomplete="off" required>
+            </label>
+            <label>
+              <span class="field-icon-label" title="Latein Name" aria-label="Latein Name" data-i18n-attr="title:latinName;aria-label:latinName"><img src="icon-latin.png" alt=""></span>
+              <input id="nameLa" type="text" autocomplete="off">
+            </label>
+            <p id="autoFillStatus" class="autofill-status" role="status" aria-live="polite"></p>
+            <label>
+              <span class="field-icon-label" title="Deutscher Name" aria-label="Deutscher Name" data-i18n-attr="title:germanName;aria-label:germanName"><img src="flag-de.png" alt=""></span>
+              <input id="nameDe" type="text" autocomplete="off">
+            </label>
+            <label>
+              <span class="field-icon-label" title="English Name" aria-label="English Name" data-i18n-attr="title:englishName;aria-label:englishName"><img src="flag-en.png" alt=""></span>
+              <input id="nameEn" type="text" autocomplete="off">
+            </label>
+            <p id="formError" class="form-error" role="alert"></p>
+          </section>
+          <section class="full-width-editor">
+            <div class="field-block">
+              <span class="field-icon-label description-field-label" title="Beschreibung" aria-label="Beschreibung" data-i18n-attr="title:descriptionTitle;aria-label:descriptionTitle"><img src="icon-info.png" alt=""><span data-i18n="descriptionTitle">Beschreibung</span></span>
+              <div class="rich-editor">
+                <span class="description-language-tabs" aria-label="Beschreibungssprache wählen" data-i18n-attr="aria-label:chooseDescriptionLanguage">
+                  <button type="button" data-description-lang="hu" title="Magyar" aria-label="Magyar"><img src="flag-hu.png" alt=""></button>
+                  <button type="button" data-description-lang="de" title="Deutsch" aria-label="Deutsch"><img src="flag-de.png" alt=""></button>
+                  <button type="button" data-description-lang="en" title="English" aria-label="English"><img src="flag-en.png" alt=""></button>
+                </span>
+                <span class="editor-toolbar" aria-label="Leírás formatieren" data-i18n-attr="aria-label:formatDescription">
+                  <label class="editor-select-control">
+                    <span data-i18n="fontFamily">Schriftart</span>
+                    <select id="descriptionFontFamilySelect" aria-label="Schriftart" data-i18n-attr="aria-label:fontFamily">
+                      <option value="" data-i18n="fontFamilyDefault">Standard</option>
+                      <option value="Segoe UI">Segoe UI</option>
+                      <option value="Arial">Arial</option>
+                      <option value="Georgia">Georgia</option>
+                      <option value="Times New Roman">Times New Roman</option>
+                      <option value="Courier New">Courier New</option>
+                      <option value="Verdana">Verdana</option>
+                    </select>
+                  </label>
+                  <label class="editor-select-control">
+                    <span data-i18n="fontSize">Schriftgröße</span>
+                    <select id="descriptionFontSizeSelect" aria-label="Schriftgröße" data-i18n-attr="aria-label:fontSize">
+                      <option value="" data-i18n="fontSizeDefault">Normal</option>
+                      <option value="2">14 px</option>
+                      <option value="3">16 px</option>
+                      <option value="4">20 px</option>
+                      <option value="5">24 px</option>
+                      <option value="6">32 px</option>
+                    </select>
+                  </label>
+                  <button type="button" data-command="bold" title="Fett" data-i18n-attr="title:bold"><strong>B</strong></button>
+                  <button type="button" data-command="italic" title="Kursiv" data-i18n-attr="title:italic"><em>I</em></button>
+                  <button type="button" data-command="underline" title="Unterstrichen" data-i18n-attr="title:underline"><u>U</u></button>
+                  <button type="button" data-command="insertUnorderedList" title="Liste" data-i18n="list" data-i18n-attr="title:list">Liste</button>
+                  <button type="button" data-command="removeFormat" title="Formatierung entfernen" data-i18n="clearFormat" data-i18n-attr="title:clearFormat">Format löschen</button>
+                  <label class="color-control editor-color-control">
+                    <span data-i18n="textColor">Textfarbe</span>
+                    <input id="descriptionColorInput" type="color" value="#2f7d62">
+                  </label>
+                  <span class="color-palette" aria-label="Textfarbe wählen" data-i18n-attr="aria-label:textColor">
+                    <button type="button" data-editor-color="#22211d" title="Textfarbe" data-i18n-attr="title:textColor" style="--swatch:#22211d"></button>
+                    <button type="button" data-editor-color="#2f7d62" title="Textfarbe" data-i18n-attr="title:textColor" style="--swatch:#2f7d62"></button>
+                    <button type="button" data-editor-color="#b42318" title="Textfarbe" data-i18n-attr="title:textColor" style="--swatch:#b42318"></button>
+                    <button type="button" data-editor-color="#175cd3" title="Textfarbe" data-i18n-attr="title:textColor" style="--swatch:#175cd3"></button>
+                    <button type="button" data-editor-color="#7a2e0e" title="Textfarbe" data-i18n-attr="title:textColor" style="--swatch:#7a2e0e"></button>
+                  </span>
+                  <label class="color-control editor-color-control">
+                    <span data-i18n="backgroundColor">Hintergrund</span>
+                    <input id="descriptionBackgroundColorInput" type="color" value="#fff3bf">
+                  </label>
+                  <span class="color-palette" aria-label="Hintergrundfarbe wählen" data-i18n-attr="aria-label:backgroundColor">
+                    <button type="button" data-editor-background="#fff3bf" title="Hintergrund" data-i18n-attr="title:backgroundColor" style="--swatch:#fff3bf"></button>
+                    <button type="button" data-editor-background="#d3f9d8" title="Hintergrund" data-i18n-attr="title:backgroundColor" style="--swatch:#d3f9d8"></button>
+                    <button type="button" data-editor-background="#d0ebff" title="Hintergrund" data-i18n-attr="title:backgroundColor" style="--swatch:#d0ebff"></button>
+                    <button type="button" data-editor-background="#ffe3e3" title="Hintergrund" data-i18n-attr="title:backgroundColor" style="--swatch:#ffe3e3"></button>
+                    <button type="button" data-editor-background="#ffffff" title="Hintergrund" data-i18n-attr="title:backgroundColor" style="--swatch:#ffffff"></button>
+                  </span>
+                </span>
+                <span id="descriptionEditor" class="description-editor" contenteditable="true" role="textbox" aria-multiline="true"></span>
+              </div>
+            </div>
+            <div class="field-block links-editor">
+              <div class="links-editor-header">
+                <span class="field-label" data-i18n="linksTitle">Links</span>
+                <button id="addLinkButton" type="button" data-i18n="addLink">Link hinzufügen</button>
+              </div>
+              <div id="linksEditorList" class="links-editor-list"></div>
+            </div>
+          </section>
+        </div>
+      </form>
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

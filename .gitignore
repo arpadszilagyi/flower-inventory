@@ -1,0 +1,15 @@
+# Secrets / local config
+.env
+.env.*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Temporary / backup files
+*.tmp
+*.bak
+*.old
+
+# Local export output
+export/
