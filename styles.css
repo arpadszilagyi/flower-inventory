@@ -159,6 +159,7 @@ button.primary:hover,
 
 .search-side-icon {
   display: inline-flex;
+  width: 40px;
   min-height: 40px;
   align-items: center;
   justify-content: center;
@@ -168,16 +169,37 @@ button.primary:hover,
 }
 
 .search-side-icon img {
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  object-fit: cover;
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
+}
+
+.search-mode-button {
+  height: 40px;
+  overflow: hidden;
+  padding: 1px;
+}
+
+.search-mode-button img {
+  width: 36px;
+  height: 36px;
+}
+
+.search-mode-button:hover,
+.search-mode-button:focus-visible {
+  border-color: var(--accent);
+  background: #f7fbf9;
+}
+
+.search-mode-button:focus-visible {
+  outline: 3px solid rgba(47, 125, 98, 0.18);
+  outline-offset: 1px;
 }
 
 .search-input-row {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 40px 40px;
-  gap: 6px;
+  grid-template-columns: minmax(0, 1fr) 30px 30px;
+  gap: 4px;
 }
 
 .search-form input {
@@ -187,6 +209,10 @@ button.primary:hover,
   border-radius: var(--radius);
   color: var(--text);
   padding: 8px 40px 8px 10px;
+}
+
+.search-form input:placeholder-shown {
+  padding-right: 10px;
 }
 
 .search-form input:focus {
@@ -223,15 +249,18 @@ button.primary:hover,
 
 .search-step-button {
   display: inline-flex;
-  min-height: 40px;
+  width: 30px;
+  min-height: 34px;
+  height: 34px;
+  align-self: center;
   align-items: center;
   justify-content: center;
-  padding: 4px;
+  padding: 2px;
 }
 
 .search-step-button img {
-  width: 28px;
-  height: 28px;
+  width: 23px;
+  height: 23px;
   border-radius: 50%;
   object-fit: contain;
 }
@@ -1534,6 +1563,14 @@ button.primary:hover,
 
 .description-content :last-child {
   margin-bottom: 0;
+}
+
+.search-highlight {
+  border-radius: 3px;
+  background: #ffe066;
+  color: #17140a;
+  box-shadow: 0 0 0 2px rgba(255, 224, 102, 0.35);
+  padding: 0 1px;
 }
 
 .description-section .empty-description {

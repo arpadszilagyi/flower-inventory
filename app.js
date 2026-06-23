@@ -31,6 +31,7 @@
     editorRange: null,
     activeInfoTab: "description",
     language: localStorage.getItem("flowerInventoryLanguage") || "de",
+    searchMode: "names",
     sortDirections: loadSortDirections()
   };
 
@@ -77,8 +78,17 @@
       filterFlower: "Virág szűrése",
       filterPlaceholder: "Virág szűrése",
       clearFilter: "Szűrés törlése",
+      previousFilterMatch: "Előző szűrt virág",
+      nextFilterMatch: "Következő szűrt virág",
       searchFlower: "Virág keresése",
       searchPlaceholder: "Virág keresése",
+      searchEverywhere: "Keresés mindenhol",
+      searchModeNames: "Keresési mód: virágnevek. Váltás mindenhol keresésre.",
+      searchModeEverywhere: "Keresési mód: minden adat. Váltás virágnév szerinti keresésre.",
+      searchMatchNames: "A(z) „{query}” keresőkifejezés a nevek között található.",
+      searchMatchDescriptions: "A(z) „{query}” keresőkifejezés a leírásban található.",
+      searchMatchImageInfos: "A(z) „{query}” keresőkifejezés a képinformációk között található.",
+      searchMatchLinks: "A(z) „{query}” keresőkifejezés a linkek között található.",
       previousSearchMatch: "Előző találat",
       nextSearchMatch: "Következő találat",
       search: "Keresés",
@@ -226,8 +236,17 @@
       filterFlower: "Blume filtern",
       filterPlaceholder: "Blume filtern",
       clearFilter: "Filter löschen",
+      previousFilterMatch: "Vorherige gefilterte Blume",
+      nextFilterMatch: "Nächste gefilterte Blume",
       searchFlower: "Blume suchen",
       searchPlaceholder: "Blume suchen",
+      searchEverywhere: "Überall suchen",
+      searchModeNames: "Suchmodus: Blumennamen. Zu überall suchen wechseln.",
+      searchModeEverywhere: "Suchmodus: alle Daten. Zur Suche in Blumennamen wechseln.",
+      searchMatchNames: "Suchstring „{query}“ wurde in den Namen gefunden.",
+      searchMatchDescriptions: "Suchstring „{query}“ wurde in der Beschreibung gefunden.",
+      searchMatchImageInfos: "Suchstring „{query}“ wurde in den Bild-Infos gefunden.",
+      searchMatchLinks: "Suchstring „{query}“ wurde in den Links gefunden.",
       previousSearchMatch: "Vorheriger Treffer",
       nextSearchMatch: "Nächster Treffer",
       search: "Suchen",
@@ -375,8 +394,17 @@
       filterFlower: "Filter flower",
       filterPlaceholder: "Filter flower",
       clearFilter: "Clear filter",
+      previousFilterMatch: "Previous filtered flower",
+      nextFilterMatch: "Next filtered flower",
       searchFlower: "Search flower",
       searchPlaceholder: "Search flower",
+      searchEverywhere: "Search everywhere",
+      searchModeNames: "Search mode: flower names. Switch to search everywhere.",
+      searchModeEverywhere: "Search mode: all data. Switch to flower-name search.",
+      searchMatchNames: "Search string “{query}” was found in the names.",
+      searchMatchDescriptions: "Search string “{query}” was found in the description.",
+      searchMatchImageInfos: "Search string “{query}” was found in the image information.",
+      searchMatchLinks: "Search string “{query}” was found in the links.",
       previousSearchMatch: "Previous match",
       nextSearchMatch: "Next match",
       search: "Search",
@@ -515,7 +543,11 @@
     searchForm: document.getElementById("searchForm"),
     filterInput: document.getElementById("filterInput"),
     clearFilterButton: document.getElementById("clearFilterButton"),
+    filterPreviousButton: document.getElementById("filterPreviousButton"),
+    filterNextButton: document.getElementById("filterNextButton"),
     searchInput: document.getElementById("searchInput"),
+    searchModeButton: document.getElementById("searchModeButton"),
+    searchModeIcon: document.getElementById("searchModeIcon"),
     clearSearchButton: document.getElementById("clearSearchButton"),
     searchPreviousButton: document.getElementById("searchPreviousButton"),
     searchNextButton: document.getElementById("searchNextButton"),
@@ -737,6 +769,13 @@
       applyFilterAndSearch(0);
     });
 
+    elements.searchModeButton.addEventListener("click", function () {
+      state.searchMode = state.searchMode === "names" ? "everywhere" : "names";
+      updateSearchModeButton();
+      applyFilterAndSearch(0);
+      elements.searchInput.focus();
+    });
+
     elements.clearSearchButton.addEventListener("click", function () {
       elements.searchInput.value = "";
       elements.searchMessage.textContent = "";
@@ -751,6 +790,14 @@
       updateFilterClearButton();
       applyFilterAndSearch(0);
       elements.filterInput.focus();
+    });
+
+    elements.filterPreviousButton.addEventListener("click", function () {
+      applyFilterNavigation(-1);
+    });
+
+    elements.filterNextButton.addEventListener("click", function () {
+      applyFilterNavigation(1);
     });
 
     elements.searchPreviousButton.addEventListener("click", function () {
@@ -819,14 +866,20 @@
     }
     updateLinkEditorLabels();
     updateSortButton();
+    elements.filterPreviousButton.title = t("previousFilterMatch");
+    elements.filterPreviousButton.setAttribute("aria-label", t("previousFilterMatch"));
+    elements.filterNextButton.title = t("nextFilterMatch");
+    elements.filterNextButton.setAttribute("aria-label", t("nextFilterMatch"));
     elements.searchPreviousButton.title = t("previousSearchMatch");
     elements.searchPreviousButton.setAttribute("aria-label", t("previousSearchMatch"));
     elements.searchNextButton.title = t("nextSearchMatch");
     elements.searchNextButton.setAttribute("aria-label", t("nextSearchMatch"));
+    updateSearchModeButton();
 
     elements.searchMessage.textContent = "";
     updateFilterClearButton();
     updateSearchClearButton();
+    updateFilterStepButtons();
     updateSearchStepButtons();
     setAutoFillStatus("");
   }
@@ -837,6 +890,16 @@
 
   function updateSearchClearButton() {
     elements.clearSearchButton.classList.toggle("hidden", !elements.searchInput.value);
+  }
+
+  function updateSearchModeButton() {
+    var searchesEverywhere = state.searchMode === "everywhere";
+    var label = t(searchesEverywhere ? "searchModeEverywhere" : "searchModeNames");
+    elements.searchModeIcon.src = searchesEverywhere ? "icon-search-everywhere-upload.png" : "icon-search-flower-upload.png";
+    elements.searchInput.placeholder = t(searchesEverywhere ? "searchEverywhere" : "searchPlaceholder");
+    elements.searchModeButton.title = label;
+    elements.searchModeButton.setAttribute("aria-label", label);
+    elements.searchModeButton.setAttribute("aria-pressed", searchesEverywhere ? "true" : "false");
   }
 
   function setDescriptionLanguage(language) {
@@ -1304,6 +1367,8 @@
 
   function renderFlowerList() {
     elements.flowerList.innerHTML = "";
+    var rawSearchQuery = elements.searchInput.value.trim();
+    var normalizedSearchQuery = normalizeSearchText(rawSearchQuery);
 
     getVisibleFlowers().forEach(function (flower) {
       var item = document.createElement("button");
@@ -1315,6 +1380,12 @@
         item.classList.add("active");
       }
       item.dataset.flowerId = flower.id;
+      if (state.searchMode === "everywhere" && normalizedSearchQuery) {
+        var matchDetails = getFlowerSearchMatchDetails(flower, normalizedSearchQuery);
+        if (matchDetails) {
+          item.title = t(matchDetails.messageKey, { query: rawSearchQuery });
+        }
+      }
 
       var img = document.createElement("img");
       img.className = "flower-thumb";
@@ -1335,13 +1406,32 @@
       item.appendChild(text);
       item.addEventListener("click", function () {
         state.selectedId = flower.id;
+        selectFilterMatchLanguage(flower, normalizeSearchText(elements.filterInput.value));
+        selectSearchMatchImage(flower, normalizedSearchQuery);
         closeForm();
         render();
       });
 
       elements.flowerList.appendChild(item);
     });
+    updateFilterStepButtons();
     updateSearchStepButtons();
+  }
+
+  function applyFilterNavigation(direction) {
+    var visibleFlowers = getVisibleFlowers();
+    var target = getSearchNavigationTarget(visibleFlowers, direction);
+    var filterQuery = normalizeSearchText(elements.filterInput.value);
+    if (!target) {
+      return;
+    }
+
+    state.selectedId = target.id;
+    selectFilterMatchLanguage(target, filterQuery);
+    selectSearchMatchImage(target, normalizeSearchText(elements.searchInput.value));
+    closeForm();
+    render();
+    scrollToFlower(target.id);
   }
 
   function applyFilterAndSearch(direction) {
@@ -1357,14 +1447,16 @@
       } else {
         target = getSearchNavigationTarget(searchMatches, direction === undefined ? 1 : direction);
       }
-    } else if (visibleFlowers.length && !visibleFlowers.some(function (flower) {
-      return flower.id === state.selectedId;
-    })) {
-      target = visibleFlowers[0];
+    } else if (visibleFlowers.length) {
+      target = visibleFlowers.find(function (flower) {
+        return flower.id === state.selectedId;
+      }) || visibleFlowers[0];
     }
 
     if (target) {
       state.selectedId = target.id;
+      selectFilterMatchLanguage(target, normalizeSearchText(elements.filterInput.value));
+      selectSearchMatchImage(target, searchQuery);
     }
     closeForm();
     render();
@@ -1392,19 +1484,19 @@
   }
 
   function getSearchNavigationTarget(matches, direction) {
+    if (!matches.length) {
+      return null;
+    }
     var currentIndex = matches.findIndex(function (flower) {
       return flower.id === state.selectedId;
     });
     if (currentIndex === -1) {
-      return matches[0];
+      return direction < 0 ? matches[matches.length - 1] : matches[0];
     }
     if (direction === 0) {
       return matches[0];
     }
-    var nextIndex = currentIndex + direction;
-    if (nextIndex < 0 || nextIndex >= matches.length) {
-      return null;
-    }
+    var nextIndex = (currentIndex + direction + matches.length) % matches.length;
     return matches[nextIndex];
   }
 
@@ -1418,7 +1510,12 @@
   }
 
   function flowerMatchesSearch(flower, query) {
-    return getFlowerSearchValues(flower).some(function (value) {
+    var values = state.searchMode === "everywhere"
+      ? getFlowerEverywhereSearchGroups(flower).reduce(function (allValues, group) {
+        return allValues.concat(group.values);
+      }, [])
+      : getFlowerNameValues(flower);
+    return values.some(function (value) {
       return normalizeSearchText(value).indexOf(query) !== -1;
     });
   }
@@ -1427,21 +1524,275 @@
     return [flower.names.hu, flower.names.la, flower.names.de, flower.names.en];
   }
 
-  function getFlowerSearchValues(flower) {
+  function getFilterMatchDetails(flower, query) {
+    if (!query) {
+      return null;
+    }
+    var languages = getSearchLanguageOrder();
+    var languageMatch = findSearchEntryMatch(languages.map(function (language) {
+      return {
+        language: language,
+        value: flower.names[language]
+      };
+    }), query);
+    if (languageMatch) {
+      return languageMatch;
+    }
+    if (normalizeSearchText(flower.names.la).indexOf(query) !== -1) {
+      return {
+        language: null,
+        value: flower.names.la
+      };
+    }
+    return null;
+  }
+
+  function selectFilterMatchLanguage(flower, query) {
+    var matchDetails = getFilterMatchDetails(flower, query);
+    if (!matchDetails || !matchDetails.language || matchDetails.language === state.language) {
+      return;
+    }
+    state.language = matchDetails.language;
+    localStorage.setItem("flowerInventoryLanguage", matchDetails.language);
+    sortFlowers();
+    applyLanguage();
+  }
+
+  function updateFilterStepButtons() {
+    var visibleFlowers = getVisibleFlowers();
+    var hasFilter = Boolean(normalizeSearchText(elements.filterInput.value));
+    var disabled = !hasFilter || visibleFlowers.length === 0;
+    elements.filterPreviousButton.disabled = disabled;
+    elements.filterNextButton.disabled = disabled;
+  }
+
+  function getFlowerEverywhereSearchGroups(flower) {
+    var descriptions = normalizeDescription(flower.description);
+    var imageInfoValues = getFlowerImageInfos(flower).reduce(function (values, info) {
+      values.push(info.hu, info.de, info.en);
+      return values;
+    }, []);
     return [
-      getFlowerTitle(flower),
-      flower.names.la
+      {
+        messageKey: "searchMatchNames",
+        values: getFlowerNameValues(flower)
+      },
+      {
+        messageKey: "searchMatchDescriptions",
+        values: [
+          htmlToPlainText(descriptions.hu),
+          htmlToPlainText(descriptions.de),
+          htmlToPlainText(descriptions.en)
+        ]
+      },
+      {
+        messageKey: "searchMatchImageInfos",
+        values: imageInfoValues
+      },
+      {
+        messageKey: "searchMatchLinks",
+        values: getSearchableLinks(flower)
+      }
     ];
+  }
+
+  function getFlowerSearchMatchDetails(flower, query) {
+    var languages = getSearchLanguageOrder();
+    var nameEntries = languages.map(function (language) {
+      return {
+        language: language,
+        value: flower.names[language]
+      };
+    }).concat([{
+      language: null,
+      value: flower.names.la
+    }]);
+    var nameMatch = findSearchEntryMatch(nameEntries, query);
+    if (nameMatch) {
+      return {
+        messageKey: "searchMatchNames",
+        imageIndex: null,
+        language: nameMatch.language
+      };
+    }
+
+    var descriptions = normalizeDescription(flower.description);
+    var descriptionMatch = findSearchEntryMatch(languages.map(function (language) {
+      return {
+        language: language,
+        value: htmlToPlainText(descriptions[language])
+      };
+    }), query);
+    if (descriptionMatch) {
+      return {
+        messageKey: "searchMatchDescriptions",
+        imageIndex: null,
+        language: descriptionMatch.language
+      };
+    }
+
+    var imageInfos = getFlowerImageInfos(flower);
+    for (var imageIndex = 0; imageIndex < imageInfos.length; imageIndex += 1) {
+      var imageInfoMatch = findSearchEntryMatch(languages.map(function (language) {
+        return {
+          language: language,
+          value: imageInfos[imageIndex][language]
+        };
+      }), query);
+      if (imageInfoMatch) {
+        return {
+          messageKey: "searchMatchImageInfos",
+          imageIndex: imageIndex,
+          language: imageInfoMatch.language
+        };
+      }
+    }
+
+    var links = normalizeLinks(flower.links);
+    for (var linkIndex = 0; linkIndex < links.length; linkIndex += 1) {
+      var linkNameMatch = findSearchEntryMatch(languages.map(function (language) {
+        return {
+          language: language,
+          value: links[linkIndex].names[language]
+        };
+      }), query);
+      if (linkNameMatch) {
+        return {
+          messageKey: "searchMatchLinks",
+          imageIndex: null,
+          language: linkNameMatch.language
+        };
+      }
+      if (normalizeSearchText(links[linkIndex].url).indexOf(query) !== -1) {
+        return {
+          messageKey: "searchMatchLinks",
+          imageIndex: null,
+          language: null
+        };
+      }
+    }
+    return null;
+  }
+
+  function getSearchLanguageOrder() {
+    return [state.language].concat(["hu", "de", "en"].filter(function (language) {
+      return language !== state.language;
+    }));
+  }
+
+  function findSearchEntryMatch(entries, query) {
+    for (var index = 0; index < entries.length; index += 1) {
+      if (normalizeSearchText(entries[index].value).indexOf(query) !== -1) {
+        return entries[index];
+      }
+    }
+    return null;
+  }
+
+  function selectSearchMatchImage(flower, query) {
+    if (state.searchMode !== "everywhere" || !query) {
+      return;
+    }
+    var matchDetails = getFlowerSearchMatchDetails(flower, query);
+    if (!matchDetails) {
+      return;
+    }
+    if (matchDetails.language && matchDetails.language !== state.language) {
+      state.language = matchDetails.language;
+      localStorage.setItem("flowerInventoryLanguage", matchDetails.language);
+      sortFlowers();
+      applyLanguage();
+    }
+    if (matchDetails.imageIndex !== null) {
+      state.imageIndexes[flower.id] = matchDetails.imageIndex;
+    }
+    if (matchDetails.messageKey === "searchMatchDescriptions") {
+      state.activeInfoTab = "description";
+    } else if (matchDetails.messageKey === "searchMatchLinks") {
+      state.activeInfoTab = "links";
+    }
+  }
+
+  function highlightVisibleSearchText(root) {
+    var query = normalizeSearchText(elements.searchInput.value);
+    if (state.searchMode !== "everywhere" || !query || !root) {
+      return;
+    }
+
+    var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+    var textNodes = [];
+    var node = walker.nextNode();
+    while (node) {
+      if (node.nodeValue.trim() && node.parentElement && !node.parentElement.closest("button, .search-highlight")) {
+        textNodes.push(node);
+      }
+      node = walker.nextNode();
+    }
+    textNodes.forEach(function (textNode) {
+      highlightSearchTextNode(textNode, query);
+    });
+  }
+
+  function highlightSearchTextNode(textNode, query) {
+    var mappedText = normalizeSearchTextWithMap(textNode.nodeValue);
+    var start = mappedText.text.indexOf(query);
+    if (start === -1) {
+      return;
+    }
+
+    var fragment = document.createDocumentFragment();
+    var originalStart = 0;
+    while (start !== -1) {
+      var originalMatchStart = mappedText.map[start];
+      var normalizedEnd = start + query.length - 1;
+      var originalMatchEnd = mappedText.map[normalizedEnd] + 1;
+      fragment.appendChild(document.createTextNode(textNode.nodeValue.slice(originalStart, originalMatchStart)));
+      var mark = document.createElement("mark");
+      mark.className = "search-highlight";
+      mark.textContent = textNode.nodeValue.slice(originalMatchStart, originalMatchEnd);
+      fragment.appendChild(mark);
+      originalStart = originalMatchEnd;
+      start = mappedText.text.indexOf(query, normalizedEnd + 1);
+    }
+    fragment.appendChild(document.createTextNode(textNode.nodeValue.slice(originalStart)));
+    textNode.replaceWith(fragment);
+  }
+
+  function normalizeSearchTextWithMap(value) {
+    var normalized = "";
+    var map = [];
+    var originalIndex = 0;
+    Array.from(String(value || "")).forEach(function (character) {
+      var chunk = character.toLocaleLowerCase();
+      if (chunk.normalize) {
+        chunk = chunk.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+      }
+      chunk = chunk
+        .replace(/ő/g, "o")
+        .replace(/ű/g, "u")
+        .replace(/đ/g, "d")
+        .replace(/ł/g, "l")
+        .replace(/ø/g, "o")
+        .replace(/æ/g, "ae")
+        .replace(/œ/g, "oe")
+        .replace(/ß/g, "ss");
+      normalized += chunk;
+      for (var index = 0; index < chunk.length; index += 1) {
+        map.push(originalIndex);
+      }
+      originalIndex += character.length;
+    });
+    return {
+      text: normalized,
+      map: map
+    };
   }
 
   function updateSearchStepButtons() {
     var matches = getSearchMatches();
-    var currentIndex = matches.findIndex(function (flower) {
-      return flower.id === state.selectedId;
-    });
-
-    elements.searchPreviousButton.disabled = currentIndex <= 0;
-    elements.searchNextButton.disabled = currentIndex === -1 || currentIndex >= matches.length - 1;
+    var disabled = !normalizeSearchText(elements.searchInput.value) || matches.length === 0;
+    elements.searchPreviousButton.disabled = disabled;
+    elements.searchNextButton.disabled = disabled;
   }
 
   function scrollToFlower(id) {
@@ -1501,6 +1852,7 @@
     card.appendChild(content);
     card.appendChild(createDescriptionSection(flower));
     elements.detailView.appendChild(card);
+    highlightVisibleSearchText(card);
     window.requestAnimationFrame(function () {
       fitHeadingToOneLine(heading);
     });

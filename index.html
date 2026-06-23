@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Blumen-Inventar</title>
   <link rel="icon" type="image/png" href="favicon.png">
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css?v=20260623-6">
 </head>
 <body>
   <div class="app-shell">
@@ -28,17 +28,23 @@
 
       <form id="searchForm" class="search-form" role="search">
         <label class="visually-hidden" for="filterInput" data-i18n="filterFlower">Blume filtern</label>
-        <div class="search-field-row">
-          <span class="search-side-icon" aria-hidden="true"><img src="icon-filter.png" alt=""></span>
-          <div class="search-input-wrap">
-            <input id="filterInput" type="text" placeholder="Blume filtern" autocomplete="off" data-i18n-attr="placeholder:filterPlaceholder">
-            <button id="clearFilterButton" class="search-clear-button hidden" type="button" title="Filter löschen" aria-label="Filter löschen" data-i18n-attr="title:clearFilter;aria-label:clearFilter">×</button>
+        <div class="search-input-row">
+          <div class="search-field-row">
+            <span class="search-side-icon" aria-hidden="true"><img src="icon-filter.png" alt=""></span>
+            <div class="search-input-wrap">
+              <input id="filterInput" type="text" placeholder="Blume filtern" autocomplete="off" data-i18n-attr="placeholder:filterPlaceholder">
+              <button id="clearFilterButton" class="search-clear-button hidden" type="button" title="Filter löschen" aria-label="Filter löschen" data-i18n-attr="title:clearFilter;aria-label:clearFilter">×</button>
+            </div>
           </div>
+          <button id="filterPreviousButton" class="search-step-button" type="button" title="Vorherige gefilterte Blume" aria-label="Vorherige gefilterte Blume"><img src="icon-prev.png" alt=""></button>
+          <button id="filterNextButton" class="search-step-button" type="button" title="Nächste gefilterte Blume" aria-label="Nächste gefilterte Blume"><img src="icon-next.png" alt=""></button>
         </div>
         <label class="visually-hidden" for="searchInput" data-i18n="searchFlower">Blume suchen</label>
         <div class="search-input-row">
           <div class="search-field-row">
-            <span class="search-side-icon" aria-hidden="true"><img src="icon-search.png" alt=""></span>
+            <button id="searchModeButton" class="search-side-icon search-mode-button" type="button" title="Überall suchen" aria-label="Suchmodus: Blumennamen. Zu überall suchen wechseln.">
+              <img id="searchModeIcon" src="icon-search-flower-upload.png" alt="">
+            </button>
             <div class="search-input-wrap">
               <input id="searchInput" type="search" placeholder="Blume suchen" autocomplete="off" data-i18n-attr="placeholder:searchPlaceholder">
               <button id="clearSearchButton" class="search-clear-button hidden" type="button" title="Suche löschen" aria-label="Suche löschen" data-i18n-attr="title:clearSearch;aria-label:clearSearch">×</button>
@@ -183,6 +189,6 @@
     </main>
   </div>
 
-  <script src="app.js"></script>
+  <script src="app.js?v=20260623-7"></script>
 </body>
 </html>
