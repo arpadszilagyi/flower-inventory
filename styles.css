@@ -429,8 +429,8 @@ button.primary:hover,
   height: clamp(380px, 52vw, 580px);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
-  background: #f8eff0;
-  border: 1px solid #ead9dc;
+  background: #e6e6d2;
+  border: 1px solid #d2d2bc;
   overflow: hidden;
 }
 

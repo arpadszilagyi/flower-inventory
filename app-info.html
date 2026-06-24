@@ -225,7 +225,7 @@
                 "Die Detailanzeige zeigt Bild, Namen, Beschreibung und Links. Das Bild wird so dargestellt, dass möglichst keine wichtigen Bildteile abgeschnitten werden."
               ],
               items: [
-                ["Historie zurück / Historie vor", "springt durch die zuletzt angezeigten Blumen. Alternativ: Pfeil links und Pfeil rechts."],
+                ["Historie zurück / Historie vor", "springt durch die zuletzt angezeigten Blumen inklusive des dort angezeigten Bildes. Alternativ: Strg+Pfeil links und Strg+Pfeil rechts."],
                 ["Up / Down", "blättert zyklisch durch die sichtbare oder gefilterte Blumenliste. Alternativ: Pfeil nach oben und Pfeil nach unten. Pos1 springt zur ersten Blume, Ende zur letzten Blume."],
                 ["Bearbeiten", "öffnet das Formular zur aktuellen Blume."],
                 ["Löschen", "entfernt die aktuelle Blume nach Rückfrage."],
@@ -242,13 +242,18 @@
                 "Die folgenden Tastendrücke sind in der Detailanzeige aktiv, solange kein Eingabefeld, Bearbeitungsformular oder Dialog im Vordergrund ist."
               ],
               items: [
-                ["Pfeil links / Pfeil rechts", "springt in der Anzeige-Historie zurück oder vor."],
+                ["Pfeil links / Pfeil rechts", "blättert durch die Bilder der aktuellen Blume."],
                 ["Pfeil nach oben / Pfeil nach unten", "blättert durch die sichtbare oder gefilterte Blumenliste."],
-                ["Pos1 / Ende", "springt zur ersten oder letzten sichtbaren beziehungsweise gefilterten Blume."],
-                ["Strg+Pfeil links / Strg+Pfeil rechts", "blättert durch die Bilder der aktuellen Blume."],
-                ["Strg+Pos1 / Strg+Ende", "springt zum ersten oder letzten Bild der aktuellen Blume."],
+                ["Pos1 / Ende", "springt zum ersten oder letzten Bild der aktuellen Blume."],
+                ["Strg+Pfeil links / Strg+Pfeil rechts", "springt in der Anzeige-Historie zurück oder vor."],
+                ["Strg+Pos1 / Strg+Ende", "springt zur ersten oder letzten sichtbaren beziehungsweise gefilterten Blume."],
+                ["Strg+M / Strg+D / Strg+E", "wechselt die globale Sprache zu Magyar, Deutsch oder English. Im Bearbeitungsmodus wechselt dabei auch die Beschreibungssprache mit."],
+                ["T", "öffnet die Thumbnail-Ansicht der aktuellen Blume."],
+                ["Enter", "öffnet das Originalbild der aktuellen Blume."],
                 ["Strg+Pfeil nach oben / Strg+Pfeil nach unten", "blättert bei aktivem Modus Überall suchen durch die Suchtreffer."],
-                ["Esc", "bricht Dialoge mit Abbrechen-Symbol ab oder schließt die geöffnete Originalbild-Anzeige."]
+                ["Originalbild: Pfeil links / Pfeil rechts", "springt im geöffneten Originalbild zum vorigen oder nächsten Bild."],
+                ["Originalbild: Pos1 / Ende", "springt im geöffneten Originalbild zum ersten oder letzten Bild."],
+                ["Esc", "verlässt die Bearbeitungsmaske ohne Speichern, bricht Dialoge mit Abbrechen-Symbol ab, verlässt die Thumbnail-Ansicht oder schließt die geöffnete Originalbild-Anzeige."]
               ]
             },
             {
@@ -271,7 +276,7 @@
               bullets: [
                 "Bilder können per Dateiauswahl, Drag & Drop oder Online-Erstellung hinzugefügt werden.",
                 "Mehrere Bilder pro Blume sind möglich.",
-                "Mit den Bildpfeilen wird zwischen Bildern gewechselt. Alternativ: Strg+Pfeil links und Strg+Pfeil rechts. Strg+Pos1 springt zum ersten Bild, Strg+Ende zum letzten Bild.",
+                "Mit den Bildpfeilen wird zwischen Bildern gewechselt. Alternativ: Pfeil links und Pfeil rechts. Pos1 springt zum ersten Bild, Ende zum letzten Bild.",
                 "Das Lieblingsbild kann markiert werden.",
                 "Über das Info-Icon kann pro Bild eine einzeilige Bild-Info gepflegt werden.",
                 "Wenn Überall suchen einen Text in einer Bild-Info findet, wird automatisch das passende Bild angezeigt.",
@@ -328,11 +333,16 @@
                 ["git status", "prüft nach dem Vormerken, ob die richtigen Dateien unter Changes to be committed stehen."],
                 ["git commit -m \"Kurze Beschreibung der Änderung\"", "speichert die vorgemerkten Änderungen lokal in Git. Die Beschreibung sollte kurz sagen, was geändert wurde."],
                 ["git push", "lädt den lokalen Commit nach GitHub hoch."],
+                ["git push -u origin main", "wird beim ersten Push verwendet, wenn origin/main noch nicht existiert. Dabei wird main nach GitHub hochgeladen und der Upstream gesetzt."],
+                ["git remote add origin <repository-url>", "richtet den Remote origin neu ein, also die URL zum GitHub-Repository."],
+                ["git remote set-url origin <repository-url>", "ändert die URL eines bereits vorhandenen origin."],
                 ["git status", "prüft nach dem Push, ob der Arbeitsstand sauber ist und ob main mit origin/main synchron ist."]
               ],
               bullets: [
                 "Wenn du nur bestimmte Dateien speichern willst, verwende bei git add nur genau diese Dateien.",
                 "Wenn git status neue Dateien mit ?? zeigt, sind sie noch nicht in Git vorgemerkt. Sie müssen mit git add ergänzt werden, wenn sie dazugehören.",
+                "Wenn origin/main noch nicht existiert, ist git push -u origin main meistens der einfachste Weg beim ersten Push des Branches.",
+                "Die Remote-Befehle brauchst du nur, wenn origin fehlt oder auf die falsche GitHub-Repository-URL zeigt.",
                 "Wenn git push eine Anmeldung verlangt, folge den GitHub-Anweisungen im Browser oder Terminal.",
                 "Git speichert nur Dateien im Projektordner. Die Blumen-Daten in IndexedDB werden separat über Export/Import gesichert."
               ]
@@ -427,7 +437,7 @@
               title: "Detail View",
               paragraphs: ["The detail view shows image, names, description, and links. Images are shown so important fragments are less likely to be cropped."],
               items: [
-                ["History back / history forward", "moves through recently viewed flowers. Keyboard alternative: left arrow and right arrow."],
+                ["History back / history forward", "moves through recently viewed flowers including the image shown there. Keyboard alternative: Ctrl+left arrow and Ctrl+right arrow."],
                 ["Up / Down", "cycles through the visible or filtered flower list. Keyboard alternative: up arrow and down arrow. Home jumps to the first flower, End to the last flower."],
                 ["Edit", "opens the form for the current flower."],
                 ["Delete", "removes the current flower after confirmation."],
@@ -444,13 +454,18 @@
                 "These shortcuts are active in the detail view while no input field, edit form, or dialog is in the foreground."
               ],
               items: [
-                ["Left arrow / right arrow", "moves backward or forward in the detail history."],
+                ["Left arrow / right arrow", "moves through the images of the current flower."],
                 ["Up arrow / down arrow", "moves through the visible or filtered flower list."],
-                ["Home / End", "jumps to the first or last visible or filtered flower."],
-                ["Ctrl+left arrow / Ctrl+right arrow", "moves through the images of the current flower."],
-                ["Ctrl+Home / Ctrl+End", "jumps to the first or last image of the current flower."],
+                ["Home / End", "jumps to the first or last image of the current flower."],
+                ["Ctrl+left arrow / Ctrl+right arrow", "moves backward or forward in the detail history."],
+                ["Ctrl+Home / Ctrl+End", "jumps to the first or last visible or filtered flower."],
+                ["Ctrl+M / Ctrl+D / Ctrl+E", "switches the global language to Hungarian, German, or English. In edit mode, the description language follows this choice."],
+                ["T", "opens the thumbnail view of the current flower."],
+                ["Enter", "opens the original image of the current flower."],
                 ["Ctrl+up arrow / Ctrl+down arrow", "moves through Search everywhere matches when that mode is active."],
-                ["Esc", "cancels dialogs with a cancel icon or closes the opened original-image view."]
+                ["Original image: left arrow / right arrow", "moves to the previous or next image while the original-image view is open."],
+                ["Original image: Home / End", "moves to the first or last image while the original-image view is open."],
+                ["Esc", "leaves the edit form without saving, cancels dialogs with a cancel icon, leaves the thumbnail view, or closes the opened original-image view."]
               ]
             },
             {
@@ -471,7 +486,7 @@
               bullets: [
                 "Images can be added by file picker, drag and drop, or online creation.",
                 "A flower can have multiple images.",
-                "Use the image arrows to switch between images. Keyboard alternative: Ctrl+left arrow and Ctrl+right arrow. Ctrl+Home jumps to the first image, Ctrl+End to the last image.",
+                "Use the image arrows to switch between images. Keyboard alternative: left arrow and right arrow. Home jumps to the first image, End to the last image.",
                 "Mark one image as the favorite.",
                 "Use the info icon to enter one-line information for each image.",
                 "If Search everywhere finds text in image information, the matching image is shown automatically.",
@@ -520,11 +535,16 @@
                 ["git status", "checks whether the right files are listed under Changes to be committed."],
                 ["git commit -m \"Short description of the change\"", "saves the staged changes locally in Git."],
                 ["git push", "uploads the local commit to GitHub."],
+                ["git push -u origin main", "is used for the first push when origin/main does not exist yet. It uploads main to GitHub and sets the upstream."],
+                ["git remote add origin <repository-url>", "adds the remote named origin, meaning the URL of the GitHub repository."],
+                ["git remote set-url origin <repository-url>", "changes the URL of an existing origin remote."],
                 ["git status", "checks after pushing whether the working tree is clean and main is synchronized with origin/main."]
               ],
               bullets: [
                 "Use git add . only when all current changes belong together.",
                 "Files shown with ?? in git status are new and not staged yet.",
+                "If origin/main does not exist yet, git push -u origin main is usually the simplest first push for the branch.",
+                "Use the remote commands only when origin is missing or points to the wrong GitHub repository URL.",
                 "If git push asks for login, follow the GitHub instructions in the browser or terminal.",
                 "Git stores files in the project folder. Flower data stored in IndexedDB is backed up separately with Export/Import."
               ]
@@ -619,7 +639,7 @@
               title: "Részletes nézet",
               paragraphs: ["A részletes nézet képet, neveket, leírást és linkeket mutat. A kép úgy jelenik meg, hogy minél kevesebb fontos részlet legyen levágva."],
               items: [
-                ["Előzmények vissza / előre", "a legutóbb megtekintett virágok között lépked. Billentyűzettel: balra és jobbra nyíl."],
+                ["Előzmények vissza / előre", "a legutóbb megtekintett virágok között lépked, az ott látható képpel együtt. Billentyűzettel: Ctrl+balra nyíl és Ctrl+jobbra nyíl."],
                 ["Fel / Le", "körkörösen lépked a látható vagy szűrt viráglistában. Billentyűzettel: fel és le nyíl. Pos1 az első virágra, End az utolsó virágra ugrik."],
                 ["Szerkesztés", "megnyitja az aktuális virág űrlapját."],
                 ["Törlés", "megerősítés után törli az aktuális virágot."],
@@ -636,13 +656,18 @@
                 "Ezek a billentyűk a részletes nézetben aktívak, ha nincs előtérben beviteli mező, szerkesztőűrlap vagy párbeszédablak."
               ],
               items: [
-                ["Balra nyíl / jobbra nyíl", "vissza vagy előre lép a megjelenítési előzményekben."],
+                ["Balra nyíl / jobbra nyíl", "az aktuális virág képei között lépked."],
                 ["Fel nyíl / le nyíl", "a látható vagy szűrt viráglistában lépked."],
-                ["Pos1 / End", "az első vagy utolsó látható, illetve szűrt virágra ugrik."],
-                ["Ctrl+balra nyíl / Ctrl+jobbra nyíl", "az aktuális virág képei között lépked."],
-                ["Ctrl+Pos1 / Ctrl+End", "az aktuális virág első vagy utolsó képére ugrik."],
+                ["Pos1 / End", "az aktuális virág első vagy utolsó képére ugrik."],
+                ["Ctrl+balra nyíl / Ctrl+jobbra nyíl", "vissza vagy előre lép a megjelenítési előzményekben."],
+                ["Ctrl+Pos1 / Ctrl+End", "az első vagy utolsó látható, illetve szűrt virágra ugrik."],
+                ["Ctrl+M / Ctrl+D / Ctrl+E", "a globális nyelvet magyarra, németre vagy angolra váltja. Szerkesztés közben a leírás nyelve is követi ezt a választást."],
+                ["T", "megnyitja az aktuális virág miniatűr nézetét."],
+                ["Enter", "megnyitja az aktuális virág eredeti képét."],
                 ["Ctrl+fel nyíl / Ctrl+le nyíl", "aktív mindenhol keresésnél a találatok között lépked."],
-                ["Esc", "megszakítja a megszakítás ikonos párbeszédablakokat, vagy bezárja a megnyitott eredeti képet."]
+                ["Eredeti kép: balra nyíl / jobbra nyíl", "a megnyitott eredeti kép nézetben az előző vagy következő képre lép."],
+                ["Eredeti kép: Pos1 / End", "a megnyitott eredeti kép nézetben az első vagy utolsó képre ugrik."],
+                ["Esc", "mentés nélkül kilép a szerkesztőűrlapból, megszakítja a megszakítás ikonos párbeszédablakokat, kilép a miniatűr nézetből, vagy bezárja a megnyitott eredeti képet."]
               ]
             },
             {
@@ -663,7 +688,7 @@
               bullets: [
                 "Képek fájlválasztással, húzással vagy online létrehozással adhatók hozzá.",
                 "Egy virághoz több kép is tartozhat.",
-                "A képnyilakkal válthatsz a képek között. Billentyűzettel: Ctrl+balra nyíl és Ctrl+jobbra nyíl. Ctrl+Pos1 az első képre, Ctrl+End az utolsó képre ugrik.",
+                "A képnyilakkal válthatsz a képek között. Billentyűzettel: balra nyíl és jobbra nyíl. Pos1 az első képre, End az utolsó képre ugrik.",
                 "Egy kép kedvencnek jelölhető.",
                 "Az info ikonnal képenként egysoros képinformáció adható meg.",
                 "Ha a mindenhol keresés képinformációban talál szöveget, automatikusan a megfelelő kép jelenik meg.",
@@ -712,11 +737,16 @@
                 ["git status", "ellenőrzi, hogy a megfelelő fájlok szerepelnek-e a Changes to be committed részben."],
                 ["git commit -m \"A módosítás rövid leírása\"", "helyben elmenti Gitben az előkészített módosításokat."],
                 ["git push", "feltölti a helyi commitot GitHubra."],
+                ["git push -u origin main", "az első pushnál használandó, ha az origin/main még nem létezik. Feltölti a main ágat GitHubra, és beállítja az upstream kapcsolatot."],
+                ["git remote add origin <repository-url>", "létrehozza az origin remote-ot, vagyis a GitHub repository URL-jét."],
+                ["git remote set-url origin <repository-url>", "módosítja egy már meglévő origin URL-jét."],
                 ["git status", "push után ellenőrzi, hogy tiszta-e a munkakönyvtár, és a main szinkronban van-e az origin/main ággal."]
               ],
               bullets: [
                 "A git add . parancsot akkor használd, ha minden aktuális módosítás összetartozik.",
                 "A git status által ?? jellel mutatott fájlok újak, és még nincsenek előkészítve.",
+                "Ha az origin/main még nem létezik, a git push -u origin main általában a legegyszerűbb első push ehhez az ághoz.",
+                "A remote parancsokra csak akkor van szükség, ha az origin hiányzik, vagy rossz GitHub repository URL-re mutat.",
                 "Ha a git push bejelentkezést kér, kövesd a GitHub utasításait a böngészőben vagy a terminálban.",
                 "A Git a projektmappában lévő fájlokat menti. Az IndexedDB-ben tárolt virágadatokat külön, Export/Import segítségével kell menteni."
               ]

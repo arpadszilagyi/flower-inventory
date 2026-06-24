@@ -139,8 +139,8 @@
       noMoreNames: "Nincs további név",
       noFlowersTitle: "Még nincsenek virágok",
       noFlowersText: "Adj hozzá új virágot, vagy importálj egy biztonsági mentést.",
-      historyBack: "Előzmények vissza (←)",
-      historyForward: "Előzmények előre (→)",
+      historyBack: "Előzmények vissza (Ctrl+←)",
+      historyForward: "Előzmények előre (Ctrl+→)",
       edit: "Szerkesztés",
       delete: "Törlés",
       previousFlower: "Előző virág (↑, Pos1 = első)",
@@ -148,7 +148,7 @@
       downloadPdf: "PDF letöltése",
       searchFlowerOnline: "Virág keresése az interneten",
       appInfo: "Információ az alkalmazásról",
-      viewOriginalImage: "Eredeti kép megnyitása",
+      viewOriginalImage: "Eredeti kép megnyitása (Enter)",
       pdfCreating: "PDF készül…",
       missingDescription: "Nincs Leírás.",
       imagePreview: "Kép előnézete",
@@ -156,7 +156,7 @@
       deleteImage: "Kép törlése",
       favoriteImage: "Kedvenc kép",
       setFavoriteImage: "Beállítás kedvenc képként",
-      showThumbnails: "Miniatűrök megjelenítése",
+      showThumbnails: "Miniatűrök megjelenítése (T)",
       imageSource: "Kép forrása",
       noImageSource: "Ehhez a képhez nincs online forrás mentve.",
       imageInfo: "Kép információ",
@@ -170,10 +170,10 @@
       onlineSearchHistory: "Korábbi keresések",
       onlineSearchClearHistory: "Előzmények törlése",
       keepOneImage: "Legalább egy képnek meg kell maradnia.",
-      imagePrevious: "Előző kép (Ctrl+←)",
-      imageNext: "Következő kép (Ctrl+→)",
-      imageFirst: "Első kép (Ctrl+Pos1)",
-      imageLast: "Utolsó kép (Ctrl+End)",
+      imagePrevious: "Előző kép (←)",
+      imageNext: "Következő kép (→)",
+      imageFirst: "Első kép (Pos1)",
+      imageLast: "Utolsó kép (End)",
       selectImageDrop: "Kép kiválasztása / Drag & Drop",
       selectImage: "Kép kiválasztása",
       descriptionPlaceholder: "Leírás megfogalmazása...",
@@ -304,8 +304,8 @@
       noMoreNames: "Keine weiteren Namen",
       noFlowersTitle: "Noch keine Blumen",
       noFlowersText: "Füge eine neue Blume hinzu oder importiere eine Sicherungsdatei.",
-      historyBack: "Historie zurück (←)",
-      historyForward: "Historie vor (→)",
+      historyBack: "Historie zurück (Strg+←)",
+      historyForward: "Historie vor (Strg+→)",
       edit: "Bearbeiten",
       delete: "Löschen",
       previousFlower: "Vorherige Blume (↑, Pos1 = erste)",
@@ -313,7 +313,7 @@
       downloadPdf: "PDF herunterladen",
       searchFlowerOnline: "Blume im Internet suchen",
       appInfo: "Informationen über diese App",
-      viewOriginalImage: "Originalbild anzeigen",
+      viewOriginalImage: "Originalbild anzeigen (Enter)",
       pdfCreating: "PDF wird erstellt…",
       missingDescription: "Keine Beschreibung vorhanden.",
       imagePreview: "Bildvorschau",
@@ -321,7 +321,7 @@
       deleteImage: "Bild löschen",
       favoriteImage: "Lieblingsbild",
       setFavoriteImage: "Als Lieblingsbild markieren",
-      showThumbnails: "Thumbnails anzeigen",
+      showThumbnails: "Thumbnails anzeigen (T)",
       imageSource: "Bildquelle öffnen",
       noImageSource: "Für dieses Bild ist keine Online-Quelle gespeichert.",
       imageInfo: "Bild-Info",
@@ -335,10 +335,10 @@
       onlineSearchHistory: "Bisherige Eingaben",
       onlineSearchClearHistory: "Historie löschen",
       keepOneImage: "Mindestens ein Bild muss erhalten bleiben.",
-      imagePrevious: "Vorheriges Bild (Strg+←)",
-      imageNext: "Nächstes Bild (Strg+→)",
-      imageFirst: "Erstes Bild (Strg+Pos1)",
-      imageLast: "Letztes Bild (Strg+Ende)",
+      imagePrevious: "Vorheriges Bild (←)",
+      imageNext: "Nächstes Bild (→)",
+      imageFirst: "Erstes Bild (Pos1)",
+      imageLast: "Letztes Bild (Ende)",
       selectImageDrop: "Bild auswählen / Drag & Drop",
       selectImage: "Bild auswählen",
       descriptionPlaceholder: "Beschreibung formulieren...",
@@ -469,8 +469,8 @@
       noMoreNames: "No other names",
       noFlowersTitle: "No flowers yet",
       noFlowersText: "Add a new flower or import a backup file.",
-      historyBack: "History back (←)",
-      historyForward: "History forward (→)",
+      historyBack: "History back (Ctrl+←)",
+      historyForward: "History forward (Ctrl+→)",
       edit: "Edit",
       delete: "Delete",
       previousFlower: "Previous flower (↑, Home = first)",
@@ -478,7 +478,7 @@
       downloadPdf: "Download PDF",
       searchFlowerOnline: "Search flower online",
       appInfo: "Information about this app",
-      viewOriginalImage: "Show original image",
+      viewOriginalImage: "Show original image (Enter)",
       pdfCreating: "Creating PDF…",
       missingDescription: "No description available.",
       imagePreview: "Image preview",
@@ -486,7 +486,7 @@
       deleteImage: "Delete image",
       favoriteImage: "Favorite image",
       setFavoriteImage: "Mark as favorite image",
-      showThumbnails: "Show thumbnails",
+      showThumbnails: "Show thumbnails (T)",
       imageSource: "Open image source",
       noImageSource: "No online source is stored for this image.",
       imageInfo: "Image info",
@@ -500,10 +500,10 @@
       onlineSearchHistory: "Previous entries",
       onlineSearchClearHistory: "Clear history",
       keepOneImage: "At least one image must remain.",
-      imagePrevious: "Previous image (Ctrl+←)",
-      imageNext: "Next image (Ctrl+→)",
-      imageFirst: "First image (Ctrl+Home)",
-      imageLast: "Last image (Ctrl+End)",
+      imagePrevious: "Previous image (←)",
+      imageNext: "Next image (→)",
+      imageFirst: "First image (Home)",
+      imageLast: "Last image (End)",
       selectImageDrop: "Choose image / Drag & Drop",
       selectImage: "Choose image",
       descriptionPlaceholder: "Write description...",
@@ -699,7 +699,7 @@
         return;
       }
 
-      setLanguage(button.dataset.lang);
+      setLanguage(button.dataset.lang, { syncDescriptionLanguage: true });
     });
 
     elements.descriptionLanguageTabs.addEventListener("click", function (event) {
@@ -841,13 +841,47 @@
       }
     });
 
-    document.addEventListener("keydown", function (event) {
-      if (event.key === "Escape") {
-        closeOriginalImageOverlay();
-      }
-    });
+    document.addEventListener("keydown", handleGlobalEscapeKey);
+    document.addEventListener("keydown", handleLanguageShortcutKeys);
     document.addEventListener("keydown", handleDetailArrowKeys);
     document.addEventListener("paste", handleClipboardPaste);
+  }
+
+  function handleGlobalEscapeKey(event) {
+    if (event.key !== "Escape") {
+      return;
+    }
+    if (document.querySelector(".online-search-overlay") || document.querySelector(".thumbnail-overlay") || document.querySelector(".choice-dialog")) {
+      return;
+    }
+    if (document.querySelector(".original-image-overlay")) {
+      event.preventDefault();
+      closeOriginalImageOverlay();
+      return;
+    }
+    if (state.editingId !== null) {
+      event.preventDefault();
+      closeForm();
+      render();
+    }
+  }
+
+  function handleLanguageShortcutKeys(event) {
+    if (!event.ctrlKey || event.altKey || event.metaKey || event.shiftKey) {
+      return;
+    }
+    var languageByKey = {
+      m: "hu",
+      d: "de",
+      e: "en"
+    };
+    var language = languageByKey[String(event.key || "").toLowerCase()];
+    if (!language) {
+      return;
+    }
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    setLanguage(language, { syncDescriptionLanguage: true });
   }
 
   function handleDetailArrowKeys(event) {
@@ -856,12 +890,12 @@
     }
     if (event.ctrlKey && event.key === "ArrowLeft") {
       event.preventDefault();
-      selectCurrentFlowerImageByOffset(-1);
+      navigateDetailHistory(-1);
       return;
     }
     if (event.ctrlKey && event.key === "ArrowRight") {
       event.preventDefault();
-      selectCurrentFlowerImageByOffset(1);
+      navigateDetailHistory(1);
       return;
     }
     if (event.ctrlKey && event.key === "ArrowUp") {
@@ -876,22 +910,32 @@
     }
     if (event.ctrlKey && event.key === "Home") {
       event.preventDefault();
-      selectCurrentFlowerImageEdge("first");
+      selectFlowerEdge("first");
       return;
     }
     if (event.ctrlKey && event.key === "End") {
       event.preventDefault();
-      selectCurrentFlowerImageEdge("last");
+      selectFlowerEdge("last");
+      return;
+    }
+    if (!event.ctrlKey && event.key.toLowerCase() === "t") {
+      event.preventDefault();
+      openThumbnailChooserForSelectedFlower();
+      return;
+    }
+    if (event.key === "Enter") {
+      event.preventDefault();
+      openOriginalImageForSelectedFlower();
       return;
     }
     if (event.key === "ArrowLeft") {
       event.preventDefault();
-      navigateDetailHistory(-1);
+      selectCurrentFlowerImageByOffset(-1);
       return;
     }
     if (event.key === "ArrowRight") {
       event.preventDefault();
-      navigateDetailHistory(1);
+      selectCurrentFlowerImageByOffset(1);
       return;
     }
     if (event.key === "ArrowUp") {
@@ -906,29 +950,30 @@
     }
     if (event.key === "Home") {
       event.preventDefault();
-      selectFlowerEdge("first");
+      selectCurrentFlowerImageEdge("first");
       return;
     }
     if (event.key === "End") {
       event.preventDefault();
-      selectFlowerEdge("last");
+      selectCurrentFlowerImageEdge("last");
     }
   }
 
   function shouldIgnoreDetailArrowKey(event) {
-    if (!["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Home", "End"].includes(event.key)) {
+    if (!["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Home", "End", "Enter"].includes(event.key) && event.key.toLowerCase() !== "t") {
       return true;
     }
-    var isImageShortcut = event.ctrlKey && (event.key === "ArrowLeft" || event.key === "ArrowRight");
-    var isImageEdgeShortcut = event.ctrlKey && (event.key === "Home" || event.key === "End");
+    var isHistoryShortcut = event.ctrlKey && (event.key === "ArrowLeft" || event.key === "ArrowRight");
+    var isFlowerEdgeShortcut = event.ctrlKey && (event.key === "Home" || event.key === "End");
+    var isThumbnailShortcut = !event.ctrlKey && event.key.toLowerCase() === "t";
     var isEverywhereSearchShortcut = event.ctrlKey && (event.key === "ArrowUp" || event.key === "ArrowDown") && state.searchMode === "everywhere" && normalizeSearchText(elements.searchInput.value);
-    if (event.altKey || event.metaKey || event.shiftKey || (event.ctrlKey && !isImageShortcut && !isImageEdgeShortcut && !isEverywhereSearchShortcut)) {
+    if (event.altKey || event.metaKey || event.shiftKey || (event.ctrlKey && !isHistoryShortcut && !isFlowerEdgeShortcut && !isThumbnailShortcut && !isEverywhereSearchShortcut)) {
       return true;
     }
     if (!state.selectedId || state.editingId || elements.detailView.classList.contains("hidden")) {
       return true;
     }
-    if (document.querySelector(".online-search-overlay")) {
+    if (document.querySelector(".online-search-overlay") || document.querySelector(".thumbnail-overlay")) {
       return true;
     }
     return isTextEditingTarget(event.target);
@@ -942,13 +987,16 @@
     return tagName === "input" || tagName === "textarea" || tagName === "select" || target.isContentEditable;
   }
 
-  function setLanguage(language) {
+  function setLanguage(language, options) {
     if (!translations[language]) {
       return;
     }
 
     state.language = language;
     localStorage.setItem("flowerInventoryLanguage", language);
+    if (options && options.syncDescriptionLanguage && state.editingId !== null) {
+      setDescriptionLanguage(language, { keepFocus: true });
+    }
     sortFlowers();
     applyLanguage();
     render();
@@ -1020,7 +1068,7 @@
     elements.searchModeButton.setAttribute("aria-pressed", searchesEverywhere ? "true" : "false");
   }
 
-  function setDescriptionLanguage(language) {
+  function setDescriptionLanguage(language, options) {
     if (!translations[language] || language === state.descriptionLanguage) {
       return;
     }
@@ -1030,7 +1078,9 @@
     elements.descriptionEditor.innerHTML = state.descriptionDrafts[language] || "";
     state.editorRange = null;
     updateDescriptionLanguageTabs();
-    elements.descriptionEditor.focus();
+    if (!options || !options.keepFocus) {
+      elements.descriptionEditor.focus();
+    }
   }
 
   function updateDescriptionLanguageTabs() {
@@ -1824,7 +1874,10 @@
       applyLanguage();
     }
     if (matchDetails.imageIndex !== null) {
-      state.imageIndexes[flower.id] = matchDetails.imageIndex;
+      setFlowerImageIndex(flower.id, matchDetails.imageIndex, {
+        updateHistory: flower.id === state.selectedId,
+        replaceCurrentHistory: true
+      });
     }
     if (matchDetails.messageKey === "searchMatchDescriptions") {
       state.activeInfoTab = "description";
@@ -1994,24 +2047,7 @@
     image.alt = getLocalizedFlowerName(flower);
     image.title = getImageInfoTooltip(imageInfos[imageIndex], imageNames[imageIndex]);
     image.addEventListener("click", function () {
-      openOriginalImageOverlay(images, imageIndex, getLocalizedFlowerName(flower), function (index) {
-        state.imageIndexes[flower.id] = index;
-        render();
-      }, {
-        imageInfos: imageInfos,
-        imageNames: imageNames,
-        imageSources: imageSources,
-        favoriteIndex: getFavoriteImageIndex(flower),
-        onFavorite: function (index) {
-          setFavoriteImage(flower, index);
-        },
-        onDelete: function (index) {
-          deleteFlowerImageByIndex(flower, index);
-        },
-        onInfo: function (index) {
-          return editFlowerImageInfo(flower, index);
-        }
-      });
+      openOriginalImageForFlower(flower);
     });
 
     var imageShell = document.createElement("div");
@@ -2218,12 +2254,45 @@
     return button;
   }
 
+  function openOriginalImageForSelectedFlower() {
+    var flower = getSelectedFlower();
+    if (!flower) {
+      return;
+    }
+    openOriginalImageForFlower(flower);
+  }
+
+  function openOriginalImageForFlower(flower) {
+    var images = getFlowerImages(flower);
+    if (!images.length) {
+      return;
+    }
+    openOriginalImageOverlay(images, getFlowerImageIndex(flower), getLocalizedFlowerName(flower), function (index) {
+      setFlowerImageIndex(flower.id, index, { updateHistory: true });
+      render();
+    }, {
+      imageInfos: getFlowerImageInfos(flower),
+      imageNames: getFlowerImageNames(flower),
+      imageSources: getFlowerImageSources(flower),
+      favoriteIndex: getFavoriteImageIndex(flower),
+      onFavorite: function (index) {
+        setFavoriteImage(flower, index);
+      },
+      onDelete: function (index) {
+        deleteFlowerImageByIndex(flower, index);
+      },
+      onInfo: function (index) {
+        return editFlowerImageInfo(flower, index);
+      }
+    });
+  }
+
   function selectFlowerImageByIndex(flower, index) {
     var images = getFlowerImages(flower);
     if (index < 0 || index >= images.length) {
       return;
     }
-    state.imageIndexes[flower.id] = index;
+    setFlowerImageIndex(flower.id, index, { updateHistory: flower.id === state.selectedId });
     render();
   }
 
@@ -2233,7 +2302,7 @@
     if (nextIndex < 0 || nextIndex >= images.length) {
       return;
     }
-    state.imageIndexes[flower.id] = nextIndex;
+    setFlowerImageIndex(flower.id, nextIndex, { updateHistory: flower.id === state.selectedId });
     render();
   }
 
@@ -2305,7 +2374,7 @@
           favoriteImageIndex: nextFavoriteIndex,
           updatedAt: new Date().toISOString()
         });
-        state.imageIndexes[flower.id] = getImageInsertIndex(selectedImageIndex, images.length);
+        setFlowerImageIndex(flower.id, getImageInsertIndex(selectedImageIndex, images.length), { updateHistory: flower.id === state.selectedId });
         return saveFlower(updatedFlower);
       })
       .then(loadFlowers)
@@ -2396,7 +2465,7 @@
       updatedAt: new Date().toISOString()
     });
 
-    state.imageIndexes[flower.id] = nextIndex;
+    setFlowerImageIndex(flower.id, nextIndex, { updateHistory: flower.id === state.selectedId });
     saveFlower(updatedFlower)
       .then(loadFlowers)
       .then(function () {
@@ -2459,7 +2528,7 @@
       favoriteImageIndex: 0,
       updatedAt: new Date().toISOString()
     });
-    state.imageIndexes[flower.id] = 0;
+    setFlowerImageIndex(flower.id, 0, { updateHistory: flower.id === state.selectedId });
     saveFlower(updatedFlower)
       .then(loadFlowers)
       .then(function () {
@@ -2502,6 +2571,14 @@
         });
       }
     });
+  }
+
+  function openThumbnailChooserForSelectedFlower() {
+    var flower = getSelectedFlower();
+    if (!flower) {
+      return;
+    }
+    openThumbnailChooserForFlower(flower);
   }
 
   function openThumbnailChooserForPendingImages() {
@@ -2550,9 +2627,17 @@
     var imageInfos = normalizeImageInfos(options.imageInfos, images.length);
 
     overlay.className = "thumbnail-overlay";
+    overlay._thumbnailKeydownHandler = handleThumbnailKeydown;
     panel.className = "thumbnail-panel";
     grid.className = "thumbnail-grid";
     grid.style.setProperty("--thumbnail-columns", Math.min(images.length, 5));
+
+    function handleThumbnailKeydown(event) {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        closeThumbnailChooser();
+      }
+    }
 
     images.forEach(function (src, index) {
       var item = document.createElement("button");
@@ -2687,11 +2772,15 @@
       });
     }
     document.body.appendChild(overlay);
+    document.addEventListener("keydown", handleThumbnailKeydown);
   }
 
   function closeThumbnailChooser() {
     var overlay = document.querySelector(".thumbnail-overlay");
     if (overlay) {
+      if (overlay._thumbnailKeydownHandler) {
+        document.removeEventListener("keydown", overlay._thumbnailKeydownHandler);
+      }
       overlay.remove();
     }
     state.thumbnailPasteContext = null;
@@ -2900,6 +2989,29 @@
       }
     }
 
+    function handleOriginalImageKeydown(event) {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        closeOriginalImageOverlay();
+        return;
+      }
+      if (event.key === "Home") {
+        event.preventDefault();
+        updateOriginalImage(0);
+        return;
+      }
+      if (event.key === "End") {
+        event.preventDefault();
+        updateOriginalImage(images.length - 1);
+        return;
+      }
+      if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") {
+        return;
+      }
+      event.preventDefault();
+      updateOriginalImage(currentIndex + (event.key === "ArrowLeft" ? -1 : 1));
+    }
+
     function createOverlayImageNavigation() {
       var navigationElement = createImageNavigationControls(images.length, currentIndex, {
         first: function () {
@@ -2933,18 +3045,23 @@
       content.appendChild(navigation);
     }
     overlay.appendChild(content);
+    overlay._originalImageKeydownHandler = handleOriginalImageKeydown;
     overlay.addEventListener("click", function (event) {
       if (event.target === overlay || event.target === content || event.target === image) {
         closeOriginalImageOverlay();
       }
     });
     document.body.appendChild(overlay);
+    document.addEventListener("keydown", handleOriginalImageKeydown);
     overlay.focus();
   }
 
   function closeOriginalImageOverlay() {
     var overlay = document.querySelector(".original-image-overlay");
     if (overlay) {
+      if (overlay._originalImageKeydownHandler) {
+        document.removeEventListener("keydown", overlay._originalImageKeydownHandler);
+      }
       overlay.remove();
     }
   }
@@ -3357,6 +3474,16 @@
     });
   }
 
+  function setFlowerImageIndex(id, index, options) {
+    state.imageIndexes[id] = Math.max(0, Math.floor(Number(index) || 0));
+    if (options && options.updateHistory) {
+      updateDetailHistory(id, {
+        imageIndex: state.imageIndexes[id],
+        replaceCurrentHistory: options.replaceCurrentHistory
+      });
+    }
+  }
+
   function setSelectedFlower(id, options) {
     state.selectedId = id;
     updateDetailHistory(id, options || {});
@@ -3368,17 +3495,50 @@
       state.detailHistoryIndex = -1;
       return;
     }
+    var entry = createDetailHistoryEntry(id, options || {});
     if (options.replaceHistory || state.detailHistoryIndex === -1) {
-      state.detailHistory = [id];
+      state.detailHistory = [entry];
       state.detailHistoryIndex = 0;
       return;
     }
-    if (state.detailHistory[state.detailHistoryIndex] === id) {
+    if (options.replaceCurrentHistory && state.detailHistoryIndex >= 0) {
+      state.detailHistory[state.detailHistoryIndex] = entry;
+      return;
+    }
+    if (detailHistoryEntriesEqual(state.detailHistory[state.detailHistoryIndex], entry)) {
       return;
     }
     state.detailHistory = state.detailHistory.slice(0, state.detailHistoryIndex + 1);
-    state.detailHistory.push(id);
+    state.detailHistory.push(entry);
     state.detailHistoryIndex = state.detailHistory.length - 1;
+  }
+
+  function createDetailHistoryEntry(id, options) {
+    var imageIndex = Number.isFinite(Number(options.imageIndex)) ? Number(options.imageIndex) : getHistoryImageIndexForFlower(id);
+    return {
+      id: id,
+      imageIndex: Math.max(0, Math.floor(imageIndex || 0))
+    };
+  }
+
+  function getHistoryEntryId(entry) {
+    return entry && typeof entry === "object" ? entry.id : entry;
+  }
+
+  function getHistoryEntryImageIndex(entry) {
+    return entry && typeof entry === "object" ? Math.max(0, Math.floor(Number(entry.imageIndex) || 0)) : 0;
+  }
+
+  function getHistoryImageIndexForFlower(id) {
+    var flower = getFlowerById(id);
+    if (!flower) {
+      return 0;
+    }
+    return getFlowerImageIndex(flower);
+  }
+
+  function detailHistoryEntriesEqual(left, right) {
+    return getHistoryEntryId(left) === getHistoryEntryId(right) && getHistoryEntryImageIndex(left) === getHistoryEntryImageIndex(right);
   }
 
   function canNavigateDetailHistory(offset) {
@@ -3391,19 +3551,20 @@
       return;
     }
     state.detailHistoryIndex += offset;
-    var id = state.detailHistory[state.detailHistoryIndex];
+    var entry = state.detailHistory[state.detailHistoryIndex];
+    var id = getHistoryEntryId(entry);
     if (!getFlowerById(id)) {
-      state.detailHistory = state.detailHistory.filter(function (historyId) {
-        return Boolean(getFlowerById(historyId));
+      state.detailHistory = state.detailHistory.filter(function (historyEntry) {
+        return Boolean(getFlowerById(getHistoryEntryId(historyEntry)));
       });
       state.detailHistoryIndex = Math.min(state.detailHistoryIndex, state.detailHistory.length - 1);
       return;
     }
     state.selectedId = id;
+    state.imageIndexes[id] = getHistoryEntryImageIndex(entry);
     var target = getSelectedFlower();
     if (target) {
       selectFilterMatchLanguage(target, normalizeSearchText(elements.filterInput.value));
-      selectSearchMatchImage(target, normalizeSearchText(elements.searchInput.value));
     }
     closeForm();
     render();
