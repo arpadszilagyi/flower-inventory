@@ -314,6 +314,30 @@
               ]
             },
             {
+              id: "powershell-git-github",
+              title: "PowerShell / Git / GitHub",
+              paragraphs: [
+                "Wenn Änderungen an der App fertig sind, müssen sie mit Git lokal gespeichert und danach nach GitHub hochgeladen werden. Öffne dafür PowerShell und führe die folgenden Schritte im Projektordner aus."
+              ],
+              items: [
+                ["cd F:\\tresorit\\knowhow\\flowers\\flower-inventory", "wechselt in den lokalen Projektordner."],
+                ["git status", "zeigt, welche Dateien geändert, neu oder bereits vorgemerkt sind. Vor einem Commit sollte hier klar sein, was gespeichert wird."],
+                ["git diff", "zeigt die konkreten Änderungen in Textdateien. Das ist hilfreich, bevor du die Änderungen vormerkst."],
+                ["git add .", "merkt alle geänderten, neuen und gelöschten Dateien im Projektordner für den nächsten Commit vor."],
+                ["git add DATEINAME", "merkt nur eine bestimmte Datei vor. Diese Variante ist sinnvoll, wenn du nicht alle Änderungen speichern willst."],
+                ["git status", "prüft nach dem Vormerken, ob die richtigen Dateien unter Changes to be committed stehen."],
+                ["git commit -m \"Kurze Beschreibung der Änderung\"", "speichert die vorgemerkten Änderungen lokal in Git. Die Beschreibung sollte kurz sagen, was geändert wurde."],
+                ["git push", "lädt den lokalen Commit nach GitHub hoch."],
+                ["git status", "prüft nach dem Push, ob der Arbeitsstand sauber ist und ob main mit origin/main synchron ist."]
+              ],
+              bullets: [
+                "Wenn du nur bestimmte Dateien speichern willst, verwende bei git add nur genau diese Dateien.",
+                "Wenn git status neue Dateien mit ?? zeigt, sind sie noch nicht in Git vorgemerkt. Sie müssen mit git add ergänzt werden, wenn sie dazugehören.",
+                "Wenn git push eine Anmeldung verlangt, folge den GitHub-Anweisungen im Browser oder Terminal.",
+                "Git speichert nur Dateien im Projektordner. Die Blumen-Daten in IndexedDB werden separat über Export/Import gesichert."
+              ]
+            },
+            {
               id: "probleme",
               title: "Hinweise bei Problemen",
               bullets: [
@@ -482,6 +506,30 @@
               ]
             },
             {
+              id: "powershell-git-github",
+              title: "PowerShell / Git / GitHub",
+              paragraphs: [
+                "When changes to the app are finished, save them locally with Git and then upload them to GitHub. Open PowerShell and run these steps in the project folder."
+              ],
+              items: [
+                ["cd F:\\tresorit\\knowhow\\flowers\\flower-inventory", "changes to the local project folder."],
+                ["git status", "shows which files are changed, new, deleted, or already staged. Before committing, check that the listed files make sense."],
+                ["git diff", "shows the concrete text changes before staging them."],
+                ["git add .", "stages all changed, new, and deleted files in the project folder for the next commit."],
+                ["git add FILENAME", "stages only one specific file. Use this when you do not want to commit every change."],
+                ["git status", "checks whether the right files are listed under Changes to be committed."],
+                ["git commit -m \"Short description of the change\"", "saves the staged changes locally in Git."],
+                ["git push", "uploads the local commit to GitHub."],
+                ["git status", "checks after pushing whether the working tree is clean and main is synchronized with origin/main."]
+              ],
+              bullets: [
+                "Use git add . only when all current changes belong together.",
+                "Files shown with ?? in git status are new and not staged yet.",
+                "If git push asks for login, follow the GitHub instructions in the browser or terminal.",
+                "Git stores files in the project folder. Flower data stored in IndexedDB is backed up separately with Export/Import."
+              ]
+            },
+            {
               id: "probleme",
               title: "Troubleshooting",
               bullets: [
@@ -647,6 +695,30 @@
                 { subtitle: "Export", text: "A ZIP export az alapértelmezett, és JSON mentést tartalmaz a virágokkal, képekkel, képinformációkkal, leírásokkal és linkekkel. A JSON továbbra is külön kiválasztható." },
                 { subtitle: "Import", text: "Importáláskor kiválasztható, hogy a meglévő adatok cserélődjenek vagy az importált virágok hozzáadódjanak." },
                 { subtitle: "PDF", text: "A részletes nézet PDF-et tud készíteni az aktuális virágról." }
+              ]
+            },
+            {
+              id: "powershell-git-github",
+              title: "PowerShell / Git / GitHub",
+              paragraphs: [
+                "Ha elkészültek az alkalmazás módosításai, először Gitben kell helyben elmenteni őket, majd fel kell tölteni GitHubra. Nyisd meg a PowerShellt, és futtasd a következő lépéseket a projekt mappájában."
+              ],
+              items: [
+                ["cd F:\\tresorit\\knowhow\\flowers\\flower-inventory", "átvált a helyi projektmappába."],
+                ["git status", "megmutatja, mely fájlok módosultak, újak, töröltek vagy már elő vannak készítve commitra."],
+                ["git diff", "megmutatja a konkrét szöveges módosításokat, mielőtt előkészíted őket."],
+                ["git add .", "az összes módosított, új és törölt fájlt előkészíti a következő commitra a projektmappában."],
+                ["git add FÁJLNÉV", "csak egy konkrét fájlt készít elő. Akkor használd, ha nem akarsz minden módosítást commitolni."],
+                ["git status", "ellenőrzi, hogy a megfelelő fájlok szerepelnek-e a Changes to be committed részben."],
+                ["git commit -m \"A módosítás rövid leírása\"", "helyben elmenti Gitben az előkészített módosításokat."],
+                ["git push", "feltölti a helyi commitot GitHubra."],
+                ["git status", "push után ellenőrzi, hogy tiszta-e a munkakönyvtár, és a main szinkronban van-e az origin/main ággal."]
+              ],
+              bullets: [
+                "A git add . parancsot akkor használd, ha minden aktuális módosítás összetartozik.",
+                "A git status által ?? jellel mutatott fájlok újak, és még nincsenek előkészítve.",
+                "Ha a git push bejelentkezést kér, kövesd a GitHub utasításait a böngészőben vagy a terminálban.",
+                "A Git a projektmappában lévő fájlokat menti. Az IndexedDB-ben tárolt virágadatokat külön, Export/Import segítségével kell menteni."
               ]
             },
             {
