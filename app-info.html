@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Informationen über diese App</title>
+  <title>Bedienungshandbuch Blumen-Inventar</title>
   <link rel="icon" type="image/png" href="favicon.png">
   <style>
     :root {
@@ -12,6 +12,7 @@
       --muted: #625f56;
       --line: #d8d1c4;
       --accent: #2f7d62;
+      --accent-soft: #edf6f1;
       --paper: #f7f4ee;
       --white: #ffffff;
     }
@@ -29,9 +30,9 @@
     }
 
     main {
-      width: min(920px, calc(100% - 32px));
+      width: min(1040px, calc(100% - 32px));
       margin: 0 auto;
-      padding: 36px 0 48px;
+      padding: 34px 0 52px;
     }
 
     header {
@@ -39,7 +40,7 @@
       gap: 16px;
       align-items: center;
       border-bottom: 1px solid var(--line);
-      margin-bottom: 28px;
+      margin-bottom: 22px;
       padding-bottom: 18px;
     }
 
@@ -57,14 +58,30 @@
     }
 
     h2 {
-      margin: 28px 0 8px;
-      font-size: 22px;
+      margin: 0 0 10px;
+      font-size: 23px;
+      line-height: 1.22;
+    }
+
+    h3 {
+      margin: 18px 0 6px;
+      font-size: 18px;
     }
 
     p,
     li {
       color: var(--muted);
-      font-size: 17px;
+      font-size: 16px;
+    }
+
+    p {
+      margin: 8px 0;
+    }
+
+    ul,
+    ol {
+      margin: 8px 0 0;
+      padding-left: 22px;
     }
 
     section {
@@ -78,53 +95,687 @@
     code {
       background: #eee8dc;
       border-radius: 5px;
+      color: var(--text);
       padding: 2px 5px;
     }
 
     .note {
       border-left: 4px solid var(--accent);
-      background: #edf6f1;
+      background: var(--accent-soft);
+    }
+
+    .toc,
+    .icon-list {
+      display: grid;
+      gap: 8px 18px;
+      padding-left: 0;
+      list-style: none;
+    }
+
+    .toc {
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    }
+
+    .icon-list {
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    }
+
+    .toc a {
+      color: var(--accent);
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    .toc a:hover,
+    .toc a:focus-visible {
+      text-decoration: underline;
+    }
+
+    .shortcut {
+      font-weight: 700;
+      color: var(--text);
     }
   </style>
 </head>
 <body>
-  <main>
-    <header>
-      <img src="favicon.png" alt="">
-      <div>
-        <h1>Blumen-Inventar</h1>
-        <p>Lokale HTML-Anwendung zur Verwaltung deiner Blumen.</p>
-      </div>
-    </header>
+  <main id="manual"></main>
 
-    <section>
-      <h2>Start</h2>
-      <p>Die Anwendung wird per Doppelklick auf <code>index.html</code> im Browser gestartet. Es wird kein lokaler Server, kein Node.js, kein Backend und keine Cloud benötigt.</p>
-    </section>
+  <script>
+    (function () {
+      "use strict";
 
-    <section>
-      <h2>Speicherung</h2>
-      <p>Alle Blumen werden lokal im Browser mit IndexedDB gespeichert. Die Daten gehören zum Speicherbereich des Browsers und zu dieser lokalen Datei-Adresse.</p>
-    </section>
+      var manuals = {
+        de: {
+          title: "Bedienungshandbuch Blumen-Inventar",
+          appName: "Blumen-Inventar",
+          lead: "Bedienungshandbuch für die lokale Verwaltung deiner Blumen, Bilder, Beschreibungen und Links.",
+          quickTitle: "Kurzüberblick",
+          quick: [
+            "Die App läuft vollständig lokal im Browser. Sie speichert Blumen mit Namen in mehreren Sprachen, Bildern, Bild-Infos, Beschreibungen und Links in IndexedDB.",
+            "Ein Server oder Benutzerkonto ist nicht nötig. Für eine dauerhafte Sicherung solltest du regelmäßig einen ZIP- oder JSON-Export erstellen."
+          ],
+          contents: "Inhalt",
+          sections: [
+            {
+              id: "start",
+              title: "Start und Speicherung",
+              bullets: [
+                "Starte die App durch Öffnen von index.html im Browser.",
+                "Die Daten werden im lokalen Speicherbereich des Browsers gespeichert, nicht automatisch als Datei im App-Ordner.",
+                "Ein anderer Browser hat einen eigenen Datenbestand.",
+                "Wenn Browserdaten gelöscht werden, können gespeicherte Blumen verloren gehen. Nutze deshalb Export-Sicherungen."
+              ]
+            },
+            {
+              id: "oberflaeche",
+              title: "Oberfläche",
+              paragraphs: [
+                "Links befindet sich die Blumenliste mit Werkzeugen, Filter und Suche. Rechts befindet sich die Detailanzeige oder der Bearbeitungsmodus."
+              ],
+              items: [
+                ["Exportieren", "speichert den Datenbestand als ZIP-Datei oder JSON-Datei. ZIP ist voreingestellt."],
+                ["Importieren", "lädt eine ZIP- oder JSON-Sicherung zurück."],
+                ["Neue Blume", "öffnet ein leeres Formular."],
+                ["Blume aus dem Internet erstellen", "sucht online nach Namen, Beschreibung und Bildern."],
+                ["Sortieren A-Z/Z-A", "sortiert die Liste nach der aktuell sichtbaren Sprache."]
+              ]
+            },
+            {
+              id: "sprachen",
+              title: "Sprachen",
+              paragraphs: [
+                "Die Oberfläche kann oben rechts zwischen Magyar, Deutsch und English umgeschaltet werden.",
+                "Bei Filter- und Suchtreffern kann die App automatisch in die Sprache wechseln, in der der gefundene Text sichtbar ist. So kann der Treffer gelb markiert werden."
+              ]
+            },
+            {
+              id: "liste",
+              title: "Blumenliste, Filter und Suche",
+              blocks: [
+                {
+                  subtitle: "Blume filtern",
+                  text: "Der Filter schränkt die linke Blumenliste ein. Gesucht wird accent-insensitiv in Magyar, Latein, Deutsch und English.",
+                  bullets: [
+                    "Die Pfeile neben dem Filter blättern zyklisch durch die gefilterten Blumen.",
+                    "Nach dem letzten Treffer springt Down wieder zum ersten Treffer.",
+                    "Vor dem ersten Treffer springt Up wieder zum letzten Treffer.",
+                    "Wenn der Treffer nur in einer anderen Sprache vorkommt, wird diese Sprache automatisch ausgewählt."
+                  ]
+                },
+                {
+                  subtitle: "Blume suchen",
+                  text: "Die Suche navigiert innerhalb der aktuell gefilterten Blumen. Mit dem Icon links vom Suchfeld wird der Suchmodus gewechselt.",
+                  bullets: [
+                    "Blumen-Lupe: sucht in den Namen der gefilterten Blumen.",
+                    "Stern-Lupe: sucht überall: Namen, Beschreibungen, Bild-Infos und Links.",
+                    "Die Pfeile neben dem Suchfeld blättern zyklisch durch Treffer. Bei Überall suchen alternativ: Strg+Pfeil nach oben und Strg+Pfeil nach unten.",
+                    "Ohne Suchtext blättern diese Pfeile durch die sichtbare Blumenliste."
+                  ]
+                },
+                {
+                  subtitle: "Trefferhinweise",
+                  text: "Bei Überall suchen zeigt ein Tooltip in der Liste, wo der Suchtext zuerst gefunden wurde. Sichtbarer Treffertext wird in der Detailanzeige gelb markiert."
+                }
+              ]
+            },
+            {
+              id: "detail",
+              title: "Detailanzeige",
+              paragraphs: [
+                "Die Detailanzeige zeigt Bild, Namen, Beschreibung und Links. Das Bild wird so dargestellt, dass möglichst keine wichtigen Bildteile abgeschnitten werden."
+              ],
+              items: [
+                ["Historie zurück / Historie vor", "springt durch die zuletzt angezeigten Blumen. Alternativ: Pfeil links und Pfeil rechts."],
+                ["Up / Down", "blättert zyklisch durch die sichtbare oder gefilterte Blumenliste. Alternativ: Pfeil nach oben und Pfeil nach unten. Pos1 springt zur ersten Blume, Ende zur letzten Blume."],
+                ["Bearbeiten", "öffnet das Formular zur aktuellen Blume."],
+                ["Löschen", "entfernt die aktuelle Blume nach Rückfrage."],
+                ["Neue Blume", "legt eine neue Blume an."],
+                ["PDF", "erstellt ein PDF zur aktuellen Blume."],
+                ["Websuche", "sucht die aktuelle Blume im Browser."],
+                ["Info", "öffnet dieses Handbuch."]
+              ]
+            },
+            {
+              id: "tastatur",
+              title: "Tastaturbedienung",
+              paragraphs: [
+                "Die folgenden Tastendrücke sind in der Detailanzeige aktiv, solange kein Eingabefeld, Bearbeitungsformular oder Dialog im Vordergrund ist."
+              ],
+              items: [
+                ["Pfeil links / Pfeil rechts", "springt in der Anzeige-Historie zurück oder vor."],
+                ["Pfeil nach oben / Pfeil nach unten", "blättert durch die sichtbare oder gefilterte Blumenliste."],
+                ["Pos1 / Ende", "springt zur ersten oder letzten sichtbaren beziehungsweise gefilterten Blume."],
+                ["Strg+Pfeil links / Strg+Pfeil rechts", "blättert durch die Bilder der aktuellen Blume."],
+                ["Strg+Pos1 / Strg+Ende", "springt zum ersten oder letzten Bild der aktuellen Blume."],
+                ["Strg+Pfeil nach oben / Strg+Pfeil nach unten", "blättert bei aktivem Modus Überall suchen durch die Suchtreffer."],
+                ["Esc", "bricht Dialoge mit Abbrechen-Symbol ab oder schließt die geöffnete Originalbild-Anzeige."]
+              ]
+            },
+            {
+              id: "bearbeiten",
+              title: "Blumen anlegen und bearbeiten",
+              ordered: [
+                "Klicke auf Neue Blume oder Bearbeiten.",
+                "Wähle mindestens ein Bild aus.",
+                "Trage den ungarischen Namen ein. Weitere Namen sind optional.",
+                "Ergänze Beschreibung, Bild-Infos und Links nach Bedarf.",
+                "Speichere mit dem Speichern-Icon oder verlasse das Formular mit Abbrechen."
+              ],
+              paragraphs: [
+                "Beim Eintragen eines lateinischen Namens kann die App online passende Namen in anderen Sprachen suchen. Bereits ausgefüllte Felder werden nicht überschrieben."
+              ]
+            },
+            {
+              id: "bilder",
+              title: "Bilder und Bild-Infos",
+              bullets: [
+                "Bilder können per Dateiauswahl, Drag & Drop oder Online-Erstellung hinzugefügt werden.",
+                "Mehrere Bilder pro Blume sind möglich.",
+                "Mit den Bildpfeilen wird zwischen Bildern gewechselt. Alternativ: Strg+Pfeil links und Strg+Pfeil rechts. Strg+Pos1 springt zum ersten Bild, Strg+Ende zum letzten Bild.",
+                "Das Lieblingsbild kann markiert werden.",
+                "Über das Info-Icon kann pro Bild eine einzeilige Bild-Info gepflegt werden.",
+                "Wenn Überall suchen einen Text in einer Bild-Info findet, wird automatisch das passende Bild angezeigt.",
+                "In der Thumbnail-Ansicht können Bilder ausgewählt, gelöscht, als Favorit markiert und mit Bild-Infos versehen werden."
+              ]
+            },
+            {
+              id: "beschreibung",
+              title: "Beschreibung und Links",
+              blocks: [
+                {
+                  subtitle: "Beschreibung",
+                  text: "Beschreibungen können getrennt für Magyar, Deutsch und English gepflegt werden. Der Editor unterstützt einfache Formatierung, Listen, Schriftart, Schriftgröße, Textfarbe und Hintergrundfarbe."
+                },
+                {
+                  subtitle: "Links",
+                  text: "Links können mit sprachabhängigen Linknamen gespeichert werden. In der Detailanzeige erscheinen sie im Links-Reiter. Bei einer Suche in Links wechselt die App automatisch zu diesem Reiter."
+                }
+              ]
+            },
+            {
+              id: "online",
+              title: "Online-Erstellung",
+              paragraphs: [
+                "Über Blume aus dem Internet erstellen kann eine Blume anhand eines Namens gesucht werden. Je nach aktiver Sprache kann ein ungarischer, deutscher oder englischer Name eingegeben werden; lateinische Namen sind ebenfalls möglich."
+              ],
+              bullets: [
+                "Die App sucht passende Kandidaten online.",
+                "Nach Auswahl eines Kandidaten werden Namen, Beschreibung, Links und Bilder geladen, soweit verfügbar.",
+                "Online-Funktionen benötigen Internetzugang. Die restliche App funktioniert offline."
+              ]
+            },
+            {
+              id: "import-export",
+              title: "Import, Export und PDF",
+              blocks: [
+                { subtitle: "Export", text: "Der ZIP-Export ist voreingestellt und enthält eine JSON-Sicherung mit Blumen, Bildern, Bild-Infos, Beschreibungen und Links. JSON kann weiterhin bewusst ausgewählt werden." },
+                { subtitle: "Import", text: "Beim Import fragt die App, ob bestehende Daten ersetzt oder importierte Blumen ergänzt werden sollen." },
+                { subtitle: "PDF", text: "In der Detailanzeige kann ein PDF zur aktuellen Blume erstellt werden." }
+              ]
+            },
+            {
+              id: "probleme",
+              title: "Hinweise bei Problemen",
+              bullets: [
+                "Wenn Änderungen nicht sichtbar sind, lade die Seite neu.",
+                "Wenn Bilder oder Daten fehlen, prüfe, ob du denselben Browser und dieselbe lokale Datei-Adresse verwendest.",
+                "Wenn IndexedDB beschädigt ist, bietet die App Reparatur- und Importoptionen an.",
+                "Bewahre ZIP- oder JSON-Exporte außerhalb des Browser-Speichers auf."
+              ]
+            }
+          ],
+          browserTitle: "Empfohlene Browser",
+          browsers: ["Microsoft Edge", "Google Chrome", "Mozilla Firefox"]
+        },
+        en: {
+          title: "Flower Inventory User Manual",
+          appName: "Flower Inventory",
+          lead: "User manual for managing your flowers, images, descriptions, and links locally.",
+          quickTitle: "Quick Overview",
+          quick: [
+            "The app runs entirely in the browser. It stores flowers with multilingual names, images, image information, descriptions, and links in IndexedDB.",
+            "No server or account is required. For durable backups, export a ZIP or JSON file regularly."
+          ],
+          contents: "Contents",
+          sections: [
+            {
+              id: "start",
+              title: "Start And Storage",
+              bullets: [
+                "Open index.html in your browser to start the app.",
+                "Data is stored in the browser's local storage area, not automatically as a file in the app folder.",
+                "Each browser has its own separate data.",
+                "If browser data is deleted, stored flowers can be lost. Use ZIP or JSON exports as backups."
+              ]
+            },
+            {
+              id: "oberflaeche",
+              title: "Interface",
+              paragraphs: ["The flower list, tools, filter, and search are on the left. The detail view or edit form is on the right."],
+              items: [
+                ["Export", "saves the inventory as a ZIP or JSON file. ZIP is the default."],
+                ["Import", "loads a ZIP or JSON backup."],
+                ["New flower", "opens an empty form."],
+                ["Create flower from the internet", "searches online for names, description, and images."],
+                ["Sort A-Z/Z-A", "sorts by the currently visible language."]
+              ]
+            },
+            {
+              id: "sprachen",
+              title: "Languages",
+              paragraphs: [
+                "Use the flags in the upper right to switch between Magyar, Deutsch, and English.",
+                "When a filter or search match is found in another language, the app can switch to that language so the visible text can be highlighted."
+              ]
+            },
+            {
+              id: "liste",
+              title: "Flower List, Filter, And Search",
+              blocks: [
+                {
+                  subtitle: "Filter flower",
+                  text: "The filter narrows the left flower list. It searches accent-insensitively in Hungarian, Latin, German, and English names.",
+                  bullets: [
+                    "The arrows next to the filter cycle through filtered flowers.",
+                    "Down after the last match returns to the first match.",
+                    "Up before the first match returns to the last match.",
+                    "If the match is only visible in another language, the app switches to that language."
+                  ]
+                },
+                {
+                  subtitle: "Search flower",
+                  text: "Search navigates within the currently filtered flowers. Click the icon before the input to switch search mode.",
+                  bullets: [
+                    "Flower magnifier: searches in names.",
+                    "Star magnifier: searches everywhere: names, descriptions, image information, and links.",
+                    "The arrows next to search cycle through matches. In Search everywhere, keyboard alternative: Ctrl+up arrow and Ctrl+down arrow.",
+                    "Without search text, these arrows move through the visible flower list."
+                  ]
+                },
+                {
+                  subtitle: "Match hints",
+                  text: "Search everywhere shows a tooltip in the list with the first match location. Visible matching text is highlighted in yellow in the detail view."
+                }
+              ]
+            },
+            {
+              id: "detail",
+              title: "Detail View",
+              paragraphs: ["The detail view shows image, names, description, and links. Images are shown so important fragments are less likely to be cropped."],
+              items: [
+                ["History back / history forward", "moves through recently viewed flowers. Keyboard alternative: left arrow and right arrow."],
+                ["Up / Down", "cycles through the visible or filtered flower list. Keyboard alternative: up arrow and down arrow. Home jumps to the first flower, End to the last flower."],
+                ["Edit", "opens the form for the current flower."],
+                ["Delete", "removes the current flower after confirmation."],
+                ["New flower", "creates a new flower."],
+                ["PDF", "creates a PDF for the current flower."],
+                ["Web search", "searches the current flower in the browser."],
+                ["Info", "opens this manual."]
+              ]
+            },
+            {
+              id: "keyboard",
+              title: "Keyboard Shortcuts",
+              paragraphs: [
+                "These shortcuts are active in the detail view while no input field, edit form, or dialog is in the foreground."
+              ],
+              items: [
+                ["Left arrow / right arrow", "moves backward or forward in the detail history."],
+                ["Up arrow / down arrow", "moves through the visible or filtered flower list."],
+                ["Home / End", "jumps to the first or last visible or filtered flower."],
+                ["Ctrl+left arrow / Ctrl+right arrow", "moves through the images of the current flower."],
+                ["Ctrl+Home / Ctrl+End", "jumps to the first or last image of the current flower."],
+                ["Ctrl+up arrow / Ctrl+down arrow", "moves through Search everywhere matches when that mode is active."],
+                ["Esc", "cancels dialogs with a cancel icon or closes the opened original-image view."]
+              ]
+            },
+            {
+              id: "bearbeiten",
+              title: "Create And Edit Flowers",
+              ordered: [
+                "Click New flower or Edit.",
+                "Choose at least one image.",
+                "Enter the Hungarian name. Other names are optional.",
+                "Add description, image information, and links as needed.",
+                "Save with the save icon or leave with Cancel."
+              ],
+              paragraphs: ["When you enter a Latin name, the app can look up names in other languages online. Existing fields are not overwritten."]
+            },
+            {
+              id: "bilder",
+              title: "Images And Image Information",
+              bullets: [
+                "Images can be added by file picker, drag and drop, or online creation.",
+                "A flower can have multiple images.",
+                "Use the image arrows to switch between images. Keyboard alternative: Ctrl+left arrow and Ctrl+right arrow. Ctrl+Home jumps to the first image, Ctrl+End to the last image.",
+                "Mark one image as the favorite.",
+                "Use the info icon to enter one-line information for each image.",
+                "If Search everywhere finds text in image information, the matching image is shown automatically.",
+                "In thumbnail view you can select, delete, favorite, and edit image information."
+              ]
+            },
+            {
+              id: "beschreibung",
+              title: "Description And Links",
+              blocks: [
+                { subtitle: "Description", text: "Descriptions can be edited separately for Hungarian, German, and English. The editor supports simple formatting, lists, font, size, text color, and background color." },
+                { subtitle: "Links", text: "Links can have language-specific names. They appear in the Links tab. If search finds a link, the app switches to that tab." }
+              ]
+            },
+            {
+              id: "online",
+              title: "Online Creation",
+              paragraphs: ["Create flower from the internet searches by flower name. Depending on the active language, you can enter a Hungarian, German, English, or Latin name."],
+              bullets: [
+                "The app searches for matching online candidates.",
+                "After choosing a candidate, names, description, links, and images are loaded where available.",
+                "Online features require internet access. The rest of the app works offline."
+              ]
+            },
+            {
+              id: "import-export",
+              title: "Import, Export, And PDF",
+              blocks: [
+                { subtitle: "Export", text: "The ZIP export is the default and contains a JSON backup with flowers, images, image information, descriptions, and links. JSON can still be selected explicitly." },
+                { subtitle: "Import", text: "During import, choose whether to replace existing data or add imported flowers." },
+                { subtitle: "PDF", text: "The detail view can create a PDF for the current flower." }
+              ]
+            },
+            {
+              id: "probleme",
+              title: "Troubleshooting",
+              bullets: [
+                "Reload the page if changes are not visible.",
+                "If data or images are missing, check whether you use the same browser and same local file address.",
+                "If IndexedDB is damaged, the app offers repair and import options.",
+                "Keep ZIP or JSON exports outside browser storage."
+              ]
+            }
+          ],
+          browserTitle: "Recommended Browsers",
+          browsers: ["Microsoft Edge", "Google Chrome", "Mozilla Firefox"]
+        },
+        hu: {
+          title: "Virág leltár kezelési útmutató",
+          appName: "Virág leltár",
+          lead: "Kezelési útmutató a virágok, képek, leírások és linkek helyi kezeléséhez.",
+          quickTitle: "Rövid áttekintés",
+          quick: [
+            "Az alkalmazás teljesen helyben, a böngészőben fut. A virágokat többnyelvű nevekkel, képekkel, képinformációkkal, leírásokkal és linkekkel IndexedDB-ben tárolja.",
+            "Nincs szükség szerverre vagy felhasználói fiókra. Tartós biztonsági mentéshez rendszeresen készíts ZIP vagy JSON exportot."
+          ],
+          contents: "Tartalom",
+          sections: [
+            {
+              id: "start",
+              title: "Indítás és tárolás",
+              bullets: [
+                "Az alkalmazás indításához nyisd meg az index.html fájlt a böngészőben.",
+                "Az adatok a böngésző helyi tárhelyén tárolódnak, nem automatikusan fájlként az alkalmazás mappájában.",
+                "Másik böngésző külön adatállománnyal rendelkezik.",
+                "Ha törlöd a böngésző adatait, a mentett virágok elveszhetnek. Használj ZIP vagy JSON exportot biztonsági mentésként."
+              ]
+            },
+            {
+              id: "oberflaeche",
+              title: "Felület",
+              paragraphs: ["Bal oldalon található a viráglista, az eszközök, a szűrő és a kereső. Jobb oldalon a részletes nézet vagy a szerkesztő űrlap látható."],
+              items: [
+                ["Exportálás", "ZIP vagy JSON fájlba menti az adatállományt. A ZIP az alapértelmezett."],
+                ["Importálás", "visszatölt egy ZIP vagy JSON mentést."],
+                ["Új virág", "üres űrlapot nyit."],
+                ["Virág létrehozása az internetről", "online keres neveket, leírást és képeket."],
+                ["Rendezés A-Z/Z-A", "az aktuálisan látható nyelv szerint rendezi a listát."]
+              ]
+            },
+            {
+              id: "sprachen",
+              title: "Nyelvek",
+              paragraphs: [
+                "A jobb felső zászlókkal válthatsz Magyar, Deutsch és English között.",
+                "Ha egy szűrési vagy keresési találat más nyelven látható, az alkalmazás át tud váltani arra a nyelvre, hogy a talált szöveg sárgán kiemelhető legyen."
+              ]
+            },
+            {
+              id: "liste",
+              title: "Viráglista, szűrés és keresés",
+              blocks: [
+                {
+                  subtitle: "Virág szűrése",
+                  text: "A szűrő leszűkíti a bal oldali viráglistát. Ékezetfüggetlenül keres a magyar, latin, német és angol nevekben.",
+                  bullets: [
+                    "A szűrő melletti nyilak körkörösen lépkednek a szűrt virágok között.",
+                    "Az utolsó találat után a lefelé nyíl az első találatra ugrik.",
+                    "Az első találat előtt a felfelé nyíl az utolsó találatra ugrik.",
+                    "Ha a találat csak másik nyelven látható, az alkalmazás arra a nyelvre vált."
+                  ]
+                },
+                {
+                  subtitle: "Virág keresése",
+                  text: "A keresés az aktuálisan szűrt virágokon belül navigál. A mező előtti ikonra kattintva váltható a keresési mód.",
+                  bullets: [
+                    "Virágos nagyító: a nevekben keres.",
+                    "Csillagos nagyító: mindenhol keres: nevekben, leírásokban, képinformációkban és linkekben.",
+                    "A kereső melletti nyilak körkörösen lépkednek a találatok között. Mindenhol keresésnél billentyűzettel: Ctrl+fel nyíl és Ctrl+le nyíl.",
+                    "Keresőszöveg nélkül ezek a nyilak a látható viráglistán lépkednek."
+                  ]
+                },
+                {
+                  subtitle: "Találati jelzések",
+                  text: "A mindenhol keresés a listában tooltipben mutatja az első találat helyét. A látható találati szöveg a részletes nézetben sárga kiemelést kap."
+                }
+              ]
+            },
+            {
+              id: "detail",
+              title: "Részletes nézet",
+              paragraphs: ["A részletes nézet képet, neveket, leírást és linkeket mutat. A kép úgy jelenik meg, hogy minél kevesebb fontos részlet legyen levágva."],
+              items: [
+                ["Előzmények vissza / előre", "a legutóbb megtekintett virágok között lépked. Billentyűzettel: balra és jobbra nyíl."],
+                ["Fel / Le", "körkörösen lépked a látható vagy szűrt viráglistában. Billentyűzettel: fel és le nyíl. Pos1 az első virágra, End az utolsó virágra ugrik."],
+                ["Szerkesztés", "megnyitja az aktuális virág űrlapját."],
+                ["Törlés", "megerősítés után törli az aktuális virágot."],
+                ["Új virág", "új virágot hoz létre."],
+                ["PDF", "PDF-et készít az aktuális virágról."],
+                ["Webkeresés", "a böngészőben keres az aktuális virágra."],
+                ["Információ", "megnyitja ezt az útmutatót."]
+              ]
+            },
+            {
+              id: "billentyuzet",
+              title: "Billentyűzet",
+              paragraphs: [
+                "Ezek a billentyűk a részletes nézetben aktívak, ha nincs előtérben beviteli mező, szerkesztőűrlap vagy párbeszédablak."
+              ],
+              items: [
+                ["Balra nyíl / jobbra nyíl", "vissza vagy előre lép a megjelenítési előzményekben."],
+                ["Fel nyíl / le nyíl", "a látható vagy szűrt viráglistában lépked."],
+                ["Pos1 / End", "az első vagy utolsó látható, illetve szűrt virágra ugrik."],
+                ["Ctrl+balra nyíl / Ctrl+jobbra nyíl", "az aktuális virág képei között lépked."],
+                ["Ctrl+Pos1 / Ctrl+End", "az aktuális virág első vagy utolsó képére ugrik."],
+                ["Ctrl+fel nyíl / Ctrl+le nyíl", "aktív mindenhol keresésnél a találatok között lépked."],
+                ["Esc", "megszakítja a megszakítás ikonos párbeszédablakokat, vagy bezárja a megnyitott eredeti képet."]
+              ]
+            },
+            {
+              id: "bearbeiten",
+              title: "Virág létrehozása és szerkesztése",
+              ordered: [
+                "Kattints az Új virág vagy Szerkesztés ikonra.",
+                "Válassz legalább egy képet.",
+                "Add meg a magyar nevet. A többi név opcionális.",
+                "Szükség szerint adj hozzá leírást, képinformációt és linkeket.",
+                "Ments a mentés ikonnal, vagy lépj ki a Mégse/Abbrechen ikonnal."
+              ],
+              paragraphs: ["Latin név megadásakor az alkalmazás online megkeresheti a neveket más nyelveken. A már kitöltött mezőket nem írja felül."]
+            },
+            {
+              id: "bilder",
+              title: "Képek és képinformációk",
+              bullets: [
+                "Képek fájlválasztással, húzással vagy online létrehozással adhatók hozzá.",
+                "Egy virághoz több kép is tartozhat.",
+                "A képnyilakkal válthatsz a képek között. Billentyűzettel: Ctrl+balra nyíl és Ctrl+jobbra nyíl. Ctrl+Pos1 az első képre, Ctrl+End az utolsó képre ugrik.",
+                "Egy kép kedvencnek jelölhető.",
+                "Az info ikonnal képenként egysoros képinformáció adható meg.",
+                "Ha a mindenhol keresés képinformációban talál szöveget, automatikusan a megfelelő kép jelenik meg.",
+                "A miniatűr nézetben képet választhatsz, törölhetsz, kedvencnek jelölhetsz és szerkesztheted a képinformációt."
+              ]
+            },
+            {
+              id: "beschreibung",
+              title: "Leírás és linkek",
+              blocks: [
+                { subtitle: "Leírás", text: "A leírás külön szerkeszthető magyarul, németül és angolul. A szerkesztő egyszerű formázást, listákat, betűtípust, méretet, szövegszínt és háttérszínt támogat." },
+                { subtitle: "Linkek", text: "A linkekhez nyelvenként eltérő linknév adható. A részletes nézetben a Links fülön jelennek meg. Linktalálat esetén az alkalmazás automatikusan erre a fülre vált." }
+              ]
+            },
+            {
+              id: "online",
+              title: "Online létrehozás",
+              paragraphs: ["A Virág létrehozása az internetről funkció virágnév alapján keres. Az aktív nyelvtől függően magyar, német, angol vagy latin nevet adhatsz meg."],
+              bullets: [
+                "Az alkalmazás megfelelő online jelölteket keres.",
+                "A jelölt kiválasztása után betölti az elérhető neveket, leírást, linkeket és képeket.",
+                "Az online funkciók internetkapcsolatot igényelnek. Az alkalmazás többi része offline is működik."
+              ]
+            },
+            {
+              id: "import-export",
+              title: "Import, export és PDF",
+              blocks: [
+                { subtitle: "Export", text: "A ZIP export az alapértelmezett, és JSON mentést tartalmaz a virágokkal, képekkel, képinformációkkal, leírásokkal és linkekkel. A JSON továbbra is külön kiválasztható." },
+                { subtitle: "Import", text: "Importáláskor kiválasztható, hogy a meglévő adatok cserélődjenek vagy az importált virágok hozzáadódjanak." },
+                { subtitle: "PDF", text: "A részletes nézet PDF-et tud készíteni az aktuális virágról." }
+              ]
+            },
+            {
+              id: "probleme",
+              title: "Hibaelhárítás",
+              bullets: [
+                "Ha a változások nem láthatók, töltsd újra az oldalt.",
+                "Ha hiányoznak adatok vagy képek, ellenőrizd, hogy ugyanazt a böngészőt és ugyanazt a helyi fájlcímet használod-e.",
+                "Ha az IndexedDB sérült, az alkalmazás javítási és importálási lehetőségeket kínál.",
+                "A ZIP vagy JSON exportokat a böngésző tárhelyén kívül őrizd meg."
+              ]
+            }
+          ],
+          browserTitle: "Ajánlott böngészők",
+          browsers: ["Microsoft Edge", "Google Chrome", "Mozilla Firefox"]
+        }
+      };
 
-    <section class="note">
-      <h2>Sicherung</h2>
-      <p>Für dauerhafte Sicherungen bitte regelmäßig den Export als JSON-Datei verwenden. Diese JSON-Datei enthält Blumen, Bilder, Beschreibungen und Links und kann später wieder importiert werden.</p>
-    </section>
+      var requestedLanguage = new URLSearchParams(window.location.search).get("lang") || "de";
+      var language = manuals[requestedLanguage] ? requestedLanguage : "de";
+      var manual = manuals[language];
+      var main = document.getElementById("manual");
 
-    <section>
-      <h2>Internetfunktionen</h2>
-      <p>Die App funktioniert offline. Nur die automatische Namensermittlung und die Suche nach einer Blume im Internet benötigen eine vorhandene Internetverbindung.</p>
-    </section>
+      document.documentElement.lang = language;
+      document.title = manual.title;
 
-    <section>
-      <h2>Empfohlene Browser</h2>
-      <ul>
-        <li>Microsoft Edge</li>
-        <li>Google Chrome</li>
-        <li>Mozilla Firefox</li>
-      </ul>
-    </section>
-  </main>
+      function appendTextElement(parent, tagName, text) {
+        var element = document.createElement(tagName);
+        element.textContent = text;
+        parent.appendChild(element);
+        return element;
+      }
+
+      function createList(items, ordered, className) {
+        var list = document.createElement(ordered ? "ol" : "ul");
+        if (className) {
+          list.className = className;
+        }
+        items.forEach(function (item) {
+          var row = document.createElement("li");
+          if (Array.isArray(item)) {
+            var label = document.createElement("span");
+            label.className = "shortcut";
+            label.textContent = item[0] + ":";
+            row.appendChild(label);
+            row.appendChild(document.createTextNode(" " + item[1]));
+          } else {
+            row.textContent = item;
+          }
+          list.appendChild(row);
+        });
+        return list;
+      }
+
+      function renderSection(sectionData) {
+        var section = document.createElement("section");
+        section.id = sectionData.id;
+        appendTextElement(section, "h2", sectionData.title);
+        (sectionData.paragraphs || []).forEach(function (paragraph) {
+          appendTextElement(section, "p", paragraph);
+        });
+        if (sectionData.items) {
+          section.appendChild(createList(sectionData.items, false, "icon-list"));
+        }
+        if (sectionData.bullets) {
+          section.appendChild(createList(sectionData.bullets, false));
+        }
+        if (sectionData.ordered) {
+          section.appendChild(createList(sectionData.ordered, true));
+        }
+        (sectionData.blocks || []).forEach(function (block) {
+          appendTextElement(section, "h3", block.subtitle);
+          if (block.text) {
+            appendTextElement(section, "p", block.text);
+          }
+          if (block.bullets) {
+            section.appendChild(createList(block.bullets, false));
+          }
+        });
+        return section;
+      }
+
+      function renderManual() {
+        var header = document.createElement("header");
+        var image = document.createElement("img");
+        var titleWrap = document.createElement("div");
+        image.src = "favicon.png";
+        image.alt = "";
+        appendTextElement(titleWrap, "h1", manual.appName);
+        appendTextElement(titleWrap, "p", manual.lead);
+        header.appendChild(image);
+        header.appendChild(titleWrap);
+        main.appendChild(header);
+
+        var note = document.createElement("section");
+        note.className = "note";
+        appendTextElement(note, "h2", manual.quickTitle);
+        manual.quick.forEach(function (paragraph) {
+          appendTextElement(note, "p", paragraph);
+        });
+        main.appendChild(note);
+
+        var contents = document.createElement("section");
+        appendTextElement(contents, "h2", manual.contents);
+        var toc = document.createElement("ul");
+        toc.className = "toc";
+        manual.sections.forEach(function (sectionData) {
+          var item = document.createElement("li");
+          var link = document.createElement("a");
+          link.href = "#" + sectionData.id;
+          link.textContent = sectionData.title;
+          item.appendChild(link);
+          toc.appendChild(item);
+        });
+        contents.appendChild(toc);
+        main.appendChild(contents);
+
+        manual.sections.forEach(function (sectionData) {
+          main.appendChild(renderSection(sectionData));
+        });
+
+        var browsers = document.createElement("section");
+        appendTextElement(browsers, "h2", manual.browserTitle);
+        browsers.appendChild(createList(manual.browsers, false));
+        main.appendChild(browsers);
+      }
+
+      renderManual();
+    }());
+  </script>
 </body>
 </html>

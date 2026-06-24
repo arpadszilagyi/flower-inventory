@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Blumen-Inventar</title>
   <link rel="icon" type="image/png" href="favicon.png">
-  <link rel="stylesheet" href="styles.css?v=20260623-6">
+  <link rel="stylesheet" href="styles.css?v=20260624-5">
 </head>
 <body>
   <div class="app-shell">
@@ -23,7 +23,7 @@
         <button id="addFlowerButton" class="toolbar-icon-button" type="button" title="Neue Blume" aria-label="Neue Blume" data-i18n-attr="title:newFlower;aria-label:newFlower"><img src="icon-add.png" alt=""><span class="visually-hidden" data-i18n="newFlower">Neue Blume</span></button>
         <button id="createOnlineFlowerButton" class="toolbar-icon-button" type="button" title="Blume aus dem Internet erstellen" aria-label="Blume aus dem Internet erstellen" data-i18n-attr="title:createOnlineFlower;aria-label:createOnlineFlower"><img src="icon-internet-create.png" alt=""><span class="visually-hidden" data-i18n="createOnlineFlower">Blume aus dem Internet erstellen</span></button>
         <button id="sortFlowersButton" class="toolbar-icon-button" type="button" title="Sortieren A-Z" aria-label="Sortieren A-Z"><img id="sortFlowersIcon" src="icon-sort-az.png" alt=""><span class="visually-hidden" id="sortFlowersLabel">Sortieren A-Z</span></button>
-        <input id="importFileInput" type="file" accept="application/json,.json" hidden>
+        <input id="importFileInput" type="file" accept="application/json,application/zip,application/x-zip-compressed,.json,.zip" hidden>
       </div>
 
       <form id="searchForm" class="search-form" role="search">
@@ -78,8 +78,8 @@
             <h2 data-i18n="flowerData">Blumendaten</h2>
           </div>
           <div class="form-actions top-actions">
+            <button class="form-icon-button" type="submit" title="Speichern" aria-label="Speichern" data-i18n-attr="title:save;aria-label:save"><img src="icon-save.png" alt=""><span class="visually-hidden" data-i18n="save">Speichern</span></button>
             <button id="cancelButton" class="form-icon-button" type="button" title="Abbrechen" aria-label="Abbrechen" data-i18n-attr="title:cancel;aria-label:cancel"><img src="icon-exit.png" alt=""><span class="visually-hidden" data-i18n="cancel">Abbrechen</span></button>
-            <button class="form-icon-button primary" type="submit" title="Speichern" aria-label="Speichern" data-i18n-attr="title:save;aria-label:save"><img src="icon-save.png" alt=""><span class="visually-hidden" data-i18n="save">Speichern</span></button>
           </div>
         </div>
 
@@ -89,7 +89,6 @@
               <span data-i18n="selectImageDrop">Bild auswählen / Drag & Drop</span>
               <input id="imageInput" type="file" accept="image/*" multiple>
             </div>
-            <p class="field-note" data-i18n="imageNote">Pflichtfeld. Das Bild wird lokal in IndexedDB gespeichert.</p>
           </section>
 
           <section class="fields" aria-label="Namen" data-i18n-attr="aria-label:names">
@@ -189,6 +188,6 @@
     </main>
   </div>
 
-  <script src="app.js?v=20260623-7"></script>
+  <script src="app.js?v=20260624-9"></script>
 </body>
 </html>

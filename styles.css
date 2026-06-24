@@ -341,24 +341,24 @@ button.primary:hover,
   position: relative;
   min-width: 0;
   overflow: auto;
-  padding: 28px;
+  padding: 20px;
 }
 
 .main-toolbar {
   position: sticky;
-  top: -28px;
+  top: -20px;
   z-index: 6;
   display: block;
-  margin: -28px -28px 14px;
-  padding: 18px 28px 8px;
+  margin: -20px -20px 12px;
+  padding: 14px 20px 8px;
   background: var(--bg);
 }
 
 .sticky-detail-actions {
   display: grid;
-  grid-template-columns: minmax(280px, 48%) minmax(0, 1fr);
-  gap: 28px;
-  max-width: 1080px;
+  grid-template-columns: minmax(340px, 58%) minmax(0, 1fr);
+  gap: 20px;
+  max-width: none;
   min-width: 0;
   margin: 0 auto;
   padding: 0;
@@ -373,8 +373,8 @@ button.primary:hover,
 
 .language-switcher {
   position: absolute;
-  top: 18px;
-  right: 28px;
+  top: 14px;
+  right: 20px;
   display: flex;
   justify-content: flex-end;
   gap: 6px;
@@ -408,14 +408,14 @@ button.primary:hover,
 
 .detail-view,
 .flower-form {
-  max-width: 1080px;
-  margin: 0 auto;
+  max-width: none;
+  margin: 0;
 }
 
 .detail-card {
   display: grid;
-  grid-template-columns: minmax(280px, 48%) minmax(0, 1fr);
-  gap: 28px;
+  grid-template-columns: minmax(340px, 58%) minmax(0, 1fr);
+  gap: 20px;
   align-items: start;
 }
 
@@ -426,10 +426,11 @@ button.primary:hover,
 .hero-image-shell {
   position: relative;
   width: 100%;
-  height: clamp(320px, 38vw, 402px);
+  height: clamp(380px, 52vw, 580px);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
-  background: #ffffff;
+  background: #f8eff0;
+  border: 1px solid #ead9dc;
   overflow: hidden;
 }
 
@@ -437,7 +438,7 @@ button.primary:hover,
   width: 100%;
   height: 100%;
   cursor: zoom-in;
-  object-fit: cover;
+  object-fit: contain;
 }
 
 .hero-image-shell.drag-over {
@@ -457,41 +458,42 @@ button.primary:hover,
 .hero-image-info {
   position: absolute;
   z-index: 2;
-  bottom: 12px;
+  bottom: 10px;
   display: inline-flex;
-  width: 46px;
-  min-height: 46px;
+  width: 36px;
+  min-height: 36px;
+  height: 36px;
   align-items: center;
   justify-content: center;
   border-color: rgba(255, 255, 255, 0.86);
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.94);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.26);
-  padding: 4px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.24);
+  padding: 3px;
 }
 
 .hero-image-add {
-  left: 12px;
+  left: 10px;
 }
 
 .hero-image-delete {
-  left: 66px;
+  left: 52px;
 }
 
 .hero-image-favorite {
-  left: 120px;
+  left: 94px;
 }
 
 .hero-image-thumbnails {
-  left: 174px;
+  left: 136px;
 }
 
 .hero-image-source {
-  left: 228px;
+  left: 178px;
 }
 
 .hero-image-info {
-  left: 282px;
+  left: 220px;
 }
 
 .hero-image-add img,
@@ -500,8 +502,8 @@ button.primary:hover,
 .hero-image-thumbnails img,
 .hero-image-source img,
 .hero-image-info img {
-  width: 34px;
-  height: 34px;
+  width: 26px;
+  height: 26px;
   border-radius: 50%;
   object-fit: cover;
 }
@@ -715,48 +717,49 @@ button.primary:hover,
 .thumbnail-delete,
 .thumbnail-info {
   position: absolute;
-  bottom: 5px;
+  bottom: 4px;
   display: inline-flex;
-  width: 42px;
-  min-height: 42px;
+  width: 32px;
+  min-height: 32px;
+  height: 32px;
   align-items: center;
   justify-content: center;
   border-color: rgba(255, 255, 255, 0.9);
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.94);
-  box-shadow: 0 5px 14px rgba(0, 0, 0, 0.24);
-  padding: 3px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.22);
+  padding: 2px;
 }
 
 .thumbnail-source {
-  right: 52px;
+  right: 40px;
 }
 
 .thumbnail-delete {
-  right: 99px;
+  right: 76px;
 }
 
 .thumbnail-info {
-  right: 146px;
+  right: 112px;
 }
 
 .thumbnail-favorite {
-  right: 5px;
+  right: 4px;
 }
 
 .thumbnail-favorite img,
 .thumbnail-source img,
 .thumbnail-delete img,
 .thumbnail-info img {
-  width: 31px;
-  height: 31px;
+  width: 23px;
+  height: 23px;
   border-radius: 50%;
   object-fit: cover;
 }
 
 .thumbnail-source img {
-  width: 31px;
-  height: 31px;
+  width: 23px;
+  height: 23px;
   border-radius: 50%;
   object-fit: cover;
 }
@@ -842,6 +845,45 @@ button.primary:hover,
   height: 30px;
   border-radius: 50%;
   object-fit: cover;
+}
+
+.export-format-dialog .app-dialog-actions,
+.import-mode-dialog .app-dialog-actions {
+  gap: 14px;
+  align-items: center;
+}
+
+.dialog-icon-button.icon-only-choice {
+  width: 76px;
+  min-height: 76px;
+  padding: 6px;
+}
+
+.dialog-icon-button.icon-only-choice img {
+  width: 64px;
+  height: 64px;
+  border-radius: 10px;
+}
+
+.export-format-dialog .dialog-icon-button.icon-only-choice {
+  background: var(--panel);
+  color: var(--text);
+}
+
+.export-format-dialog .dialog-icon-button.icon-only-choice:hover {
+  background: #f7f4ee;
+}
+
+.dialog-icon-button.small-icon-choice {
+  width: 52px;
+  min-height: 52px;
+  padding: 5px;
+}
+
+.dialog-icon-button.small-icon-choice img {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
 }
 
 .image-info-panel {
@@ -1030,7 +1072,7 @@ button.primary:hover,
 .form-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 6px;
   margin-top: 26px;
 }
 
@@ -1054,24 +1096,24 @@ button.primary:hover,
   display: inline-flex;
   position: relative;
   align-items: center;
-  gap: 8px;
-  min-height: 46px;
-  padding: 4px 13px 4px 8px;
+  gap: 6px;
+  min-height: 38px;
+  padding: 3px 10px 3px 6px;
   font-weight: 700;
 }
 
 .icon-action img {
-  width: 32px;
-  height: 32px;
+  width: 26px;
+  height: 26px;
   flex: 0 0 auto;
   border-radius: 6px;
   object-fit: contain;
 }
 
 .icon-action.compact-action {
-  width: 50px;
+  width: 38px;
   justify-content: center;
-  padding: 4px;
+  padding: 3px;
 }
 
 .icon-action.compact-action span {
@@ -1085,14 +1127,14 @@ button.primary:hover,
 }
 
 .icon-action.compact-action img {
-  width: 36px;
-  height: 36px;
+  width: 28px;
+  height: 28px;
 }
 
 .icon-action.icon-only-action {
-  width: 50px;
+  width: 38px;
   justify-content: center;
-  padding: 4px;
+  padding: 3px;
 }
 
 .icon-action.icon-only-action span {
@@ -1106,14 +1148,19 @@ button.primary:hover,
 }
 
 .icon-action.icon-only-action img {
-  width: 36px;
-  height: 36px;
+  width: 28px;
+  height: 28px;
 }
 
 .nav-button {
-  min-width: 42px;
-  padding: 0 12px;
+  min-width: 38px;
+  padding: 0;
   font-weight: 700;
+}
+
+.history-back-button img,
+.history-forward-button img {
+  transform: rotate(-90deg);
 }
 
 .danger {

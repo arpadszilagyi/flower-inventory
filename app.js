@@ -32,6 +32,8 @@
     activeInfoTab: "description",
     language: localStorage.getItem("flowerInventoryLanguage") || "de",
     searchMode: "names",
+    detailHistory: [],
+    detailHistoryIndex: -1,
     sortDirections: loadSortDirections()
   };
 
@@ -89,8 +91,8 @@
       searchMatchDescriptions: "A(z) „{query}” keresőkifejezés a leírásban található.",
       searchMatchImageInfos: "A(z) „{query}” keresőkifejezés a képinformációk között található.",
       searchMatchLinks: "A(z) „{query}” keresőkifejezés a linkek között található.",
-      previousSearchMatch: "Előző találat",
-      nextSearchMatch: "Következő találat",
+      previousSearchMatch: "Előző találat (Ctrl+↑ mindenhol keresésnél)",
+      nextSearchMatch: "Következő találat (Ctrl+↓ mindenhol keresésnél)",
       search: "Keresés",
       clearSearch: "Keresés törlése",
       savedFlowers: "Mentett virágok",
@@ -137,10 +139,12 @@
       noMoreNames: "Nincs további név",
       noFlowersTitle: "Még nincsenek virágok",
       noFlowersText: "Adj hozzá új virágot, vagy importálj egy biztonsági mentést.",
+      historyBack: "Előzmények vissza (←)",
+      historyForward: "Előzmények előre (→)",
       edit: "Szerkesztés",
       delete: "Törlés",
-      previousFlower: "Előző virág",
-      nextFlower: "Következő virág",
+      previousFlower: "Előző virág (↑, Pos1 = első)",
+      nextFlower: "Következő virág (↓, End = utolsó)",
       downloadPdf: "PDF letöltése",
       searchFlowerOnline: "Virág keresése az interneten",
       appInfo: "Információ az alkalmazásról",
@@ -166,10 +170,10 @@
       onlineSearchHistory: "Korábbi keresések",
       onlineSearchClearHistory: "Előzmények törlése",
       keepOneImage: "Legalább egy képnek meg kell maradnia.",
-      imagePrevious: "Előző kép",
-      imageNext: "Következő kép",
-      imageFirst: "Első kép",
-      imageLast: "Utolsó kép",
+      imagePrevious: "Előző kép (Ctrl+←)",
+      imageNext: "Következő kép (Ctrl+→)",
+      imageFirst: "Első kép (Ctrl+Pos1)",
+      imageLast: "Utolsó kép (Ctrl+End)",
       selectImageDrop: "Kép kiválasztása / Drag & Drop",
       selectImage: "Kép kiválasztása",
       descriptionPlaceholder: "Leírás megfogalmazása...",
@@ -187,16 +191,16 @@
       dbUnavailableDetails: "Részletek: {details}",
       currentAddress: "Aktuális cím: {address}",
       resetDatabase: "Helyi adatbázis visszaállítása",
-      resetDatabaseNote: "Ha az adatbázis sérült, a helyi adatok csak törléssel állíthatók helyre. Exportált JSON-fájl később újra importálható.",
+      resetDatabaseNote: "Ha az adatbázis sérült, a helyi adatok csak törléssel állíthatók helyre. Exportált mentésfájl később újra importálható.",
       resetDatabaseConfirm: "Töröljük a sérült helyi IndexedDB-adatbázist? A böngészőben tárolt virágadatok elvesznek.",
       resetDatabaseFailed: "A helyi adatbázist nem sikerült törölni.",
-      repairDatabaseImport: "JSON-mentés importálása és javítás",
-      repairDatabaseNote: "Ha van exportált JSON-mentésed, válaszd ki itt. Az alkalmazás új helyi adatbázist hoz létre, és abba importálja a mentést.",
-      repairDatabaseConfirm: "Hozzunk létre egy új helyi IndexedDB-adatbázist, és importáljuk ezt a JSON-mentést?",
+      repairDatabaseImport: "Mentés importálása és javítás",
+      repairDatabaseNote: "Ha van exportált mentésed, válaszd ki itt. Az alkalmazás új helyi adatbázist hoz létre, és abba importálja a mentést.",
+      repairDatabaseConfirm: "Hozzunk létre egy új helyi IndexedDB-adatbázist, és importáljuk ezt a mentést?",
       repairDatabaseDone: "A helyi adatbázis helyreállítása befejeződött. Az alkalmazás újratöltődik.",
-      repairDatabaseFailed: "A helyi adatbázist nem sikerült a JSON-mentésből helyreállítani.",
-      repairDatabaseStorageBroken: "A Chrome jelenleg új IndexedDB-adatbázist sem tud létrehozni ehhez a helyi alkalmazáshoz. Ez általában a Chrome helyi tárolójának sérülését jelenti. Zárd be a Chrome-ot, töröld a webhelyadatokat ehhez a helyi file:// alkalmazáshoz, majd nyisd meg újra az index.html fájlt és importáld a JSON-mentést. Microsoft Edge-ben az import továbbra is használható.",
-      repairDatabaseReloadImport: "A sérült adatbázis törölve lett. Az alkalmazás újratöltődik; kérlek, válaszd ki újra ugyanazt a JSON-mentést az importáláshoz.",
+      repairDatabaseFailed: "A helyi adatbázist nem sikerült a mentésből helyreállítani.",
+      repairDatabaseStorageBroken: "A Chrome jelenleg új IndexedDB-adatbázist sem tud létrehozni ehhez a helyi alkalmazáshoz. Ez általában a Chrome helyi tárolójának sérülését jelenti. Zárd be a Chrome-ot, töröld a webhelyadatokat ehhez a helyi file:// alkalmazáshoz, majd nyisd meg újra az index.html fájlt és importáld a mentést. Microsoft Edge-ben az import továbbra is használható.",
+      repairDatabaseReloadImport: "A sérült adatbázis törölve lett. Az alkalmazás újratöltődik; kérlek, válaszd ki újra ugyanazt a mentést az importáláshoz.",
       autoFillUnavailable: "Az automatikus keresés ebben a böngészőben nem érhető el.",
       offline: "Nincs internetkapcsolat. Az adatok kézzel is kitölthetők.",
       lookupSearching: "Nevek online keresése…",
@@ -208,8 +212,13 @@
       importReplaceQuestion: "Lecseréljük a meglévő adatokat, vagy hozzáadjuk az importált virágokat?",
       replaceImportData: "Csere",
       addImportData: "Hozzáadás",
+      exportFormatQuestion: "Milyen formátumban készüljön az export? A ZIP az alapértelmezett.",
+      exportStatus: "Exportálandó virágok száma: {count}.",
+      importStatus: "Importálandó virágok száma: {count}.",
+      exportZip: "ZIP",
+      exportJson: "JSON",
       importDone: "Importálás befejezve.",
-      importFailed: "A JSON-fájlt nem sikerült importálni.",
+      importFailed: "A mentésfájlt nem sikerült importálni.",
       pdfFailed: "A PDF-fájlt nem sikerült létrehozni.",
       appNamePdf: "Virág leltár"
     },
@@ -247,8 +256,8 @@
       searchMatchDescriptions: "Suchstring „{query}“ wurde in der Beschreibung gefunden.",
       searchMatchImageInfos: "Suchstring „{query}“ wurde in den Bild-Infos gefunden.",
       searchMatchLinks: "Suchstring „{query}“ wurde in den Links gefunden.",
-      previousSearchMatch: "Vorheriger Treffer",
-      nextSearchMatch: "Nächster Treffer",
+      previousSearchMatch: "Vorheriger Treffer (Strg+↑ bei Überall suchen)",
+      nextSearchMatch: "Nächster Treffer (Strg+↓ bei Überall suchen)",
       search: "Suchen",
       clearSearch: "Suche löschen",
       savedFlowers: "Gespeicherte Blumen",
@@ -295,10 +304,12 @@
       noMoreNames: "Keine weiteren Namen",
       noFlowersTitle: "Noch keine Blumen",
       noFlowersText: "Füge eine neue Blume hinzu oder importiere eine Sicherungsdatei.",
+      historyBack: "Historie zurück (←)",
+      historyForward: "Historie vor (→)",
       edit: "Bearbeiten",
       delete: "Löschen",
-      previousFlower: "Vorherige Blume",
-      nextFlower: "Nächste Blume",
+      previousFlower: "Vorherige Blume (↑, Pos1 = erste)",
+      nextFlower: "Nächste Blume (↓, Ende = letzte)",
       downloadPdf: "PDF herunterladen",
       searchFlowerOnline: "Blume im Internet suchen",
       appInfo: "Informationen über diese App",
@@ -324,10 +335,10 @@
       onlineSearchHistory: "Bisherige Eingaben",
       onlineSearchClearHistory: "Historie löschen",
       keepOneImage: "Mindestens ein Bild muss erhalten bleiben.",
-      imagePrevious: "Vorheriges Bild",
-      imageNext: "Nächstes Bild",
-      imageFirst: "Erstes Bild",
-      imageLast: "Letztes Bild",
+      imagePrevious: "Vorheriges Bild (Strg+←)",
+      imageNext: "Nächstes Bild (Strg+→)",
+      imageFirst: "Erstes Bild (Strg+Pos1)",
+      imageLast: "Letztes Bild (Strg+Ende)",
       selectImageDrop: "Bild auswählen / Drag & Drop",
       selectImage: "Bild auswählen",
       descriptionPlaceholder: "Beschreibung formulieren...",
@@ -345,16 +356,16 @@
       dbUnavailableDetails: "Details: {details}",
       currentAddress: "Aktuelle Adresse: {address}",
       resetDatabase: "Lokale Datenbank zurücksetzen",
-      resetDatabaseNote: "Wenn die Datenbank beschädigt ist, kann sie nur durch Löschen der lokalen Daten wiederhergestellt werden. Eine exportierte JSON-Datei kann danach wieder importiert werden.",
+      resetDatabaseNote: "Wenn die Datenbank beschädigt ist, kann sie nur durch Löschen der lokalen Daten wiederhergestellt werden. Eine exportierte Sicherungsdatei kann danach wieder importiert werden.",
       resetDatabaseConfirm: "Soll die beschädigte lokale IndexedDB-Datenbank gelöscht werden? Die im Browser gespeicherten Blumendaten gehen verloren.",
       resetDatabaseFailed: "Die lokale Datenbank konnte nicht gelöscht werden.",
-      repairDatabaseImport: "JSON-Sicherung importieren und reparieren",
-      repairDatabaseNote: "Wenn du eine exportierte JSON-Sicherung hast, wähle sie hier aus. Die Anwendung erstellt eine neue lokale Datenbank und importiert die Sicherung dorthin.",
-      repairDatabaseConfirm: "Soll eine neue lokale IndexedDB-Datenbank erstellt und diese JSON-Sicherung importiert werden?",
-      repairDatabaseDone: "Die lokale Datenbank wurde aus der JSON-Sicherung wiederhergestellt. Die Anwendung wird neu geladen.",
-      repairDatabaseFailed: "Die lokale Datenbank konnte nicht aus der JSON-Sicherung wiederhergestellt werden.",
-      repairDatabaseStorageBroken: "Chrome kann für diese lokale Anwendung derzeit auch keine neue IndexedDB-Datenbank erstellen. Das bedeutet meistens, dass Chromes lokaler Speicher für file://-Seiten beschädigt ist. Bitte Chrome schließen, die Websitedaten für diese lokale file://-Anwendung löschen, danach index.html erneut öffnen und die JSON-Sicherung importieren. In Microsoft Edge kann der Import weiterhin verwendet werden.",
-      repairDatabaseReloadImport: "Die beschädigte Datenbank wurde gelöscht. Die Anwendung wird neu geladen; bitte wähle danach dieselbe JSON-Sicherung erneut zum Import aus.",
+      repairDatabaseImport: "Sicherung importieren und reparieren",
+      repairDatabaseNote: "Wenn du eine exportierte Sicherung hast, wähle sie hier aus. Die Anwendung erstellt eine neue lokale Datenbank und importiert die Sicherung dorthin.",
+      repairDatabaseConfirm: "Soll eine neue lokale IndexedDB-Datenbank erstellt und diese Sicherung importiert werden?",
+      repairDatabaseDone: "Die lokale Datenbank wurde aus der Sicherung wiederhergestellt. Die Anwendung wird neu geladen.",
+      repairDatabaseFailed: "Die lokale Datenbank konnte nicht aus der Sicherung wiederhergestellt werden.",
+      repairDatabaseStorageBroken: "Chrome kann für diese lokale Anwendung derzeit auch keine neue IndexedDB-Datenbank erstellen. Das bedeutet meistens, dass Chromes lokaler Speicher für file://-Seiten beschädigt ist. Bitte Chrome schließen, die Websitedaten für diese lokale file://-Anwendung löschen, danach index.html erneut öffnen und die Sicherung importieren. In Microsoft Edge kann der Import weiterhin verwendet werden.",
+      repairDatabaseReloadImport: "Die beschädigte Datenbank wurde gelöscht. Die Anwendung wird neu geladen; bitte wähle danach dieselbe Sicherung erneut zum Import aus.",
       autoFillUnavailable: "Automatische Ermittlung ist in diesem Browser nicht verfügbar.",
       offline: "Keine Internetverbindung. Eingaben können manuell ergänzt werden.",
       lookupSearching: "Namen werden online gesucht…",
@@ -366,8 +377,13 @@
       importReplaceQuestion: "Sollen die bestehenden Daten ersetzt oder die importierten Blumen ergänzt werden?",
       replaceImportData: "Ersetzen",
       addImportData: "Ergänzen",
+      exportFormatQuestion: "In welchem Format soll exportiert werden? ZIP ist voreingestellt.",
+      exportStatus: "Zu exportierende Blumen: {count}.",
+      importStatus: "Zu importierende Blumen: {count}.",
+      exportZip: "ZIP",
+      exportJson: "JSON",
       importDone: "Import abgeschlossen.",
-      importFailed: "Die JSON-Datei konnte nicht importiert werden.",
+      importFailed: "Die Sicherungsdatei konnte nicht importiert werden.",
       pdfFailed: "Die PDF-Datei konnte nicht erstellt werden.",
       appNamePdf: "Blumen-Inventar"
     },
@@ -405,8 +421,8 @@
       searchMatchDescriptions: "Search string “{query}” was found in the description.",
       searchMatchImageInfos: "Search string “{query}” was found in the image information.",
       searchMatchLinks: "Search string “{query}” was found in the links.",
-      previousSearchMatch: "Previous match",
-      nextSearchMatch: "Next match",
+      previousSearchMatch: "Previous match (Ctrl+↑ in search everywhere)",
+      nextSearchMatch: "Next match (Ctrl+↓ in search everywhere)",
       search: "Search",
       clearSearch: "Clear search",
       savedFlowers: "Saved flowers",
@@ -453,10 +469,12 @@
       noMoreNames: "No other names",
       noFlowersTitle: "No flowers yet",
       noFlowersText: "Add a new flower or import a backup file.",
+      historyBack: "History back (←)",
+      historyForward: "History forward (→)",
       edit: "Edit",
       delete: "Delete",
-      previousFlower: "Previous flower",
-      nextFlower: "Next flower",
+      previousFlower: "Previous flower (↑, Home = first)",
+      nextFlower: "Next flower (↓, End = last)",
       downloadPdf: "Download PDF",
       searchFlowerOnline: "Search flower online",
       appInfo: "Information about this app",
@@ -482,10 +500,10 @@
       onlineSearchHistory: "Previous entries",
       onlineSearchClearHistory: "Clear history",
       keepOneImage: "At least one image must remain.",
-      imagePrevious: "Previous image",
-      imageNext: "Next image",
-      imageFirst: "First image",
-      imageLast: "Last image",
+      imagePrevious: "Previous image (Ctrl+←)",
+      imageNext: "Next image (Ctrl+→)",
+      imageFirst: "First image (Ctrl+Home)",
+      imageLast: "Last image (Ctrl+End)",
       selectImageDrop: "Choose image / Drag & Drop",
       selectImage: "Choose image",
       descriptionPlaceholder: "Write description...",
@@ -503,16 +521,16 @@
       dbUnavailableDetails: "Details: {details}",
       currentAddress: "Current address: {address}",
       resetDatabase: "Reset local database",
-      resetDatabaseNote: "If the database is corrupted, it can only be recovered by deleting the local data. An exported JSON file can be imported afterwards.",
+      resetDatabaseNote: "If the database is corrupted, it can only be recovered by deleting the local data. An exported backup file can be imported afterwards.",
       resetDatabaseConfirm: "Delete the corrupted local IndexedDB database? Flower data stored in the browser will be lost.",
       resetDatabaseFailed: "The local database could not be deleted.",
-      repairDatabaseImport: "Import JSON backup and repair",
-      repairDatabaseNote: "If you have an exported JSON backup, select it here. The app will create a new local database and import the backup there.",
-      repairDatabaseConfirm: "Create a new local IndexedDB database and import this JSON backup?",
-      repairDatabaseDone: "The local database was restored from the JSON backup. The app will reload.",
-      repairDatabaseFailed: "The local database could not be restored from the JSON backup.",
-      repairDatabaseStorageBroken: "Chrome currently cannot create a new IndexedDB database for this local app either. This usually means Chrome's local storage for file:// pages is corrupted. Close Chrome, clear the site data for this local file:// app, then reopen index.html and import the JSON backup. Microsoft Edge can still be used for importing.",
-      repairDatabaseReloadImport: "The corrupted database was deleted. The app will reload; please select the same JSON backup again for import.",
+      repairDatabaseImport: "Import backup and repair",
+      repairDatabaseNote: "If you have an exported backup, select it here. The app will create a new local database and import the backup there.",
+      repairDatabaseConfirm: "Create a new local IndexedDB database and import this backup?",
+      repairDatabaseDone: "The local database was restored from the backup. The app will reload.",
+      repairDatabaseFailed: "The local database could not be restored from the backup.",
+      repairDatabaseStorageBroken: "Chrome currently cannot create a new IndexedDB database for this local app either. This usually means Chrome's local storage for file:// pages is corrupted. Close Chrome, clear the site data for this local file:// app, then reopen index.html and import the backup. Microsoft Edge can still be used for importing.",
+      repairDatabaseReloadImport: "The corrupted database was deleted. The app will reload; please select the same backup again for import.",
       autoFillUnavailable: "Automatic lookup is not available in this browser.",
       offline: "No internet connection. Entries can be completed manually.",
       lookupSearching: "Searching names online…",
@@ -524,8 +542,13 @@
       importReplaceQuestion: "Replace the existing data or add the imported flowers?",
       replaceImportData: "Replace",
       addImportData: "Add",
+      exportFormatQuestion: "Which format should be used for export? ZIP is the default.",
+      exportStatus: "Flowers to export: {count}.",
+      importStatus: "Flowers to import: {count}.",
+      exportZip: "ZIP",
+      exportJson: "JSON",
       importDone: "Import completed.",
-      importFailed: "The JSON file could not be imported.",
+      importFailed: "The backup file could not be imported.",
       pdfFailed: "The PDF file could not be created.",
       appNamePdf: "Flower Inventory"
     }
@@ -649,7 +672,9 @@
         return seedDemoFlowersIfNeeded();
       })
       .then(function () {
-        state.selectedId = state.flowers[0] ? state.flowers[0].id : null;
+        setSelectedFlower(state.flowers[0] ? state.flowers[0].id : null, {
+          replaceHistory: true
+        });
         render();
         resumePendingRepairImport();
       })
@@ -821,7 +846,100 @@
         closeOriginalImageOverlay();
       }
     });
+    document.addEventListener("keydown", handleDetailArrowKeys);
     document.addEventListener("paste", handleClipboardPaste);
+  }
+
+  function handleDetailArrowKeys(event) {
+    if (shouldIgnoreDetailArrowKey(event)) {
+      return;
+    }
+    if (event.ctrlKey && event.key === "ArrowLeft") {
+      event.preventDefault();
+      selectCurrentFlowerImageByOffset(-1);
+      return;
+    }
+    if (event.ctrlKey && event.key === "ArrowRight") {
+      event.preventDefault();
+      selectCurrentFlowerImageByOffset(1);
+      return;
+    }
+    if (event.ctrlKey && event.key === "ArrowUp") {
+      event.preventDefault();
+      applyFilterAndSearch(-1);
+      return;
+    }
+    if (event.ctrlKey && event.key === "ArrowDown") {
+      event.preventDefault();
+      applyFilterAndSearch(1);
+      return;
+    }
+    if (event.ctrlKey && event.key === "Home") {
+      event.preventDefault();
+      selectCurrentFlowerImageEdge("first");
+      return;
+    }
+    if (event.ctrlKey && event.key === "End") {
+      event.preventDefault();
+      selectCurrentFlowerImageEdge("last");
+      return;
+    }
+    if (event.key === "ArrowLeft") {
+      event.preventDefault();
+      navigateDetailHistory(-1);
+      return;
+    }
+    if (event.key === "ArrowRight") {
+      event.preventDefault();
+      navigateDetailHistory(1);
+      return;
+    }
+    if (event.key === "ArrowUp") {
+      event.preventDefault();
+      selectFlowerByOffset(-1);
+      return;
+    }
+    if (event.key === "ArrowDown") {
+      event.preventDefault();
+      selectFlowerByOffset(1);
+      return;
+    }
+    if (event.key === "Home") {
+      event.preventDefault();
+      selectFlowerEdge("first");
+      return;
+    }
+    if (event.key === "End") {
+      event.preventDefault();
+      selectFlowerEdge("last");
+    }
+  }
+
+  function shouldIgnoreDetailArrowKey(event) {
+    if (!["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Home", "End"].includes(event.key)) {
+      return true;
+    }
+    var isImageShortcut = event.ctrlKey && (event.key === "ArrowLeft" || event.key === "ArrowRight");
+    var isImageEdgeShortcut = event.ctrlKey && (event.key === "Home" || event.key === "End");
+    var isEverywhereSearchShortcut = event.ctrlKey && (event.key === "ArrowUp" || event.key === "ArrowDown") && state.searchMode === "everywhere" && normalizeSearchText(elements.searchInput.value);
+    if (event.altKey || event.metaKey || event.shiftKey || (event.ctrlKey && !isImageShortcut && !isImageEdgeShortcut && !isEverywhereSearchShortcut)) {
+      return true;
+    }
+    if (!state.selectedId || state.editingId || elements.detailView.classList.contains("hidden")) {
+      return true;
+    }
+    if (document.querySelector(".online-search-overlay")) {
+      return true;
+    }
+    return isTextEditingTarget(event.target);
+  }
+
+  function isTextEditingTarget(target) {
+    if (!target || target === document.body) {
+      return false;
+    }
+    var tagName = target.tagName ? target.tagName.toLowerCase() : "";
+    return tagName === "input" || tagName === "textarea" || tagName === "select" || target.isContentEditable;
   }
 
   function setLanguage(language) {
@@ -1223,7 +1341,7 @@
         state.flowers = recovered;
         sortFlowers();
         if (failedKeys.length) {
-          window.alert("Einige beschädigte Blumendatensätze konnten nicht gelesen werden. Die lesbaren Blumen wurden geladen. Bitte exportiere die Daten jetzt als JSON-Sicherung.");
+          window.alert("Einige beschädigte Blumendatensätze konnten nicht gelesen werden. Die lesbaren Blumen wurden geladen. Bitte exportiere die Daten jetzt als Sicherung.");
         }
       });
     });
@@ -1405,7 +1523,7 @@
       item.appendChild(img);
       item.appendChild(text);
       item.addEventListener("click", function () {
-        state.selectedId = flower.id;
+        setSelectedFlower(flower.id);
         selectFilterMatchLanguage(flower, normalizeSearchText(elements.filterInput.value));
         selectSearchMatchImage(flower, normalizedSearchQuery);
         closeForm();
@@ -1426,7 +1544,7 @@
       return;
     }
 
-    state.selectedId = target.id;
+    setSelectedFlower(target.id);
     selectFilterMatchLanguage(target, filterQuery);
     selectSearchMatchImage(target, normalizeSearchText(elements.searchInput.value));
     closeForm();
@@ -1448,13 +1566,15 @@
         target = getSearchNavigationTarget(searchMatches, direction === undefined ? 1 : direction);
       }
     } else if (visibleFlowers.length) {
-      target = visibleFlowers.find(function (flower) {
-        return flower.id === state.selectedId;
-      }) || visibleFlowers[0];
+      target = direction
+        ? getSearchNavigationTarget(visibleFlowers, direction)
+        : visibleFlowers.find(function (flower) {
+          return flower.id === state.selectedId;
+        }) || visibleFlowers[0];
     }
 
     if (target) {
-      state.selectedId = target.id;
+      setSelectedFlower(target.id);
       selectFilterMatchLanguage(target, normalizeSearchText(elements.filterInput.value));
       selectSearchMatchImage(target, searchQuery);
     }
@@ -1790,7 +1910,8 @@
 
   function updateSearchStepButtons() {
     var matches = getSearchMatches();
-    var disabled = !normalizeSearchText(elements.searchInput.value) || matches.length === 0;
+    var searchQuery = normalizeSearchText(elements.searchInput.value);
+    var disabled = searchQuery ? matches.length === 0 : getVisibleFlowers().length === 0;
     elements.searchPreviousButton.disabled = disabled;
     elements.searchNextButton.disabled = disabled;
   }
@@ -2116,6 +2237,23 @@
     render();
   }
 
+  function selectCurrentFlowerImageByOffset(offset) {
+    var flower = getSelectedFlower();
+    if (!flower) {
+      return;
+    }
+    selectFlowerImageByOffset(flower, offset);
+  }
+
+  function selectCurrentFlowerImageEdge(edge) {
+    var flower = getSelectedFlower();
+    var images = getFlowerImages(flower);
+    if (!flower || !images.length) {
+      return;
+    }
+    selectFlowerImageByIndex(flower, edge === "first" ? 0 : images.length - 1);
+  }
+
   function handleFlowerImageWheel(event, flower) {
     var images = getFlowerImages(flower);
     if (images.length <= 1 || event.deltaY === 0) {
@@ -2172,7 +2310,7 @@
       })
       .then(loadFlowers)
       .then(function () {
-        state.selectedId = flower.id;
+        setSelectedFlower(flower.id);
         render();
         if (options && options.reopenThumbnails) {
           var updatedFlower = getSelectedFlower();
@@ -2262,7 +2400,7 @@
     saveFlower(updatedFlower)
       .then(loadFlowers)
       .then(function () {
-        state.selectedId = flower.id;
+        setSelectedFlower(flower.id);
         render();
         if (options && options.reopenThumbnails) {
           var updatedFlower = getSelectedFlower();
@@ -2325,7 +2463,7 @@
     saveFlower(updatedFlower)
       .then(loadFlowers)
       .then(function () {
-        state.selectedId = flower.id;
+        setSelectedFlower(flower.id);
         render();
       })
       .catch(function () {
@@ -3105,17 +3243,29 @@
     var actions = document.createElement("div");
     actions.className = "detail-actions";
 
-    var previousButton = createActionButton(t("previousFlower"), "icon-prev.png", "nav-button icon-action compact-action");
-    previousButton.title = t("previousFlower");
-    previousButton.disabled = getNavigationFlowerIndex(flower.id) <= 0;
+    var previousButton = createActionButton(t("historyBack"), "icon-prev.png", "history-nav-button history-back-button nav-button icon-action compact-action");
+    previousButton.title = t("historyBack");
+    previousButton.disabled = !canNavigateDetailHistory(-1);
     previousButton.addEventListener("click", function () {
+      navigateDetailHistory(-1);
+    });
+
+    var nextButton = createActionButton(t("historyForward"), "icon-next.png", "history-nav-button history-forward-button nav-button icon-action compact-action");
+    nextButton.title = t("historyForward");
+    nextButton.disabled = !canNavigateDetailHistory(1);
+    nextButton.addEventListener("click", function () {
+      navigateDetailHistory(1);
+    });
+
+    var previousListButton = createActionButton(t("previousFlower"), "icon-prev.png", "nav-button icon-action compact-action");
+    previousListButton.title = t("previousFlower");
+    previousListButton.addEventListener("click", function () {
       selectFlowerByOffset(-1);
     });
 
-    var nextButton = createActionButton(t("nextFlower"), "icon-next.png", "nav-button icon-action compact-action");
-    nextButton.title = t("nextFlower");
-    nextButton.disabled = getNavigationFlowerIndex(flower.id) >= getNavigationFlowers().length - 1;
-    nextButton.addEventListener("click", function () {
+    var nextListButton = createActionButton(t("nextFlower"), "icon-next.png", "nav-button icon-action compact-action");
+    nextListButton.title = t("nextFlower");
+    nextListButton.addEventListener("click", function () {
       selectFlowerByOffset(1);
     });
 
@@ -3151,6 +3301,8 @@
 
     actions.appendChild(previousButton);
     actions.appendChild(nextButton);
+    actions.appendChild(previousListButton);
+    actions.appendChild(nextListButton);
     actions.appendChild(editButton);
     actions.appendChild(deleteButton);
     actions.appendChild(addButton);
@@ -3205,17 +3357,84 @@
     });
   }
 
+  function setSelectedFlower(id, options) {
+    state.selectedId = id;
+    updateDetailHistory(id, options || {});
+  }
+
+  function updateDetailHistory(id, options) {
+    if (!id) {
+      state.detailHistory = [];
+      state.detailHistoryIndex = -1;
+      return;
+    }
+    if (options.replaceHistory || state.detailHistoryIndex === -1) {
+      state.detailHistory = [id];
+      state.detailHistoryIndex = 0;
+      return;
+    }
+    if (state.detailHistory[state.detailHistoryIndex] === id) {
+      return;
+    }
+    state.detailHistory = state.detailHistory.slice(0, state.detailHistoryIndex + 1);
+    state.detailHistory.push(id);
+    state.detailHistoryIndex = state.detailHistory.length - 1;
+  }
+
+  function canNavigateDetailHistory(offset) {
+    var nextIndex = state.detailHistoryIndex + offset;
+    return nextIndex >= 0 && nextIndex < state.detailHistory.length;
+  }
+
+  function navigateDetailHistory(offset) {
+    if (!canNavigateDetailHistory(offset)) {
+      return;
+    }
+    state.detailHistoryIndex += offset;
+    var id = state.detailHistory[state.detailHistoryIndex];
+    if (!getFlowerById(id)) {
+      state.detailHistory = state.detailHistory.filter(function (historyId) {
+        return Boolean(getFlowerById(historyId));
+      });
+      state.detailHistoryIndex = Math.min(state.detailHistoryIndex, state.detailHistory.length - 1);
+      return;
+    }
+    state.selectedId = id;
+    var target = getSelectedFlower();
+    if (target) {
+      selectFilterMatchLanguage(target, normalizeSearchText(elements.filterInput.value));
+      selectSearchMatchImage(target, normalizeSearchText(elements.searchInput.value));
+    }
+    closeForm();
+    render();
+    scrollToFlower(state.selectedId);
+  }
+
   function selectFlowerByOffset(offset) {
     var flowers = getNavigationFlowers();
-    var currentIndex = flowers.findIndex(function (flower) {
-      return flower.id === state.selectedId;
-    });
-    var nextIndex = currentIndex + offset;
-    if (nextIndex < 0 || nextIndex >= flowers.length) {
+    var target = getSearchNavigationTarget(flowers, offset);
+    if (!target) {
       return;
     }
 
-    state.selectedId = flowers[nextIndex].id;
+    setSelectedFlower(target.id);
+    selectFilterMatchLanguage(target, normalizeSearchText(elements.filterInput.value));
+    selectSearchMatchImage(target, normalizeSearchText(elements.searchInput.value));
+    closeForm();
+    render();
+    scrollToFlower(state.selectedId);
+  }
+
+  function selectFlowerEdge(edge) {
+    var flowers = getNavigationFlowers();
+    var target = edge === "first" ? flowers[0] : flowers[flowers.length - 1];
+    if (!target) {
+      return;
+    }
+
+    setSelectedFlower(target.id);
+    selectFilterMatchLanguage(target, normalizeSearchText(elements.filterInput.value));
+    selectSearchMatchImage(target, normalizeSearchText(elements.searchInput.value));
     closeForm();
     render();
     scrollToFlower(state.selectedId);
@@ -3230,7 +3449,7 @@
   }
 
   function openAppInfo() {
-    window.open("app-info.html", "_blank", "noopener");
+    window.open("app-info.html?lang=" + encodeURIComponent(state.language), "_blank", "noopener");
   }
 
   function openImageSource(sourceUrl) {
@@ -3408,7 +3627,7 @@
       return saveFlower(updatedFlower)
         .then(loadFlowers)
         .then(function () {
-          state.selectedId = flower.id;
+          setSelectedFlower(flower.id);
           render();
           if (options && options.reopenThumbnails) {
             var refreshedFlower = getSelectedFlower();
@@ -3555,7 +3774,7 @@
     saveFlower(flower)
       .then(loadFlowers)
       .then(function () {
-        state.selectedId = flower.id;
+        setSelectedFlower(flower.id);
         closeForm();
         render();
       })
@@ -3718,7 +3937,7 @@
           return null;
         }
         return loadFlowers().then(function () {
-          state.selectedId = flower.id;
+          setSelectedFlower(flower.id);
           closeForm();
           render();
           scrollToFlower(flower.id);
@@ -3755,7 +3974,14 @@
         }
         finished = true;
         overlay.remove();
+        document.removeEventListener("keydown", handleEscape);
         resolve(value || null);
+      }
+
+      function handleEscape(event) {
+        if (event.key === "Escape") {
+          finish(null);
+        }
       }
 
       overlay.className = "online-search-overlay";
@@ -3769,7 +3995,7 @@
       input.autocomplete = "off";
       input.placeholder = t("onlineSearchInputLabel");
       searchButton.type = "submit";
-      configureDialogIconButton(searchButton, t("search"), "icon-search.png");
+      configureDialogIconButton(searchButton, t("search"), "icon-search-flower-upload.png");
       cancelButton.type = "button";
       configureDialogIconButton(cancelButton, t("onlineSearchCancel"), "icon-exit.png");
       historyPanel.className = "online-search-history";
@@ -3797,6 +4023,7 @@
           finish(null);
         }
       });
+      document.addEventListener("keydown", handleEscape);
       form.addEventListener("submit", function (event) {
         event.preventDefault();
         var searchName = input.value.trim();
@@ -4702,7 +4929,9 @@
     deleteFlower(flower.id)
       .then(loadFlowers)
       .then(function () {
-        state.selectedId = state.flowers[0] ? state.flowers[0].id : null;
+        setSelectedFlower(state.flowers[0] ? state.flowers[0].id : null, {
+          replaceHistory: true
+        });
         render();
       })
       .catch(function () {
@@ -5637,38 +5866,86 @@
         exportedAt: new Date().toISOString(),
         flowers: state.flowers
       };
-      var blob = new Blob([JSON.stringify(exportData, null, 2)], { type: "application/json" });
-      return saveExportBlob(blob, getExportFileName());
+      return saveExportData(exportData);
     });
   }
 
-  function saveExportBlob(blob, suggestedName) {
-    if (window.showSaveFilePicker) {
-      return saveExportBlobWithFilePicker(blob, suggestedName);
-    }
-
-    downloadExportBlob(blob, suggestedName);
-    return Promise.resolve();
+  function saveExportData(exportData) {
+    var baseName = getExportBaseFileName();
+    return chooseExportFormat(exportData.flowers.length).then(function (format) {
+      if (!format) {
+        return;
+      }
+      if (window.showSaveFilePicker) {
+        return saveExportDataWithFilePicker(exportData, baseName, format);
+      }
+      return createExportBlob(exportData, format).then(function (blob) {
+        downloadExportBlob(blob, baseName + "." + format);
+      });
+    });
   }
 
-  function saveExportBlobWithFilePicker(blob, suggestedName) {
-    return window.showSaveFilePicker(createJsonPickerOptions({
-      suggestedName: suggestedName
+  function saveExportDataWithFilePicker(exportData, baseName, format) {
+    return window.showSaveFilePicker(createExportPickerOptions(format, {
+      suggestedName: baseName + "." + format
     })).then(function (handle) {
-      return handle.createWritable();
-    }).then(function (writable) {
-      return writable.write(blob).then(function () {
-        return writable.close();
+      var selectedFormat = getExportFormatFromFileName(handle.name, format);
+      return createExportBlob(exportData, selectedFormat).then(function (blob) {
+        return handle.createWritable().then(function (writable) {
+          return writable.write(blob).then(function () {
+            return writable.close();
+          });
+        });
       });
     }).catch(function (error) {
       if (error && error.name === "AbortError") {
         return;
       }
-      downloadExportBlob(blob, suggestedName);
+      return createExportBlob(exportData, format).then(function (blob) {
+        downloadExportBlob(blob, baseName + "." + format);
+      });
     });
   }
 
-  function getExportFileName() {
+  function chooseExportFormat(count) {
+    return showAppChoiceDialog({
+      title: t("export"),
+      message: t("exportStatus", { count: count }) + "\n" + t("exportFormatQuestion"),
+      acceptLabel: t("exportZip"),
+      cancelLabel: t("exportJson"),
+      acceptIcon: "icon-zip.png",
+      cancelIcon: "icon-json.png",
+      acceptValue: "zip",
+      cancelValue: "json",
+      dismissValue: null,
+      extraLabel: t("cancel"),
+      extraIcon: "icon-exit.png",
+      extraValue: null,
+      iconOnly: true,
+      noPrimary: true,
+      panelClassName: "export-format-dialog"
+    });
+  }
+
+  function createExportBlob(exportData, format) {
+    var jsonText = JSON.stringify(exportData, null, 2);
+    if (format === "json") {
+      return Promise.resolve(new Blob([jsonText], { type: "application/json" }));
+    }
+    return createZipBlob("blumen-inventar-export.json", jsonText);
+  }
+
+  function getExportFormatFromFileName(fileName, fallbackFormat) {
+    if (/\.json$/i.test(fileName || "")) {
+      return "json";
+    }
+    if (/\.zip$/i.test(fileName || "")) {
+      return "zip";
+    }
+    return fallbackFormat || "zip";
+  }
+
+  function getExportBaseFileName() {
     var now = new Date();
     return [
       now.getFullYear(),
@@ -5676,7 +5953,152 @@
       padDatePart(now.getDate()),
       padDatePart(now.getHours()),
       padDatePart(now.getMinutes())
-    ].join("-") + "-blumen-inventar-export.json";
+    ].join("-") + "-blumen-inventar-export";
+  }
+
+  function createZipBlob(fileName, text) {
+    var fileNameBytes = encodeUtf8(fileName);
+    var contentBytes = encodeUtf8(text);
+    var crc = calculateCrc32(contentBytes);
+    var timestamp = getZipTimestamp(new Date());
+    return compressZipContent(contentBytes).then(function (compressed) {
+      var localHeader = createZipLocalHeader(fileNameBytes, compressed.method, timestamp, crc, compressed.bytes.length, contentBytes.length);
+      var centralHeader = createZipCentralHeader(fileNameBytes, compressed.method, timestamp, crc, compressed.bytes.length, contentBytes.length, 0);
+      var endRecord = createZipEndRecord(centralHeader.byteLength, localHeader.byteLength + compressed.bytes.length);
+      return new Blob([localHeader, compressed.bytes, centralHeader, endRecord], { type: "application/zip" });
+    });
+  }
+
+  function compressZipContent(bytes) {
+    if (!window.CompressionStream) {
+      return Promise.resolve({ bytes: bytes, method: 0 });
+    }
+
+    try {
+      var stream = new Blob([bytes]).stream().pipeThrough(new CompressionStream("deflate-raw"));
+      return new Response(stream).arrayBuffer().then(function (buffer) {
+        return {
+          bytes: new Uint8Array(buffer),
+          method: 8
+        };
+      }).catch(function () {
+        return { bytes: bytes, method: 0 };
+      });
+    } catch (error) {
+      return Promise.resolve({ bytes: bytes, method: 0 });
+    }
+  }
+
+  function createZipLocalHeader(fileNameBytes, method, timestamp, crc, compressedSize, uncompressedSize) {
+    var header = new Uint8Array(30 + fileNameBytes.length);
+    writeUint32(header, 0, 0x04034b50);
+    writeUint16(header, 4, 20);
+    writeUint16(header, 6, 0);
+    writeUint16(header, 8, method);
+    writeUint16(header, 10, timestamp.time);
+    writeUint16(header, 12, timestamp.date);
+    writeUint32(header, 14, crc);
+    writeUint32(header, 18, compressedSize);
+    writeUint32(header, 22, uncompressedSize);
+    writeUint16(header, 26, fileNameBytes.length);
+    writeUint16(header, 28, 0);
+    header.set(fileNameBytes, 30);
+    return header;
+  }
+
+  function createZipCentralHeader(fileNameBytes, method, timestamp, crc, compressedSize, uncompressedSize, localHeaderOffset) {
+    var header = new Uint8Array(46 + fileNameBytes.length);
+    writeUint32(header, 0, 0x02014b50);
+    writeUint16(header, 4, 20);
+    writeUint16(header, 6, 20);
+    writeUint16(header, 8, 0);
+    writeUint16(header, 10, method);
+    writeUint16(header, 12, timestamp.time);
+    writeUint16(header, 14, timestamp.date);
+    writeUint32(header, 16, crc);
+    writeUint32(header, 20, compressedSize);
+    writeUint32(header, 24, uncompressedSize);
+    writeUint16(header, 28, fileNameBytes.length);
+    writeUint16(header, 30, 0);
+    writeUint16(header, 32, 0);
+    writeUint16(header, 34, 0);
+    writeUint16(header, 36, 0);
+    writeUint32(header, 38, 0);
+    writeUint32(header, 42, localHeaderOffset);
+    header.set(fileNameBytes, 46);
+    return header;
+  }
+
+  function createZipEndRecord(centralDirectorySize, centralDirectoryOffset) {
+    var record = new Uint8Array(22);
+    writeUint32(record, 0, 0x06054b50);
+    writeUint16(record, 4, 0);
+    writeUint16(record, 6, 0);
+    writeUint16(record, 8, 1);
+    writeUint16(record, 10, 1);
+    writeUint32(record, 12, centralDirectorySize);
+    writeUint32(record, 16, centralDirectoryOffset);
+    writeUint16(record, 20, 0);
+    return record;
+  }
+
+  function getZipTimestamp(date) {
+    return {
+      time: (date.getHours() << 11) | (date.getMinutes() << 5) | Math.floor(date.getSeconds() / 2),
+      date: ((date.getFullYear() - 1980) << 9) | ((date.getMonth() + 1) << 5) | date.getDate()
+    };
+  }
+
+  function encodeUtf8(value) {
+    return new TextEncoder().encode(value);
+  }
+
+  function decodeUtf8(bytes) {
+    return new TextDecoder("utf-8").decode(bytes);
+  }
+
+  function writeUint16(bytes, offset, value) {
+    bytes[offset] = value & 255;
+    bytes[offset + 1] = (value >>> 8) & 255;
+  }
+
+  function writeUint32(bytes, offset, value) {
+    bytes[offset] = value & 255;
+    bytes[offset + 1] = (value >>> 8) & 255;
+    bytes[offset + 2] = (value >>> 16) & 255;
+    bytes[offset + 3] = (value >>> 24) & 255;
+  }
+
+  function readUint16(view, offset) {
+    return view.getUint16(offset, true);
+  }
+
+  function readUint32(view, offset) {
+    return view.getUint32(offset, true);
+  }
+
+  function calculateCrc32(bytes) {
+    var crc = -1;
+    for (var index = 0; index < bytes.length; index += 1) {
+      crc = (crc >>> 8) ^ getCrc32Table()[(crc ^ bytes[index]) & 255];
+    }
+    return (crc ^ -1) >>> 0;
+  }
+
+  function getCrc32Table() {
+    if (getCrc32Table.table) {
+      return getCrc32Table.table;
+    }
+    var table = [];
+    for (var index = 0; index < 256; index += 1) {
+      var value = index;
+      for (var bit = 0; bit < 8; bit += 1) {
+        value = (value & 1) ? (0xedb88320 ^ (value >>> 1)) : (value >>> 1);
+      }
+      table[index] = value >>> 0;
+    }
+    getCrc32Table.table = table;
+    return table;
   }
 
   function padDatePart(value) {
@@ -5697,7 +6119,7 @@
   function chooseImportFile() {
     if (window.showOpenFilePicker) {
       getExportDirectoryHandle("read").then(function (directoryHandle) {
-        return window.showOpenFilePicker(createJsonPickerOptions({
+        return window.showOpenFilePicker(createImportPickerOptions({
           multiple: false,
           startIn: directoryHandle
         }));
@@ -5723,12 +6145,41 @@
     elements.importFileInput.click();
   }
 
-  function createJsonPickerOptions(options) {
+  function createExportPickerOptions(format, options) {
+    var type = format === "json"
+      ? {
+        description: "JSON",
+        accept: { "application/json": [".json"] }
+      }
+      : {
+        description: "ZIP",
+        accept: { "application/zip": [".zip"] }
+      };
+    var pickerOptions = Object.assign({
+      id: "flower-inventory-export-import",
+      types: [type]
+    }, options || {});
+    if (!pickerOptions.startIn) {
+      delete pickerOptions.startIn;
+    }
+    return pickerOptions;
+  }
+
+  function createImportPickerOptions(options) {
     var pickerOptions = Object.assign({
       id: "flower-inventory-export-import",
       types: [{
+        description: "Sicherungsdatei",
+        accept: {
+          "application/json": [".json"],
+          "application/zip": [".zip"]
+        }
+      }, {
         description: "JSON",
         accept: { "application/json": [".json"] }
+      }, {
+        description: "ZIP",
+        accept: { "application/zip": [".zip"] }
       }]
     }, options || {});
     if (!pickerOptions.startIn) {
@@ -5801,38 +6252,152 @@
   }
 
   function importFlowerFile(file) {
-    readFileAsText(file)
-      .then(function (text) {
-        var data = JSON.parse(text);
-        var flowers = normalizeImportData(data);
+    readImportFlowersFromFile(file)
+      .then(function (flowers) {
         if (flowers.length === 0) {
           throw new Error("empty");
         }
 
-        return showImportModeDialog().then(function (replace) {
+        return showImportModeDialog(flowers.length).then(function (replace) {
+          if (replace === null) {
+            throw new Error("import-cancelled");
+          }
           return importNormalizedFlowers(flowers, replace);
         });
       })
       .then(loadFlowers)
       .then(function () {
-        state.selectedId = state.flowers[0] ? state.flowers[0].id : null;
+        setSelectedFlower(state.flowers[0] ? state.flowers[0].id : null, {
+          replaceHistory: true
+        });
         closeForm();
         render();
         return showAppMessageDialog(t("importDone"));
       })
-      .catch(function () {
+      .catch(function (error) {
+        if (error && error.message === "import-cancelled") {
+          return;
+        }
         showAppMessageDialog(t("importFailed"));
       });
   }
 
-  function showImportModeDialog() {
+  function readImportFlowersFromFile(file) {
+    if (isZipFile(file)) {
+      return readFileAsArrayBuffer(file)
+        .then(readJsonTextFromZip)
+        .then(parseImportFlowers);
+    }
+    return readFileAsText(file).then(parseImportFlowers);
+  }
+
+  function parseImportFlowers(text) {
+    var data = JSON.parse(text);
+    return normalizeImportData(data);
+  }
+
+  function isZipFile(file) {
+    var name = file && file.name ? file.name : "";
+    var type = file && file.type ? file.type : "";
+    return /\.zip$/i.test(name) || /zip/i.test(type);
+  }
+
+  function readJsonTextFromZip(arrayBuffer) {
+    var bytes = new Uint8Array(arrayBuffer);
+    var view = new DataView(arrayBuffer);
+    var endOffset = findZipEndRecord(view);
+    if (endOffset < 0) {
+      throw new Error("zip-end-not-found");
+    }
+
+    var entryCount = readUint16(view, endOffset + 10);
+    var centralDirectoryOffset = readUint32(view, endOffset + 16);
+    var entry = findJsonZipEntry(view, bytes, centralDirectoryOffset, entryCount);
+    if (!entry) {
+      throw new Error("json-entry-not-found");
+    }
+    return readZipEntryText(view, bytes, entry);
+  }
+
+  function findZipEndRecord(view) {
+    var minimumOffset = Math.max(0, view.byteLength - 65557);
+    for (var offset = view.byteLength - 22; offset >= minimumOffset; offset -= 1) {
+      if (readUint32(view, offset) === 0x06054b50) {
+        return offset;
+      }
+    }
+    return -1;
+  }
+
+  function findJsonZipEntry(view, bytes, centralDirectoryOffset, entryCount) {
+    var offset = centralDirectoryOffset;
+    for (var index = 0; index < entryCount; index += 1) {
+      if (readUint32(view, offset) !== 0x02014b50) {
+        throw new Error("zip-central-directory-invalid");
+      }
+      var fileNameLength = readUint16(view, offset + 28);
+      var extraLength = readUint16(view, offset + 30);
+      var commentLength = readUint16(view, offset + 32);
+      var fileName = decodeUtf8(bytes.slice(offset + 46, offset + 46 + fileNameLength));
+      if (/\.json$/i.test(fileName)) {
+        return {
+          method: readUint16(view, offset + 10),
+          compressedSize: readUint32(view, offset + 20),
+          localHeaderOffset: readUint32(view, offset + 42)
+        };
+      }
+      offset += 46 + fileNameLength + extraLength + commentLength;
+    }
+    return null;
+  }
+
+  function readZipEntryText(view, bytes, entry) {
+    var localOffset = entry.localHeaderOffset;
+    if (readUint32(view, localOffset) !== 0x04034b50) {
+      throw new Error("zip-local-header-invalid");
+    }
+    var fileNameLength = readUint16(view, localOffset + 26);
+    var extraLength = readUint16(view, localOffset + 28);
+    var dataStart = localOffset + 30 + fileNameLength + extraLength;
+    var compressedBytes = bytes.slice(dataStart, dataStart + entry.compressedSize);
+    return decompressZipEntry(compressedBytes, entry.method).then(decodeUtf8);
+  }
+
+  function decompressZipEntry(bytes, method) {
+    if (method === 0) {
+      return Promise.resolve(bytes);
+    }
+    if (method !== 8 || !window.DecompressionStream) {
+      throw new Error("zip-compression-unsupported");
+    }
+
+    try {
+      var stream = new Blob([bytes]).stream().pipeThrough(new DecompressionStream("deflate-raw"));
+      return new Response(stream).arrayBuffer().then(function (buffer) {
+        return new Uint8Array(buffer);
+      });
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  }
+
+  function showImportModeDialog(count) {
     return showAppChoiceDialog({
       title: t("import"),
-      message: t("importReplaceQuestion"),
+      message: t("importStatus", { count: count }) + "\n" + t("importReplaceQuestion"),
       acceptLabel: t("replaceImportData"),
       cancelLabel: t("addImportData"),
-      acceptIcon: "icon-save.png",
-      cancelIcon: "icon-add.png"
+      acceptIcon: "icon-replace.png",
+      cancelIcon: "icon-import-add.png",
+      acceptValue: true,
+      cancelValue: false,
+      dismissValue: null,
+      extraLabel: t("cancel"),
+      extraIcon: "icon-exit.png",
+      extraValue: null,
+      iconOnly: true,
+      noPrimary: true,
+      panelClassName: "import-mode-dialog"
     });
   }
 
@@ -5869,21 +6434,29 @@
 
       function handleKeydown(event) {
         if (event.key === "Escape") {
-          finish(false);
+          finish(options.dismissValue === undefined ? false : options.dismissValue);
         }
       }
 
       overlay.className = "online-search-overlay app-dialog-overlay";
       panel.className = "online-search-panel app-dialog-panel";
+      if (options.panelClassName) {
+        panel.classList.add(options.panelClassName);
+      }
       title.textContent = options.title || t("appTitle");
       message.className = "app-dialog-message";
       message.textContent = options.message || "";
       actions.className = "app-dialog-actions";
       acceptButton.type = "button";
       configureDialogIconButton(acceptButton, options.acceptLabel || "OK", options.acceptIcon || "icon-save.png");
-      acceptButton.classList.add("primary");
+      if (!options.noPrimary) {
+        acceptButton.classList.add("primary");
+      }
+      if (options.iconOnly) {
+        acceptButton.classList.add("icon-only-choice");
+      }
       acceptButton.addEventListener("click", function () {
-        finish(true);
+        finish(options.acceptValue === undefined ? true : options.acceptValue);
       });
 
       panel.appendChild(title);
@@ -5893,10 +6466,24 @@
       if (!options.hideCancel) {
         cancelButton.type = "button";
         configureDialogIconButton(cancelButton, options.cancelLabel || t("cancel"), options.cancelIcon || "icon-exit.png");
+        if (options.iconOnly) {
+          cancelButton.classList.add("icon-only-choice");
+        }
         cancelButton.addEventListener("click", function () {
-          finish(false);
+          finish(options.cancelValue === undefined ? false : options.cancelValue);
         });
         actions.appendChild(cancelButton);
+      }
+
+      if (options.extraLabel && options.extraIcon) {
+        var extraButton = document.createElement("button");
+        extraButton.type = "button";
+        configureDialogIconButton(extraButton, options.extraLabel, options.extraIcon);
+        extraButton.classList.add("small-icon-choice");
+        extraButton.addEventListener("click", function () {
+          finish(options.extraValue === undefined ? false : options.extraValue);
+        });
+        actions.appendChild(extraButton);
       }
 
       panel.appendChild(actions);
@@ -5904,7 +6491,7 @@
       document.body.appendChild(overlay);
       overlay.addEventListener("click", function (event) {
         if (event.target === overlay) {
-          finish(false);
+          finish(options.dismissValue === undefined ? false : options.dismissValue);
         }
       });
       document.addEventListener("keydown", handleKeydown);
@@ -6192,6 +6779,12 @@
     }) || null;
   }
 
+  function getFlowerById(id) {
+    return state.flowers.find(function (flower) {
+      return flower.id === id;
+    }) || null;
+  }
+
   function getLocalizedFlowerName(flower) {
     if (!flower || !flower.names) {
       return "";
@@ -6408,6 +7001,10 @@
     return readFile(file, "readAsText");
   }
 
+  function readFileAsArrayBuffer(file) {
+    return readFile(file, "readAsArrayBuffer");
+  }
+
   function readFile(file, method) {
     return new Promise(function (resolve, reject) {
       var reader = new FileReader();
@@ -6438,7 +7035,7 @@
       "<p class=\"fatal-detail\">", escapeHtml(t("currentAddress", { address: address })), "</p>",
       "<p class=\"fatal-detail\">", escapeHtml(t("resetDatabaseNote")), "</p>",
       "<p class=\"fatal-detail\">", escapeHtml(t("repairDatabaseNote")), "</p>",
-      "<input id=\"repairImportFileInput\" class=\"visually-hidden\" type=\"file\" accept=\"application/json,.json\">",
+      "<input id=\"repairImportFileInput\" class=\"visually-hidden\" type=\"file\" accept=\"application/json,application/zip,application/x-zip-compressed,.json,.zip\">",
       "<button id=\"repairImportButton\" class=\"primary\" type=\"button\">", escapeHtml(t("repairDatabaseImport")), "</button> ",
       "<button id=\"resetDatabaseButton\" class=\"primary\" type=\"button\">", escapeHtml(t("resetDatabase")), "</button>",
       "</div></div>"
@@ -6469,10 +7066,8 @@
       return;
     }
 
-    readFileAsText(file)
-      .then(function (text) {
-        var data = JSON.parse(text);
-        var flowers = normalizeImportData(data);
+    readImportFlowersFromFile(file)
+      .then(function (flowers) {
         if (flowers.length === 0) {
           throw new Error("empty");
         }
