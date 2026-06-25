@@ -1477,6 +1477,7 @@
         "Német név: " + (flowerNames.de || "-"),
         "Angol név: " + (flowerNames.en || "-"),
         "",
+        "Az Ismert adatok blokk csak kontextus, ezt ne írd bele a végső leírásba.",
         "A virág nevét, a \"Botanikai név:\", \"További nevek:\" és \"Növénytípus:\" mezőcímkéket emeld ki félkövérrel.",
         "Ha a kiválasztott nyelven nincsenek további nevek, akkor pontosan ezt írd: További nevek: -",
         "Ha a növénytípus nem állapítható meg megbízhatóan, akkor pontosan ezt írd: Növénytípus: -",
@@ -1499,6 +1500,7 @@
         "German name: " + (flowerNames.de || "-"),
         "English name: " + (flowerNames.en || "-"),
         "",
+        "The Known data block is context only. Do not include it in the final description.",
         "Format the flower name and the labels \"Botanical name:\", \"Other names:\" and \"Plant type:\" in bold.",
         "If there are no other names in the selected language, write exactly: Other names: -",
         "If the plant type cannot be determined reliably, write exactly: Plant type: -",
@@ -1520,6 +1522,7 @@
       "Deutscher Name: " + (flowerNames.de || "-"),
       "Englischer Name: " + (flowerNames.en || "-"),
       "",
+      "Der Block Bekannte Daten ist nur Kontext. Gib ihn nicht in der fertigen Beschreibung aus.",
       "Formatiere den Blumennamen sowie die Feldbezeichnungen \"Botanischer Name:\", \"Weitere Namen:\" und \"Pflanzentyp:\" fett.",
       "Falls weitere Namen in der ausgewählten Sprache nicht vorhanden sind, schreibe genau: Weitere Namen: -",
       "Falls der Pflanzentyp nicht zuverlässig bestimmbar ist, schreibe genau: Pflanzentyp: -",
@@ -6357,7 +6360,7 @@
 
   function generatedDescriptionTextToHtml(text, language) {
     var labelPatterns = getGeneratedDescriptionBoldLabels(language);
-    var lines = String(text || "").trim().split(/\r?\n/);
+    var lines = removeGeneratedDescriptionContextLines(String(text || "").trim().split(/\r?\n/));
     var htmlBlocks = [];
     var paragraphLines = [];
     var firstTextLineSeen = false;
@@ -6384,6 +6387,32 @@
     flushParagraph();
 
     return htmlBlocks.join("");
+  }
+
+  function removeGeneratedDescriptionContextLines(lines) {
+    var contextHeaderPattern = /^(Bekannte Daten|Known data|Ismert adatok):?$/i;
+    var contextLinePattern = /^(Ungarischer Name|Botanischer\/lateinischer Name|Deutscher Name|Englischer Name|Hungarian name|Botanical\/Latin name|German name|English name|Magyar név|Botanikai\/latin név|Német név|Angol név):/i;
+    var filteredLines = [];
+    var skippingContext = false;
+
+    lines.forEach(function (line) {
+      var trimmedLine = line.trim();
+      if (contextHeaderPattern.test(trimmedLine)) {
+        skippingContext = true;
+        return;
+      }
+      if (skippingContext && contextLinePattern.test(trimmedLine)) {
+        return;
+      }
+      if (skippingContext && !trimmedLine) {
+        skippingContext = false;
+        return;
+      }
+      skippingContext = false;
+      filteredLines.push(line);
+    });
+
+    return filteredLines;
   }
 
   function getGeneratedDescriptionBoldLabels(language) {
