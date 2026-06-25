@@ -99,6 +99,28 @@
       padding: 2px 5px;
     }
 
+    pre {
+      margin: 14px 0 16px;
+      overflow-x: auto;
+      background: #1f2529;
+      border: 1px solid #364047;
+      border-radius: 8px;
+      color: #f6f0df;
+      padding: 14px 16px;
+      white-space: pre;
+    }
+
+    pre code {
+      display: block;
+      background: transparent;
+      border-radius: 0;
+      color: inherit;
+      padding: 0;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 14px;
+      line-height: 1.55;
+    }
+
     .note {
       border-left: 4px solid var(--accent);
       background: var(--accent-soft);
@@ -350,6 +372,16 @@
               paragraphs: [
                 "Wenn Änderungen an der App fertig sind, müssen sie mit Git lokal gespeichert und danach nach GitHub hochgeladen werden. Öffne dafür PowerShell und führe die folgenden Schritte im Projektordner aus."
               ],
+              copyBlocks: [
+                [
+                  "cd F:\\tresorit\\knowhow\\flowers\\flower-inventory",
+                  "git status",
+                  "git add .",
+                  "git commit -m\"weitere Anpassungen...\"",
+                  "git push -u origin main",
+                  "git status"
+                ]
+              ],
               items: [
                 ["cd F:\\tresorit\\knowhow\\flowers\\flower-inventory", "wechselt in den lokalen Projektordner."],
                 ["git status", "zeigt, welche Dateien geändert, neu oder bereits vorgemerkt sind. Vor einem Commit sollte hier klar sein, was gespeichert wird."],
@@ -554,6 +586,16 @@
               title: "PowerShell / Git / GitHub",
               paragraphs: [
                 "When changes to the app are finished, save them locally with Git and then upload them to GitHub. Open PowerShell and run these steps in the project folder."
+              ],
+              copyBlocks: [
+                [
+                  "cd F:\\tresorit\\knowhow\\flowers\\flower-inventory",
+                  "git status",
+                  "git add .",
+                  "git commit -m\"weitere Anpassungen...\"",
+                  "git push -u origin main",
+                  "git status"
+                ]
               ],
               items: [
                 ["cd F:\\tresorit\\knowhow\\flowers\\flower-inventory", "changes to the local project folder."],
@@ -760,6 +802,16 @@
               paragraphs: [
                 "Ha elkészültek az alkalmazás módosításai, először Gitben kell helyben elmenteni őket, majd fel kell tölteni GitHubra. Nyisd meg a PowerShellt, és futtasd a következő lépéseket a projekt mappájában."
               ],
+              copyBlocks: [
+                [
+                  "cd F:\\tresorit\\knowhow\\flowers\\flower-inventory",
+                  "git status",
+                  "git add .",
+                  "git commit -m\"weitere Anpassungen...\"",
+                  "git push -u origin main",
+                  "git status"
+                ]
+              ],
               items: [
                 ["cd F:\\tresorit\\knowhow\\flowers\\flower-inventory", "átvált a helyi projektmappába."],
                 ["git status", "megmutatja, mely fájlok módosultak, újak, töröltek vagy már elő vannak készítve commitra."],
@@ -847,12 +899,23 @@
         return list;
       }
 
+      function createCopyBlock(lines) {
+        var pre = document.createElement("pre");
+        var code = document.createElement("code");
+        code.textContent = lines.join("\n");
+        pre.appendChild(code);
+        return pre;
+      }
+
       function renderSection(sectionData) {
         var section = document.createElement("section");
         section.id = sectionData.id;
         appendTextElement(section, "h2", sectionData.title);
         (sectionData.paragraphs || []).forEach(function (paragraph) {
           appendTextElement(section, "p", paragraph);
+        });
+        (sectionData.copyBlocks || []).forEach(function (lines) {
+          section.appendChild(createCopyBlock(lines));
         });
         if (sectionData.items) {
           section.appendChild(createList(sectionData.items, false, "icon-list"));
