@@ -27,7 +27,8 @@
     autoFillTimer: null,
     lastLookupLatinName: "",
     descriptionLanguage: localStorage.getItem("flowerInventoryLanguage") || "de",
-    descriptionDrafts: { hu: "", de: "", en: "" },
+    descriptionDrafts: { hu: [""], de: [""], en: [""] },
+    activeDescriptionPanelIndex: 0,
     editorRange: null,
     activeInfoTab: "description",
     language: localStorage.getItem("flowerInventoryLanguage") || "de",
@@ -188,6 +189,21 @@
       selectImageDrop: "Kép kiválasztása / Drag & Drop",
       selectImage: "Kép kiválasztása",
       descriptionPlaceholder: "Leírás megfogalmazása...",
+      addDescriptionPanel: "Leíráspanel hozzáadása",
+      removeDescriptionPanel: "Leíráspanel törlése",
+      moveDescriptionPanelUp: "Leíráspanel feljebb",
+      moveDescriptionPanelDown: "Leíráspanel lejjebb",
+      copyDescriptionPanel: "Leíráspanel másolása",
+      copiedDescriptionPanel: "Leíráspanel másolva",
+      readDescriptionPanel: "Leíráspanel felolvasása",
+      stopReadingDescriptionPanel: "Felolvasás leállítása",
+      speechDiagnosticsTitle: "Hangdiagnosztika",
+      speechDiagnosticsNoSupport: "Ez a böngésző nem támogatja a beépített felolvasást.",
+      speechDiagnosticsVoicesCount: "Elérhető hangok: {count}",
+      speechDiagnosticsSelectedVoice: "Kiválasztott hang: {voice}",
+      speechDiagnosticsHungarianVoices: "Illeszkedő hangok:",
+      speechDiagnosticsAllVoices: "Összes hang:",
+      speechDiagnosticsNoVoice: "Nincs megfelelő hang.",
       noSearchMatch: "Nem található megfelelő virág.",
       huRequired: "A magyar név kötelező mező.",
       imageRequired: "Kérlek, válassz ki egy képet.",
@@ -364,6 +380,21 @@
       selectImageDrop: "Bild auswählen / Drag & Drop",
       selectImage: "Bild auswählen",
       descriptionPlaceholder: "Beschreibung formulieren...",
+      addDescriptionPanel: "Beschreibung-Panel hinzufügen",
+      removeDescriptionPanel: "Beschreibung-Panel löschen",
+      moveDescriptionPanelUp: "Beschreibung-Panel nach oben",
+      moveDescriptionPanelDown: "Beschreibung-Panel nach unten",
+      copyDescriptionPanel: "Beschreibung-Panel kopieren",
+      copiedDescriptionPanel: "Beschreibung-Panel kopiert",
+      readDescriptionPanel: "Beschreibung-Panel vorlesen",
+      stopReadingDescriptionPanel: "Vorlesen stoppen",
+      speechDiagnosticsTitle: "Stimmen-Diagnose",
+      speechDiagnosticsNoSupport: "Dieser Browser unterstützt die eingebaute Sprachausgabe nicht.",
+      speechDiagnosticsVoicesCount: "Verfügbare Stimmen: {count}",
+      speechDiagnosticsSelectedVoice: "Ausgewählte Stimme: {voice}",
+      speechDiagnosticsHungarianVoices: "Passende Stimmen:",
+      speechDiagnosticsAllVoices: "Alle Stimmen:",
+      speechDiagnosticsNoVoice: "Keine passende Stimme.",
       noSearchMatch: "Keine passende Blume gefunden.",
       huRequired: "Der ungarische Name ist ein Pflichtfeld.",
       imageRequired: "Bitte wähle ein Bild aus.",
@@ -540,6 +571,21 @@
       selectImageDrop: "Choose image / Drag & Drop",
       selectImage: "Choose image",
       descriptionPlaceholder: "Write description...",
+      addDescriptionPanel: "Add description panel",
+      removeDescriptionPanel: "Delete description panel",
+      moveDescriptionPanelUp: "Move description panel up",
+      moveDescriptionPanelDown: "Move description panel down",
+      copyDescriptionPanel: "Copy description panel",
+      copiedDescriptionPanel: "Description panel copied",
+      readDescriptionPanel: "Read description panel aloud",
+      stopReadingDescriptionPanel: "Stop reading aloud",
+      speechDiagnosticsTitle: "Voice diagnostics",
+      speechDiagnosticsNoSupport: "This browser does not support built-in speech output.",
+      speechDiagnosticsVoicesCount: "Available voices: {count}",
+      speechDiagnosticsSelectedVoice: "Selected voice: {voice}",
+      speechDiagnosticsHungarianVoices: "Matching voices:",
+      speechDiagnosticsAllVoices: "All voices:",
+      speechDiagnosticsNoVoice: "No matching voice.",
       noSearchMatch: "No matching flower found.",
       huRequired: "The Hungarian name is required.",
       imageRequired: "Please choose an image.",
@@ -616,6 +662,7 @@
     flowerList: document.getElementById("flowerList"),
     detailView: document.getElementById("detailView"),
     topDetailActions: document.getElementById("topDetailActions"),
+    formTopActions: document.getElementById("formTopActions"),
     flowerForm: document.getElementById("flowerForm"),
     formModeLabel: document.getElementById("formModeLabel"),
     imagePreview: document.getElementById("imagePreview"),
@@ -624,7 +671,7 @@
     nameLa: document.getElementById("nameLa"),
     nameDe: document.getElementById("nameDe"),
     nameEn: document.getElementById("nameEn"),
-    descriptionEditor: document.getElementById("descriptionEditor"),
+    descriptionEditorList: document.getElementById("descriptionEditorList"),
     descriptionColorInput: document.getElementById("descriptionColorInput"),
     descriptionBackgroundColorInput: document.getElementById("descriptionBackgroundColorInput"),
     descriptionFontFamilySelect: document.getElementById("descriptionFontFamilySelect"),
@@ -746,6 +793,7 @@
         return;
       }
 
+      event.preventDefault();
       setDescriptionLanguage(button.dataset.descriptionLang);
     });
     elements.addLinkButton.addEventListener("click", function () {
@@ -777,8 +825,10 @@
       }
     });
     elements.editorToolbar.addEventListener("click", handleEditorToolbarClick);
-    ["keyup", "mouseup", "input", "focus"].forEach(function (eventName) {
-      elements.descriptionEditor.addEventListener(eventName, saveEditorSelection);
+    elements.descriptionEditorList.addEventListener("click", handleDescriptionPanelAction);
+    elements.descriptionEditorList.addEventListener("focusin", handleDescriptionEditorEvent);
+    ["keyup", "mouseup", "input"].forEach(function (eventName) {
+      elements.descriptionEditorList.addEventListener(eventName, handleDescriptionEditorEvent);
     });
     elements.descriptionFontFamilySelect.addEventListener("change", function () {
       if (elements.descriptionFontFamilySelect.value) {
@@ -883,10 +933,20 @@
     document.addEventListener("keydown", handleLanguageShortcutKeys);
     document.addEventListener("keydown", handleDetailArrowKeys);
     document.addEventListener("paste", handleClipboardPaste);
+    document.addEventListener("click", handleSpeechDiagnosticsOutsideClick);
+    preloadSpeechVoices();
+    if (supportsSpeechSynthesis()) {
+      window.speechSynthesis.onvoiceschanged = preloadSpeechVoices;
+    }
   }
 
   function handleGlobalEscapeKey(event) {
     if (event.key !== "Escape") {
+      return;
+    }
+    if (document.querySelector(".speech-diagnostics-bubble")) {
+      event.preventDefault();
+      closeSpeechDiagnostics();
       return;
     }
     if (document.querySelector(".online-search-overlay") || document.querySelector(".thumbnail-overlay") || document.querySelector(".choice-dialog")) {
@@ -902,6 +962,17 @@
       closeForm();
       render();
     }
+  }
+
+  function handleSpeechDiagnosticsOutsideClick(event) {
+    var bubble = document.querySelector(".speech-diagnostics-bubble");
+    if (!bubble) {
+      return;
+    }
+    if (bubble.contains(event.target) || event.target.closest("[data-description-panel-action=\"speak\"]")) {
+      return;
+    }
+    closeSpeechDiagnostics();
   }
 
   function handleLanguageShortcutKeys(event) {
@@ -1061,7 +1132,7 @@
       button.classList.toggle("active", button.dataset.lang === state.language);
     });
     updateDescriptionLanguageTabs();
-    elements.descriptionEditor.setAttribute("data-placeholder", t("descriptionPlaceholder"));
+    updateDescriptionEditorLabels();
     if (state.editingId !== null) {
       elements.formModeLabel.textContent = state.editingId ? t("edit") : t("newFlower");
     }
@@ -1125,11 +1196,11 @@
 
     saveCurrentDescriptionDraft();
     state.descriptionLanguage = language;
-    elements.descriptionEditor.innerHTML = state.descriptionDrafts[language] || "";
+    renderDescriptionEditors();
     state.editorRange = null;
     updateDescriptionLanguageTabs();
     if (!options || !options.keepFocus) {
-      elements.descriptionEditor.focus();
+      focusActiveDescriptionEditor();
     }
   }
 
@@ -1140,7 +1211,216 @@
   }
 
   function saveCurrentDescriptionDraft() {
-    state.descriptionDrafts[state.descriptionLanguage] = sanitizeDescriptionHtml(elements.descriptionEditor.innerHTML);
+    state.descriptionDrafts[state.descriptionLanguage] = collectDescriptionPanelDrafts();
+  }
+
+  function getEmptyDescriptionDrafts() {
+    return { hu: [""], de: [""], en: [""] };
+  }
+
+  function getDescriptionDrafts(description) {
+    var panels = normalizeDescriptionPanels(description);
+    return {
+      hu: panels.hu.slice(),
+      de: panels.de.slice(),
+      en: panels.en.slice()
+    };
+  }
+
+  function collectDescriptionPanelDrafts() {
+    var panels = Array.prototype.slice.call(elements.descriptionEditorList.querySelectorAll(".description-editor")).map(function (editor) {
+      return sanitizeDescriptionHtml(editor.innerHTML);
+    });
+    return panels.length ? panels : [""];
+  }
+
+  function getActiveDescriptionEditor() {
+    var editors = Array.prototype.slice.call(elements.descriptionEditorList.querySelectorAll(".description-editor"));
+    if (!editors.length) {
+      return null;
+    }
+    if (state.activeDescriptionPanelIndex < 0 || state.activeDescriptionPanelIndex >= editors.length) {
+      state.activeDescriptionPanelIndex = 0;
+    }
+    return editors[state.activeDescriptionPanelIndex] || editors[0];
+  }
+
+  function focusActiveDescriptionEditor() {
+    var editor = getActiveDescriptionEditor();
+    if (editor) {
+      editor.focus();
+    }
+  }
+
+  function renderDescriptionEditors() {
+    var drafts = state.descriptionDrafts[state.descriptionLanguage] || [""];
+    if (!drafts.length) {
+      drafts = [""];
+    }
+    elements.descriptionEditorList.innerHTML = "";
+    drafts.forEach(function (html, index) {
+      elements.descriptionEditorList.appendChild(createDescriptionPanelEditor(html, index));
+    });
+    state.activeDescriptionPanelIndex = Math.min(state.activeDescriptionPanelIndex, drafts.length - 1);
+    updateDescriptionPanelButtons();
+  }
+
+  function createDescriptionPanelEditor(html, index) {
+    var row = document.createElement("div");
+    var editor = document.createElement("span");
+    var actions = document.createElement("div");
+    row.className = "description-editor-row";
+    row.dataset.descriptionPanelIndex = String(index);
+    editor.className = "description-editor";
+    editor.contentEditable = "true";
+    editor.setAttribute("role", "textbox");
+    editor.setAttribute("aria-multiline", "true");
+    editor.setAttribute("data-placeholder", t("descriptionPlaceholder"));
+    editor.innerHTML = sanitizeDescriptionHtml(html);
+    actions.className = "description-panel-actions";
+    actions.appendChild(createDescriptionPanelButton("speak", "icon-speak.svg", t("readDescriptionPanel")));
+    actions.appendChild(createDescriptionPanelButton("copy", "icon-copy.png?v=20260625-2", t("copyDescriptionPanel")));
+    actions.appendChild(createDescriptionPanelButton("add", "icon-description-add.png", t("addDescriptionPanel")));
+    actions.appendChild(createDescriptionPanelButton("remove", "icon-description-remove.png", t("removeDescriptionPanel")));
+    actions.appendChild(createDescriptionPanelButton("up", "icon-prev.png", t("moveDescriptionPanelUp")));
+    actions.appendChild(createDescriptionPanelButton("down", "icon-next.png", t("moveDescriptionPanelDown")));
+    row.appendChild(editor);
+    row.appendChild(actions);
+    return row;
+  }
+
+  function createDescriptionPanelButton(action, iconSrc, label) {
+    var button = document.createElement("button");
+    button.type = "button";
+    button.className = "description-panel-action";
+    button.dataset.descriptionPanelAction = action;
+    button.title = label;
+    button.setAttribute("aria-label", label);
+    button.appendChild(createIconImage(iconSrc));
+    return button;
+  }
+
+  function handleDescriptionEditorEvent(event) {
+    var editor = event.target.closest(".description-editor");
+    if (!editor || !elements.descriptionEditorList.contains(editor)) {
+      return;
+    }
+    var row = editor.closest(".description-editor-row");
+    var rows = Array.prototype.slice.call(elements.descriptionEditorList.querySelectorAll(".description-editor-row"));
+    state.activeDescriptionPanelIndex = rows.indexOf(row);
+    saveEditorSelection();
+    updateDescriptionPanelButtons();
+  }
+
+  function handleDescriptionPanelAction(event) {
+    var button = event.target.closest("button[data-description-panel-action]");
+    if (!button || button.disabled) {
+      return;
+    }
+    var row = button.closest(".description-editor-row");
+    var rows = Array.prototype.slice.call(elements.descriptionEditorList.querySelectorAll(".description-editor-row"));
+    var index = rows.indexOf(row);
+    if (index === -1) {
+      return;
+    }
+    if (button.dataset.descriptionPanelAction === "copy") {
+      var editor = row.querySelector(".description-editor");
+      copyDescriptionPanelText(editor ? htmlToPlainText(editor.innerHTML).trim() : "", button);
+      return;
+    }
+    if (button.dataset.descriptionPanelAction === "speak") {
+      if (event.ctrlKey) {
+        event.preventDefault();
+        event.stopPropagation();
+        showSpeechDiagnostics(button, state.descriptionLanguage);
+        return;
+      }
+      var speechEditor = row.querySelector(".description-editor");
+      readDescriptionPanelText(speechEditor ? htmlToPlainText(speechEditor.innerHTML).trim() : "", state.descriptionLanguage, button);
+      return;
+    }
+    saveCurrentDescriptionDraft();
+    if (button.dataset.descriptionPanelAction === "add") {
+      state.descriptionDrafts[state.descriptionLanguage].splice(index + 1, 0, "");
+      state.activeDescriptionPanelIndex = index + 1;
+    } else if (button.dataset.descriptionPanelAction === "remove") {
+      if (state.descriptionDrafts[state.descriptionLanguage].length <= 1) {
+        return;
+      }
+      state.descriptionDrafts[state.descriptionLanguage].splice(index, 1);
+      state.activeDescriptionPanelIndex = Math.max(0, Math.min(index, state.descriptionDrafts[state.descriptionLanguage].length - 1));
+    } else if (button.dataset.descriptionPanelAction === "up") {
+      if (index <= 0) {
+        return;
+      }
+      swapArrayItems(state.descriptionDrafts[state.descriptionLanguage], index, index - 1);
+      state.activeDescriptionPanelIndex = index - 1;
+    } else if (button.dataset.descriptionPanelAction === "down") {
+      if (index >= state.descriptionDrafts[state.descriptionLanguage].length - 1) {
+        return;
+      }
+      swapArrayItems(state.descriptionDrafts[state.descriptionLanguage], index, index + 1);
+      state.activeDescriptionPanelIndex = index + 1;
+    }
+    state.editorRange = null;
+    renderDescriptionEditors();
+    focusActiveDescriptionEditor();
+  }
+
+  function updateDescriptionEditorLabels() {
+    if (!elements.descriptionEditorList) {
+      return;
+    }
+    elements.descriptionEditorList.querySelectorAll(".description-editor").forEach(function (editor) {
+      editor.setAttribute("data-placeholder", t("descriptionPlaceholder"));
+    });
+    elements.descriptionEditorList.querySelectorAll("[data-description-panel-action=\"add\"]").forEach(function (button) {
+      updateIconLabel(button, t("addDescriptionPanel"));
+    });
+    elements.descriptionEditorList.querySelectorAll("[data-description-panel-action=\"copy\"]").forEach(function (button) {
+      updateIconLabel(button, t("copyDescriptionPanel"));
+    });
+    elements.descriptionEditorList.querySelectorAll("[data-description-panel-action=\"speak\"]").forEach(function (button) {
+      updateIconLabel(button, t("readDescriptionPanel"));
+    });
+    elements.descriptionEditorList.querySelectorAll("[data-description-panel-action=\"remove\"]").forEach(function (button) {
+      updateIconLabel(button, t("removeDescriptionPanel"));
+    });
+    elements.descriptionEditorList.querySelectorAll("[data-description-panel-action=\"up\"]").forEach(function (button) {
+      updateIconLabel(button, t("moveDescriptionPanelUp"));
+    });
+    elements.descriptionEditorList.querySelectorAll("[data-description-panel-action=\"down\"]").forEach(function (button) {
+      updateIconLabel(button, t("moveDescriptionPanelDown"));
+    });
+    updateDescriptionPanelButtons();
+  }
+
+  function updateDescriptionPanelButtons() {
+    var rows = Array.prototype.slice.call(elements.descriptionEditorList.querySelectorAll(".description-editor-row"));
+    rows.forEach(function (row, index) {
+      var removeButton = row.querySelector("[data-description-panel-action=\"remove\"]");
+      var copyButton = row.querySelector("[data-description-panel-action=\"copy\"]");
+      var speakButton = row.querySelector("[data-description-panel-action=\"speak\"]");
+      var upButton = row.querySelector("[data-description-panel-action=\"up\"]");
+      var downButton = row.querySelector("[data-description-panel-action=\"down\"]");
+      var editor = row.querySelector(".description-editor");
+      var hasText = Boolean(editor && htmlToPlainText(editor.innerHTML).trim());
+      if (copyButton) {
+        copyButton.disabled = !hasText;
+      }
+      if (speakButton) {
+        speakButton.classList.toggle("empty-text", !hasText);
+      }
+      if (removeButton) {
+        removeButton.disabled = rows.length <= 1;
+      }
+      if (upButton) {
+        upButton.disabled = index === 0;
+      }
+      if (downButton) {
+        downButton.disabled = index === rows.length - 1;
+      }
+    });
   }
 
   function renderLinksEditor(links) {
@@ -1240,6 +1520,219 @@
     image.src = src;
     image.alt = "";
     return image;
+  }
+
+  function fallbackCopyText(text) {
+    return new Promise(function (resolve, reject) {
+      var textarea = document.createElement("textarea");
+      textarea.value = text;
+      textarea.setAttribute("readonly", "");
+      textarea.style.position = "fixed";
+      textarea.style.left = "-9999px";
+      document.body.appendChild(textarea);
+      textarea.select();
+      try {
+        if (document.execCommand("copy")) {
+          resolve();
+        } else {
+          reject(new Error("copy failed"));
+        }
+      } catch (error) {
+        reject(error);
+      } finally {
+        document.body.removeChild(textarea);
+      }
+    });
+  }
+
+  function copyTextToClipboard(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      return navigator.clipboard.writeText(text).catch(function () {
+        return fallbackCopyText(text);
+      });
+    }
+    return fallbackCopyText(text);
+  }
+
+  function copyDescriptionPanelText(text, button) {
+    var value = String(text || "").trim();
+    if (!value || !button) {
+      return;
+    }
+    copyTextToClipboard(value).then(function () {
+      button.classList.add("copied");
+      button.title = t("copiedDescriptionPanel");
+      button.setAttribute("aria-label", t("copiedDescriptionPanel"));
+      window.setTimeout(function () {
+        button.classList.remove("copied");
+        button.title = t("copyDescriptionPanel");
+        button.setAttribute("aria-label", t("copyDescriptionPanel"));
+      }, 1400);
+    });
+  }
+
+  function supportsSpeechSynthesis() {
+    return "speechSynthesis" in window && "SpeechSynthesisUtterance" in window;
+  }
+
+  function getSpeechLanguageCode(language) {
+    if (language === "hu") {
+      return "hu-HU";
+    }
+    if (language === "en") {
+      return "en-US";
+    }
+    return "de-DE";
+  }
+
+  function normalizeSpeechValue(value) {
+    return normalizeSearchText(String(value || ""));
+  }
+
+  function getSpeechVoice(language) {
+    if (!supportsSpeechSynthesis()) {
+      return null;
+    }
+    var speechLanguage = getSpeechLanguageCode(language);
+    var normalizedLanguage = normalizeSpeechValue(speechLanguage);
+    var voices = window.speechSynthesis.getVoices ? window.speechSynthesis.getVoices() : [];
+    if (!voices.length) {
+      return null;
+    }
+    var languageVoices = voices.filter(function (voice) {
+      return normalizeSpeechValue(voice.lang) === normalizedLanguage;
+    });
+    if (!languageVoices.length) {
+      languageVoices = voices.filter(function (voice) {
+        return normalizeSpeechValue(voice.lang).indexOf(normalizedLanguage.split("-")[0]) === 0;
+      });
+    }
+    if (!languageVoices.length) {
+      return null;
+    }
+    var preferredNameParts = language === "hu"
+      ? ["hungarian", "magyar", "microsoft", "google"]
+      : ["microsoft", "google"];
+    var preferredVoice = languageVoices.find(function (voice) {
+      var normalizedName = normalizeSpeechValue(voice.name);
+      return preferredNameParts.some(function (namePart) {
+        return normalizedName.indexOf(namePart) !== -1;
+      });
+    });
+    return preferredVoice || languageVoices[0];
+  }
+
+  function preloadSpeechVoices() {
+    if (!supportsSpeechSynthesis() || !window.speechSynthesis.getVoices) {
+      return;
+    }
+    window.speechSynthesis.getVoices();
+  }
+
+  function getSpeechVoiceLabel(voice) {
+    return voice ? voice.name + " [" + voice.lang + "]" : t("speechDiagnosticsNoVoice");
+  }
+
+  function getSpeechVoices() {
+    return supportsSpeechSynthesis() && window.speechSynthesis.getVoices ? window.speechSynthesis.getVoices() : [];
+  }
+
+  function formatSpeechVoiceList(voices) {
+    if (!voices.length) {
+      return t("speechDiagnosticsNoVoice");
+    }
+    return voices.slice(0, 14).map(getSpeechVoiceLabel).join("\n") + (voices.length > 14 ? "\n..." : "");
+  }
+
+  function closeSpeechDiagnostics() {
+    var bubble = document.querySelector(".speech-diagnostics-bubble");
+    if (bubble) {
+      bubble.remove();
+    }
+  }
+
+  function showSpeechDiagnostics(anchor, language) {
+    closeSpeechDiagnostics();
+    preloadSpeechVoices();
+    var bubble = document.createElement("div");
+    var title = document.createElement("strong");
+    var speechLanguage = getSpeechLanguageCode(language);
+    var voices = getSpeechVoices();
+    var matchingVoices = voices.filter(function (voice) {
+      return normalizeSpeechValue(voice.lang).indexOf(normalizeSpeechValue(speechLanguage).split("-")[0]) === 0;
+    });
+    var selectedVoice = getSpeechVoice(language);
+    var rect = anchor.getBoundingClientRect();
+    bubble.className = "speech-diagnostics-bubble";
+    bubble.setAttribute("role", "status");
+    title.textContent = t("speechDiagnosticsTitle") + " (" + speechLanguage + ")";
+    bubble.appendChild(title);
+    bubble.appendChild(createSpeechDiagnosticsLine(supportsSpeechSynthesis() ? t("speechDiagnosticsVoicesCount", { count: voices.length }) : t("speechDiagnosticsNoSupport")));
+    bubble.appendChild(createSpeechDiagnosticsLine(t("speechDiagnosticsSelectedVoice", { voice: getSpeechVoiceLabel(selectedVoice) })));
+    bubble.appendChild(createSpeechDiagnosticsBlock(t("speechDiagnosticsHungarianVoices"), formatSpeechVoiceList(matchingVoices)));
+    bubble.appendChild(createSpeechDiagnosticsBlock(t("speechDiagnosticsAllVoices"), formatSpeechVoiceList(voices)));
+    document.body.appendChild(bubble);
+    var bubbleRect = bubble.getBoundingClientRect();
+    var left = Math.min(Math.max(8, rect.left - bubbleRect.width - 10), window.innerWidth - bubbleRect.width - 8);
+    var top = Math.min(Math.max(8, rect.top), window.innerHeight - bubbleRect.height - 8);
+    bubble.style.left = left + "px";
+    bubble.style.top = top + "px";
+  }
+
+  function createSpeechDiagnosticsLine(text) {
+    var line = document.createElement("p");
+    line.textContent = text;
+    return line;
+  }
+
+  function createSpeechDiagnosticsBlock(label, text) {
+    var block = document.createElement("div");
+    var heading = document.createElement("span");
+    var value = document.createElement("pre");
+    heading.textContent = label;
+    value.textContent = text;
+    block.appendChild(heading);
+    block.appendChild(value);
+    return block;
+  }
+
+  function resetSpeechButtons() {
+    document.querySelectorAll(".description-panel-action.speaking").forEach(function (button) {
+      button.classList.remove("speaking");
+      button.title = t("readDescriptionPanel");
+      button.setAttribute("aria-label", t("readDescriptionPanel"));
+    });
+  }
+
+  function readDescriptionPanelText(text, language, button) {
+    var value = String(text || "").trim();
+    if (!value || !button || !supportsSpeechSynthesis()) {
+      return;
+    }
+    if (button.classList.contains("speaking")) {
+      window.speechSynthesis.cancel();
+      resetSpeechButtons();
+      return;
+    }
+    window.speechSynthesis.cancel();
+    resetSpeechButtons();
+    var utterance = new SpeechSynthesisUtterance(value);
+    utterance.lang = getSpeechLanguageCode(language);
+    var voice = getSpeechVoice(language);
+    if (voice) {
+      utterance.voice = voice;
+      utterance.lang = voice.lang || utterance.lang;
+    }
+    if (language === "hu") {
+      utterance.rate = 0.86;
+      utterance.pitch = 1;
+    }
+    utterance.onend = resetSpeechButtons;
+    utterance.onerror = resetSpeechButtons;
+    button.classList.add("speaking");
+    button.title = t("stopReadingDescriptionPanel");
+    button.setAttribute("aria-label", t("stopReadingDescriptionPanel"));
+    window.speechSynthesis.speak(utterance);
   }
 
   function configureDialogIconButton(button, label, iconSrc) {
@@ -1495,7 +1988,7 @@
         de: flower.names && flower.names.de ? String(flower.names.de).trim() : "",
         en: flower.names && flower.names.en ? String(flower.names.en).trim() : ""
       },
-      description: normalizeDescription(flower.description),
+      description: createDescriptionForStorage(normalizeDescriptionPanels(flower.description)),
       links: normalizeLinks(flower.links),
       imageData: promoted.images[0] || flower.imageData || "",
       images: promoted.images,
@@ -1573,11 +2066,13 @@
 
     if (state.editingId !== null) {
       renderStickyDetailActions(null);
+      elements.formTopActions.classList.remove("hidden");
       elements.detailView.classList.add("hidden");
       elements.flowerForm.classList.remove("hidden");
       return;
     }
 
+    elements.formTopActions.classList.add("hidden");
     elements.flowerForm.classList.add("hidden");
     elements.detailView.classList.remove("hidden");
     renderDetailView();
@@ -3163,17 +3658,46 @@
     linksButton.classList.toggle("active", activeTab === "links");
 
     var descriptionPanel = document.createElement("div");
-    descriptionPanel.className = "info-panel";
-    var text = document.createElement("div");
-    var description = getLocalizedDescription(flower);
-    text.className = "description-content";
-    if (!description) {
+    descriptionPanel.className = "info-panel description-panel-list";
+    var descriptionPanels = getLocalizedDescriptionPanelEntries(flower).filter(function (entry) {
+      return Boolean(htmlToPlainText(entry.html).trim());
+    });
+    if (!descriptionPanels.length) {
+      var text = document.createElement("div");
       text.className = "description-content empty-description";
       text.textContent = t("missingDescription");
+      descriptionPanel.appendChild(text);
     } else {
-      text.innerHTML = description;
+      descriptionPanels.forEach(function (entry) {
+        var panel = document.createElement("div");
+        var text = document.createElement("div");
+        var actions = document.createElement("div");
+        var speakButton = createDescriptionPanelButton("speak", "icon-speak.svg", t("readDescriptionPanel"));
+        var copyButton = createDescriptionPanelButton("copy", "icon-copy.png?v=20260625-2", t("copyDescriptionPanel"));
+        panel.className = "description-readonly-panel";
+        text.className = "description-content description-content-panel";
+        text.innerHTML = entry.html;
+        actions.className = "description-panel-actions description-readonly-actions";
+        speakButton.addEventListener("click", function (event) {
+          if (event.ctrlKey) {
+            event.preventDefault();
+            event.stopPropagation();
+            showSpeechDiagnostics(speakButton, entry.language);
+            return;
+          }
+          readDescriptionPanelText(htmlToPlainText(entry.html).trim(), entry.language, speakButton);
+        });
+        copyButton.disabled = !htmlToPlainText(entry.html).trim();
+        copyButton.addEventListener("click", function () {
+          copyDescriptionPanelText(htmlToPlainText(entry.html).trim(), copyButton);
+        });
+        actions.appendChild(speakButton);
+        actions.appendChild(copyButton);
+        panel.appendChild(text);
+        panel.appendChild(actions);
+        descriptionPanel.appendChild(panel);
+      });
     }
-    descriptionPanel.appendChild(text);
     descriptionPanel.classList.toggle("hidden", activeTab !== "description");
 
     var linksPanel = createLinksPanel(flower);
@@ -3291,12 +3815,13 @@
   }
 
   function saveEditorSelection() {
+    var activeEditor = getActiveDescriptionEditor();
     var selection = window.getSelection();
-    if (!selection || selection.rangeCount === 0) {
+    if (!activeEditor || !selection || selection.rangeCount === 0) {
       return;
     }
     var range = selection.getRangeAt(0);
-    if (!elements.descriptionEditor.contains(range.commonAncestorContainer)) {
+    if (!activeEditor.contains(range.commonAncestorContainer)) {
       return;
     }
     state.editorRange = range.cloneRange();
@@ -3312,17 +3837,21 @@
   }
 
   function formatDescription(command, value) {
-    elements.descriptionEditor.focus();
+    var activeEditor = getActiveDescriptionEditor();
+    if (!activeEditor) {
+      return;
+    }
+    activeEditor.focus();
     restoreEditorSelection();
     if (applyCustomInlineFormat(command, value)) {
       saveEditorSelection();
-      elements.descriptionEditor.focus();
+      activeEditor.focus();
       return;
     }
     document.execCommand("styleWithCSS", false, true);
     document.execCommand(command, false, value || null);
     saveEditorSelection();
-    elements.descriptionEditor.focus();
+    activeEditor.focus();
   }
 
   function applyCustomInlineFormat(command, value) {
@@ -3359,7 +3888,8 @@
     }
 
     var range = selection.getRangeAt(0);
-    if (!elements.descriptionEditor.contains(range.commonAncestorContainer) || range.collapsed) {
+    var activeEditor = getActiveDescriptionEditor();
+    if (!activeEditor || !activeEditor.contains(range.commonAncestorContainer) || range.collapsed) {
       return true;
     }
 
@@ -4010,7 +4540,7 @@
       input.autocomplete = "off";
       input.value = currentSource || "";
       saveButton.type = "submit";
-      configureDialogIconButton(saveButton, t("save"), "icon-save.png");
+      configureDialogIconButton(saveButton, t("save"), "icon-save.png?v=20260625-2");
       cancelButton.type = "button";
       configureDialogIconButton(cancelButton, t("cancel"), "icon-exit.png");
 
@@ -4152,7 +4682,7 @@
       input.autocomplete = "off";
       input.value = getImageInfoForLanguage(currentInfo, language);
       saveButton.type = "submit";
-      configureDialogIconButton(saveButton, t("save"), "icon-save.png");
+      configureDialogIconButton(saveButton, t("save"), "icon-save.png?v=20260625-2");
       cancelButton.type = "button";
       configureDialogIconButton(cancelButton, t("cancel"), "icon-exit.png");
 
@@ -4324,8 +4854,8 @@
     elements.nameDe.value = currentFlower ? currentFlower.names.de : "";
     elements.nameEn.value = currentFlower ? currentFlower.names.en : "";
     state.descriptionLanguage = state.language;
-    state.descriptionDrafts = currentFlower ? normalizeDescription(currentFlower.description) : { hu: "", de: "", en: "" };
-    elements.descriptionEditor.innerHTML = state.descriptionDrafts[state.descriptionLanguage] || "";
+    state.descriptionDrafts = currentFlower ? getDescriptionDrafts(currentFlower.description) : getEmptyDescriptionDrafts();
+    renderDescriptionEditors();
     state.editorRange = null;
     updateDescriptionLanguageTabs();
     renderLinksEditor(currentFlower ? currentFlower.links : []);
@@ -4338,6 +4868,10 @@
   }
 
   function closeForm() {
+    if (supportsSpeechSynthesis()) {
+      window.speechSynthesis.cancel();
+      resetSpeechButtons();
+    }
     saveCurrentDescriptionDraft();
     state.editingId = null;
     state.pendingImageData = "";
@@ -4348,7 +4882,8 @@
     state.pendingImageIndex = 0;
     state.pendingFavoriteImageIndex = 0;
     state.lastLookupLatinName = "";
-    state.descriptionDrafts = { hu: "", de: "", en: "" };
+    state.descriptionDrafts = getEmptyDescriptionDrafts();
+    state.activeDescriptionPanelIndex = 0;
     state.editorRange = null;
     elements.linksEditorList.innerHTML = "";
     window.clearTimeout(state.autoFillTimer);
@@ -4392,11 +4927,7 @@
         de: elements.nameDe.value.trim(),
         en: elements.nameEn.value.trim()
       },
-      description: {
-        hu: state.descriptionDrafts.hu,
-        de: state.descriptionDrafts.de,
-        en: state.descriptionDrafts.en
-      },
+      description: createDescriptionForStorage(state.descriptionDrafts),
       links: collectLinksFromForm(),
       imageData: imageData,
       images: images,
@@ -7036,7 +7567,7 @@
       title: t("appTitle"),
       message: message,
       acceptLabel: "OK",
-      acceptIcon: "icon-save.png",
+      acceptIcon: "icon-save.png?v=20260625-2",
       hideCancel: true
     });
   }
@@ -7078,7 +7609,7 @@
       message.textContent = options.message || "";
       actions.className = "app-dialog-actions";
       acceptButton.type = "button";
-      configureDialogIconButton(acceptButton, options.acceptLabel || "OK", options.acceptIcon || "icon-save.png");
+      configureDialogIconButton(acceptButton, options.acceptLabel || "OK", options.acceptIcon || "icon-save.png?v=20260625-2");
       if (!options.noPrimary) {
         acceptButton.classList.add("primary");
       }
@@ -7164,7 +7695,7 @@
             de: String(flower.names.de || "").trim(),
             en: String(flower.names.en || "").trim()
           },
-          description: normalizeDescription(flower.description),
+          description: createDescriptionForStorage(normalizeDescriptionPanels(flower.description)),
           links: normalizeLinks(flower.links),
           imageData: images[0],
           images: images,
@@ -7452,19 +7983,88 @@
   }
 
   function normalizeDescription(description) {
-    if (description && typeof description === "object" && !Array.isArray(description)) {
-      return {
-        hu: sanitizeDescriptionHtml(description.hu || ""),
-        de: sanitizeDescriptionHtml(description.de || ""),
-        en: sanitizeDescriptionHtml(description.en || "")
-      };
-    }
-
+    var panels = normalizeDescriptionPanels(description);
     return {
+      hu: joinDescriptionPanels(panels.hu),
+      de: joinDescriptionPanels(panels.de),
+      en: joinDescriptionPanels(panels.en)
+    };
+  }
+
+  function normalizeDescriptionPanels(description) {
+    var source = description && typeof description === "object" && !Array.isArray(description) ? description : {
       hu: "",
-      de: sanitizeDescriptionHtml(description || ""),
+      de: description || "",
       en: ""
     };
+    return {
+      hu: normalizeDescriptionPanelList(source.panels && source.panels.hu || source.hu),
+      de: normalizeDescriptionPanelList(source.panels && source.panels.de || source.de),
+      en: normalizeDescriptionPanelList(source.panels && source.panels.en || source.en)
+    };
+  }
+
+  function normalizeDescriptionPanelList(value) {
+    var values = Array.isArray(value) ? value : [value || ""];
+    var panels = values.map(function (html) {
+      return sanitizeDescriptionHtml(html);
+    });
+    return panels.length ? panels : [""];
+  }
+
+  function joinDescriptionPanels(panels) {
+    return normalizeDescriptionPanelList(panels).filter(function (html) {
+      return Boolean(htmlToPlainText(html).trim());
+    }).join("<div><br></div>");
+  }
+
+  function createDescriptionForStorage(drafts) {
+    var panels = {
+      hu: normalizeDescriptionPanelList(drafts && drafts.hu),
+      de: normalizeDescriptionPanelList(drafts && drafts.de),
+      en: normalizeDescriptionPanelList(drafts && drafts.en)
+    };
+    return {
+      hu: joinDescriptionPanels(panels.hu),
+      de: joinDescriptionPanels(panels.de),
+      en: joinDescriptionPanels(panels.en),
+      panels: panels
+    };
+  }
+
+  function swapArrayItems(items, firstIndex, secondIndex) {
+    var temp = items[firstIndex];
+    items[firstIndex] = items[secondIndex];
+    items[secondIndex] = temp;
+  }
+
+  function getLocalizedDescriptionPanels(flower) {
+    return getLocalizedDescriptionPanelEntries(flower).map(function (entry) {
+      return entry.html;
+    });
+  }
+
+  function getLocalizedDescriptionPanelEntries(flower) {
+    var panels = normalizeDescriptionPanels(flower ? flower.description : "");
+    var languagePanels = panels[state.language] || [""];
+    if (languagePanels.some(function (html) { return htmlToPlainText(html).trim(); })) {
+      return languagePanels.map(function (html) {
+        return { html: html, language: state.language };
+      });
+    }
+    return ["hu", "de", "en"].reduce(function (entries, language) {
+      panels[language].forEach(function (html) {
+        if (htmlToPlainText(html).trim()) {
+          entries.push({ html: html, language: language });
+        }
+      });
+      return entries;
+    }, []);
+  }
+
+  function getFirstLocalizedDescriptionPanel(flower) {
+    var panels = getLocalizedDescriptionPanels(flower);
+    return panels.length ? panels[0] : "";
   }
 
   function getDescriptionForLanguage(flower, language) {

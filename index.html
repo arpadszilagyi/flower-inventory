@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Blumen-Inventar</title>
   <link rel="icon" type="image/png" href="favicon.png">
-  <link rel="stylesheet" href="styles.css?v=20260625-3">
+  <link rel="stylesheet" href="styles.css?v=20260625-12">
 </head>
 <body>
   <div class="app-shell">
@@ -62,6 +62,12 @@
     <main class="main-panel">
       <div class="main-toolbar">
         <div id="topDetailActions" class="sticky-detail-actions hidden"></div>
+        <div id="formTopActions" class="sticky-form-actions hidden">
+          <div class="form-actions form-top-actions detail-actions">
+            <button class="icon-action icon-only-action" type="submit" form="flowerForm" title="Speichern" aria-label="Speichern" data-i18n-attr="title:save;aria-label:save"><img src="icon-save.png?v=20260625-2" alt=""><span class="visually-hidden" data-i18n="save">Speichern</span></button>
+            <button id="cancelButton" class="icon-action icon-only-action" type="button" title="Abbrechen" aria-label="Abbrechen" data-i18n-attr="title:cancel;aria-label:cancel"><img src="icon-exit.png" alt=""><span class="visually-hidden" data-i18n="cancel">Abbrechen</span></button>
+          </div>
+        </div>
         <div class="language-switcher" aria-label="Sprache wählen" data-i18n-attr="aria-label:chooseLanguage">
           <button type="button" data-lang="hu" title="Magyar" aria-label="Magyar"><img src="flag-hu.png" alt=""></button>
           <button type="button" data-lang="de" title="Deutsch" aria-label="Deutsch"><img src="flag-de.png" alt=""></button>
@@ -76,10 +82,6 @@
           <div>
             <p class="eyebrow" id="formModeLabel">Neue Blume</p>
             <h2 data-i18n="flowerData">Blumendaten</h2>
-          </div>
-          <div class="form-actions top-actions">
-            <button class="form-icon-button" type="submit" title="Speichern" aria-label="Speichern" data-i18n-attr="title:save;aria-label:save"><img src="icon-save.png" alt=""><span class="visually-hidden" data-i18n="save">Speichern</span></button>
-            <button id="cancelButton" class="form-icon-button" type="button" title="Abbrechen" aria-label="Abbrechen" data-i18n-attr="title:cancel;aria-label:cancel"><img src="icon-exit.png" alt=""><span class="visually-hidden" data-i18n="cancel">Abbrechen</span></button>
           </div>
         </div>
 
@@ -113,13 +115,8 @@
           </section>
           <section class="full-width-editor">
             <div class="field-block">
-              <span class="field-icon-label description-field-label" title="Beschreibung" aria-label="Beschreibung" data-i18n-attr="title:descriptionTitle;aria-label:descriptionTitle"><img src="icon-info.png" alt=""><span data-i18n="descriptionTitle">Beschreibung</span></span>
+              <span class="field-icon-label description-field-label" title="Beschreibung" aria-label="Beschreibung" data-i18n-attr="title:descriptionTitle;aria-label:descriptionTitle"><span class="description-language-tabs description-title-flags" aria-label="Beschreibungssprache wählen" data-i18n-attr="aria-label:chooseDescriptionLanguage"><button type="button" data-description-lang="hu" title="Magyar" aria-label="Magyar"><img src="flag-hu.png" alt=""></button><button type="button" data-description-lang="de" title="Deutsch" aria-label="Deutsch"><img src="flag-de.png" alt=""></button><button type="button" data-description-lang="en" title="English" aria-label="English"><img src="flag-en.png" alt=""></button></span><span data-i18n="descriptionTitle">Beschreibung</span></span>
               <div class="rich-editor">
-                <span class="description-language-tabs" aria-label="Beschreibungssprache wählen" data-i18n-attr="aria-label:chooseDescriptionLanguage">
-                  <button type="button" data-description-lang="hu" title="Magyar" aria-label="Magyar"><img src="flag-hu.png" alt=""></button>
-                  <button type="button" data-description-lang="de" title="Deutsch" aria-label="Deutsch"><img src="flag-de.png" alt=""></button>
-                  <button type="button" data-description-lang="en" title="English" aria-label="English"><img src="flag-en.png" alt=""></button>
-                </span>
                 <span class="editor-toolbar" aria-label="Leírás formatieren" data-i18n-attr="aria-label:formatDescription">
                   <label class="editor-select-control">
                     <span data-i18n="fontFamily">Schriftart</span>
@@ -172,7 +169,7 @@
                     <button type="button" data-editor-background="#ffffff" title="Hintergrund" data-i18n-attr="title:backgroundColor" style="--swatch:#ffffff"></button>
                   </span>
                 </span>
-                <span id="descriptionEditor" class="description-editor" contenteditable="true" role="textbox" aria-multiline="true"></span>
+                <div id="descriptionEditorList" class="description-editor-list"></div>
               </div>
             </div>
             <div class="field-block links-editor">
@@ -188,6 +185,6 @@
     </main>
   </div>
 
-  <script src="app.js?v=20260625-12"></script>
+  <script src="app.js?v=20260625-20"></script>
 </body>
 </html>

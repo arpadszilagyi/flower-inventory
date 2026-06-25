@@ -39,15 +39,56 @@
       display: flex;
       gap: 16px;
       align-items: center;
+      justify-content: space-between;
       border-bottom: 1px solid var(--line);
       margin-bottom: 22px;
       padding-bottom: 18px;
     }
 
-    header img {
+    .manual-title-group {
+      display: flex;
+      min-width: 0;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .manual-title-group > img {
       width: 58px;
       height: 58px;
       border-radius: 14px;
+      object-fit: cover;
+    }
+
+    .manual-language-switcher {
+      display: inline-flex;
+      flex: 0 0 auto;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .manual-language-switcher button {
+      display: inline-flex;
+      width: 42px;
+      height: 42px;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      background: var(--white);
+      cursor: pointer;
+      padding: 3px;
+    }
+
+    .manual-language-switcher button.active {
+      border-color: var(--accent);
+      box-shadow: inset 0 -3px 0 var(--accent);
+    }
+
+    .manual-language-switcher img {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
       object-fit: cover;
     }
 
@@ -239,6 +280,17 @@
       font-weight: 700;
       color: var(--text);
     }
+
+    @media (max-width: 620px) {
+      header {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .manual-language-switcher {
+        align-self: flex-start;
+      }
+    }
   </style>
 </head>
 <body>
@@ -396,6 +448,28 @@
                 {
                   subtitle: "Beschreibung",
                   text: "Beschreibungen können getrennt für Magyar, Deutsch und English gepflegt werden. Der Editor unterstützt einfache Formatierung, Listen, Schriftart, Schriftgröße, Textfarbe und Hintergrundfarbe."
+                },
+                {
+                  subtitle: "Beschreibungspanels",
+                  text: "Eine Beschreibung kann aus mehreren Panels bestehen. Im Bearbeitungsmodus können Panels hinzugefügt, gelöscht, nach oben oder unten verschoben und einzeln kopiert werden. Mindestens ein Panel bleibt immer erhalten."
+                },
+                {
+                  subtitle: "Sprachausgabe",
+                  text: "Jedes Beschreibungspanel hat ein Vorlesen-Symbol. Ein normaler Klick liest den Text dieses Panels vor; ein weiterer Klick auf das aktive Symbol stoppt die Sprachausgabe. Die App verwendet die Browser-Sprachausgabe und setzt die Sprache je nach Beschreibung auf hu-HU, de-DE oder en-US."
+                },
+                {
+                  subtitle: "Stimmen-Diagnose",
+                  text: "Mit Strg+Mausklick auf das Vorlesen-Symbol öffnet sich eine Sprechblase. Sie zeigt den erwarteten Sprachcode, die Anzahl der verfügbaren Stimmen, die von der App ausgewählte Stimme, passende Stimmen und eine gekürzte Liste aller Browser-Stimmen."
+                },
+                {
+                  subtitle: "Beste Optionen für bessere Aussprache",
+                  text: "Die Qualität hängt stark davon ab, welche Stimmen Windows und der Browser bereitstellen.",
+                  bullets: [
+                    "Installiere in Windows das ungarische Sprachpaket mit Sprachausgabe beziehungsweise Text-to-Speech und starte Chrome oder Edge danach neu.",
+                    "Prüfe mit der Stimmen-Diagnose, ob eine echte hu-HU-Stimme vorhanden ist.",
+                    "Wenn keine gute hu-HU-Stimme verfügbar ist, kann die lokale Browser-Sprachausgabe nur begrenzt verbessert werden.",
+                    "Für deutlich natürlichere Aussprache wäre ein Online-TTS-Dienst wie Microsoft/Azure Speech möglich; dafür wären Internetzugang, API-Schlüssel und eventuell Kosten nötig."
+                  ]
                 },
                 {
                   subtitle: "Links",
@@ -617,6 +691,19 @@
               title: "Description And Links",
               blocks: [
                 { subtitle: "Description", text: "Descriptions can be edited separately for Hungarian, German, and English. The editor supports simple formatting, lists, font, size, text color, and background color." },
+                { subtitle: "Description Panels", text: "A description can consist of several panels. In edit mode, panels can be added, deleted, moved up or down, and copied individually. At least one panel always remains." },
+                { subtitle: "Speech Output", text: "Each description panel has a read-aloud icon. A normal click reads that panel; another click on the active icon stops speech output. The app uses browser speech synthesis and sets the language to hu-HU, de-DE, or en-US depending on the description language." },
+                { subtitle: "Voice Diagnostics", text: "Ctrl+mouse click on the read-aloud icon opens a speech bubble. It shows the expected language code, the number of available voices, the voice selected by the app, matching voices, and a shortened list of all browser voices." },
+                {
+                  subtitle: "Best Options For Better Pronunciation",
+                  text: "Quality depends strongly on which voices Windows and the browser provide.",
+                  bullets: [
+                    "Install the Hungarian language pack with speech or text-to-speech support in Windows, then restart Chrome or Edge.",
+                    "Use voice diagnostics to check whether a real hu-HU voice is available.",
+                    "If no good hu-HU voice is available, local browser speech output can only be improved to a limited degree.",
+                    "For much more natural pronunciation, an online TTS service such as Microsoft/Azure Speech would be possible; this requires internet access, an API key, and may involve costs."
+                  ]
+                },
                 { subtitle: "Links", text: "Links can have language-specific names. They appear in the Links tab. If search finds a link, the app switches to that tab." }
               ]
             },
@@ -832,6 +919,19 @@
               title: "Leírás és linkek",
               blocks: [
                 { subtitle: "Leírás", text: "A leírás külön szerkeszthető magyarul, németül és angolul. A szerkesztő egyszerű formázást, listákat, betűtípust, méretet, szövegszínt és háttérszínt támogat." },
+                { subtitle: "Leíráspanelek", text: "Egy leírás több panelből is állhat. Szerkesztéskor panelek adhatók hozzá, törölhetők, feljebb vagy lejjebb mozgathatók, és egyenként másolhatók. Legalább egy panel mindig megmarad." },
+                { subtitle: "Felolvasás", text: "Minden leíráspanelhez tartozik felolvasás ikon. Normál kattintás felolvassa az adott panel szövegét; az aktív ikonra kattintva a felolvasás leáll. Az alkalmazás a böngésző beépített beszédszintézisét használja, és a leírás nyelve szerint hu-HU, de-DE vagy en-US nyelvkódot állít be." },
+                { subtitle: "Hangdiagnosztika", text: "Ctrl+egérkattintás a felolvasás ikonon megnyit egy beszédbuborékot. Ez mutatja az elvárt nyelvkódot, az elérhető hangok számát, az alkalmazás által kiválasztott hangot, az illeszkedő hangokat és az összes böngészőhang rövidített listáját." },
+                {
+                  subtitle: "Legjobb lehetőségek a jobb kiejtéshez",
+                  text: "A minőség erősen attól függ, milyen hangokat biztosít a Windows és a böngésző.",
+                  bullets: [
+                    "Telepítsd Windowsban a magyar nyelvi csomagot beszéd- vagy Text-to-Speech támogatással, majd indítsd újra a Chrome-ot vagy Edge-et.",
+                    "A hangdiagnosztikával ellenőrizd, hogy van-e valódi hu-HU hang.",
+                    "Ha nincs jó hu-HU hang, a helyi böngészős felolvasás csak korlátozottan javítható.",
+                    "Jóval természetesebb kiejtéshez online TTS szolgáltatás, például Microsoft/Azure Speech használható; ehhez internetkapcsolat, API-kulcs és esetleg költség tartozik."
+                  ]
+                },
                 { subtitle: "Linkek", text: "A linkekhez nyelvenként eltérő linknév adható. A részletes nézetben a Links fülön jelennek meg. Linktalálat esetén az alkalmazás automatikusan erre a fülre vált." }
               ]
             },
@@ -1040,6 +1140,40 @@
         return panel;
       }
 
+      function createManualLanguageSwitcher() {
+        var switcher = document.createElement("div");
+        var languageFlags = {
+          hu: "flag-hu.png",
+          de: "flag-de.png",
+          en: "flag-en.png"
+        };
+        var languageLabels = {
+          hu: "Magyar",
+          de: "Deutsch",
+          en: "English"
+        };
+        switcher.className = "manual-language-switcher";
+        switcher.setAttribute("aria-label", "Sprache wählen");
+        ["hu", "de", "en"].forEach(function (languageCode) {
+          var button = document.createElement("button");
+          var flag = document.createElement("img");
+          button.type = "button";
+          button.title = languageLabels[languageCode];
+          button.setAttribute("aria-label", languageLabels[languageCode]);
+          button.classList.toggle("active", languageCode === language);
+          flag.src = languageFlags[languageCode];
+          flag.alt = "";
+          button.appendChild(flag);
+          button.addEventListener("click", function () {
+            var url = new URL(window.location.href);
+            url.searchParams.set("lang", languageCode);
+            window.location.href = url.toString();
+          });
+          switcher.appendChild(button);
+        });
+        return switcher;
+      }
+
       function renderSection(sectionData) {
         var section = document.createElement("section");
         section.id = sectionData.id;
@@ -1078,14 +1212,18 @@
 
       function renderManual() {
         var header = document.createElement("header");
+        var titleGroup = document.createElement("div");
         var image = document.createElement("img");
         var titleWrap = document.createElement("div");
+        titleGroup.className = "manual-title-group";
         image.src = "favicon.png";
         image.alt = "";
         appendTextElement(titleWrap, "h1", manual.appName);
         appendTextElement(titleWrap, "p", manual.lead);
-        header.appendChild(image);
-        header.appendChild(titleWrap);
+        titleGroup.appendChild(image);
+        titleGroup.appendChild(titleWrap);
+        header.appendChild(titleGroup);
+        header.appendChild(createManualLanguageSwitcher());
         main.appendChild(header);
 
         var note = document.createElement("section");
