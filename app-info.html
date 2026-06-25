@@ -99,22 +99,80 @@
       padding: 2px 5px;
     }
 
-    pre {
+    .copy-panel {
       margin: 14px 0 16px;
-      overflow-x: auto;
-      background: #1f2529;
-      border: 1px solid #364047;
+      overflow: hidden;
+      background: #f4f4f4;
+      border: 1px solid #ebebeb;
+      border-radius: 22px;
+      color: var(--text);
+      padding: 14px 18px;
+    }
+
+    .copy-panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .copy-panel-title {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      color: #111111;
+      font-size: 14px;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .copy-panel-title svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .copy-panel-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 30px;
+      height: 30px;
+      border: 0;
       border-radius: 8px;
-      color: #f6f0df;
-      padding: 14px 16px;
+      background: transparent;
+      color: #111111;
+      cursor: pointer;
+      padding: 0;
+    }
+
+    .copy-panel-button:hover,
+    .copy-panel-button:focus-visible {
+      background: #e7e7e7;
+      outline: none;
+    }
+
+    .copy-panel-button svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    .copy-panel-button.copied {
+      color: var(--accent);
+    }
+
+    .copy-panel pre {
+      margin: 0;
+      overflow-x: auto;
+      background: transparent;
       white-space: pre;
     }
 
-    pre code {
+    .copy-panel code {
       display: block;
       background: transparent;
       border-radius: 0;
-      color: inherit;
+      color: #5f21b6;
       padding: 0;
       font-family: Consolas, "Courier New", monospace;
       font-size: 14px;
@@ -899,12 +957,87 @@
         return list;
       }
 
+      function createIconSvg(pathData) {
+        var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        var path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        svg.setAttribute("viewBox", "0 0 24 24");
+        svg.setAttribute("fill", "none");
+        svg.setAttribute("stroke", "currentColor");
+        svg.setAttribute("stroke-width", "2");
+        svg.setAttribute("stroke-linecap", "round");
+        svg.setAttribute("stroke-linejoin", "round");
+        path.setAttribute("d", pathData);
+        svg.appendChild(path);
+        return svg;
+      }
+
+      function fallbackCopyText(text) {
+        return new Promise(function (resolve, reject) {
+          var textarea = document.createElement("textarea");
+          textarea.value = text;
+          textarea.setAttribute("readonly", "");
+          textarea.style.position = "fixed";
+          textarea.style.left = "-9999px";
+          document.body.appendChild(textarea);
+          textarea.select();
+          try {
+            if (document.execCommand("copy")) {
+              resolve();
+            } else {
+              reject(new Error("copy failed"));
+            }
+          } catch (error) {
+            reject(error);
+          } finally {
+            document.body.removeChild(textarea);
+          }
+        });
+      }
+
+      function copyTextToClipboard(text) {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          return navigator.clipboard.writeText(text).catch(function () {
+            return fallbackCopyText(text);
+          });
+        }
+        return fallbackCopyText(text);
+      }
+
       function createCopyBlock(lines) {
+        var panel = document.createElement("div");
+        var header = document.createElement("div");
+        var title = document.createElement("div");
+        var copyButton = document.createElement("button");
         var pre = document.createElement("pre");
         var code = document.createElement("code");
-        code.textContent = lines.join("\n");
+        var text = lines.join("\n");
+        panel.className = "copy-panel";
+        header.className = "copy-panel-header";
+        title.className = "copy-panel-title";
+        copyButton.className = "copy-panel-button";
+        copyButton.type = "button";
+        copyButton.title = "Kopieren";
+        copyButton.setAttribute("aria-label", "Kopieren");
+        title.appendChild(createIconSvg("m8 18-6-6 6-6m8 0 6 6-6 6"));
+        title.appendChild(document.createTextNode("PowerShell"));
+        copyButton.appendChild(createIconSvg("M8 8h10a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V10a2 2 0 0 1 2-2Zm-4 8H3a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v1"));
+        copyButton.addEventListener("click", function () {
+          copyTextToClipboard(text).then(function () {
+            copyButton.classList.add("copied");
+            copyButton.title = "Kopiert";
+            setTimeout(function () {
+              copyButton.classList.remove("copied");
+              copyButton.title = "Kopieren";
+            }, 1400);
+          });
+        });
+        header.appendChild(title);
+        header.appendChild(copyButton);
+        code.textContent = text;
         pre.appendChild(code);
-        return pre;
+        panel.appendChild(header);
+        panel.appendChild(pre);
+        return panel;
       }
 
       function renderSection(sectionData) {
