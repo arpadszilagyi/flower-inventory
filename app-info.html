@@ -454,6 +454,18 @@
                   text: "Eine Beschreibung kann aus mehreren Panels bestehen. Im Bearbeitungsmodus können Panels hinzugefügt, gelöscht, nach oben oder unten verschoben und einzeln kopiert werden. Mindestens ein Panel bleibt immer erhalten."
                 },
                 {
+                  subtitle: "ChatGPT-Beschreibung",
+                  text: "Im Bearbeitungsmodus erstellt das Zahnrad-Symbol neben Beschreibung eine neue Beschreibung für die aktuelle Blume.",
+                  bullets: [
+                    "Die drei Flaggen neben Beschreibung bestimmen, in welcher Sprache die Beschreibung erzeugt wird.",
+                    "Die App verwendet den aktuellen Blumennamen und die vorhandenen Namen in Magyar, Deutsch, English und Latein als Kontext.",
+                    "Das Ergebnis wird nicht über eine vorhandene Beschreibung geschrieben, sondern als neues Beschreibungspanel eingefügt.",
+                    "Der Blumenname sowie die Feldbezeichnungen Botanischer Name, Weitere Namen und Pflanzentyp werden im neuen Panel fett formatiert.",
+                    "Beim ersten Aufruf fragt die App nach einem OpenAI API-Key. Der Key wird lokal im Browser gespeichert.",
+                    "Für die Generierung sind Internetzugang, ein gültiger OpenAI API-Key und verfügbares API-Kontingent erforderlich. Bei Problemen zeigt die Statuszeile die konkrete Fehlermeldung der API an."
+                  ]
+                },
+                {
                   subtitle: "Sprachausgabe",
                   text: "Jedes Beschreibungspanel hat ein Vorlesen-Symbol. Ein normaler Klick liest den Text dieses Panels vor; ein weiterer Klick auf das aktive Symbol stoppt die Sprachausgabe. Die App verwendet die Browser-Sprachausgabe und setzt die Sprache je nach Beschreibung auf hu-HU, de-DE oder en-US."
                 },
@@ -530,10 +542,11 @@
               ],
               bullets: [
                 { linkText: "Git-Cheat-Sheet", href: "git-cheat-sheet.pdf", text: "öffnet die PDF-Datei mit einer kompakten Git-Übersicht." },
+                { linkText: "arpadszilagyi/flower-inventory", href: "https://github.com/arpadszilagyi/flower-inventory", text: "öffnet das GitHub-Repository dieses Projekts. Der Remote origin sollte auf diese Repository-URL zeigen." },
                 "Wenn du nur bestimmte Dateien speichern willst, verwende bei git add nur genau diese Dateien.",
                 "Wenn git status neue Dateien mit ?? zeigt, sind sie noch nicht in Git vorgemerkt. Sie müssen mit git add ergänzt werden, wenn sie dazugehören.",
                 "Wenn origin/main noch nicht existiert, ist git push -u origin main meistens der einfachste Weg beim ersten Push des Branches.",
-                "Die Remote-Befehle brauchst du nur, wenn origin fehlt oder auf die falsche GitHub-Repository-URL zeigt.",
+                "Die Remote-Befehle brauchst du nur, wenn origin fehlt oder nicht auf https://github.com/arpadszilagyi/flower-inventory zeigt.",
                 "Wenn git push eine Anmeldung verlangt, folge den GitHub-Anweisungen im Browser oder Terminal.",
                 "Git speichert nur Dateien im Projektordner. Die Blumen-Daten in IndexedDB werden separat über Export/Import gesichert."
               ]
@@ -692,6 +705,18 @@
               blocks: [
                 { subtitle: "Description", text: "Descriptions can be edited separately for Hungarian, German, and English. The editor supports simple formatting, lists, font, size, text color, and background color." },
                 { subtitle: "Description Panels", text: "A description can consist of several panels. In edit mode, panels can be added, deleted, moved up or down, and copied individually. At least one panel always remains." },
+                {
+                  subtitle: "ChatGPT Description",
+                  text: "In edit mode, the gear icon next to Description creates a new description for the current flower.",
+                  bullets: [
+                    "The three flags next to Description choose the language for the generated description.",
+                    "The app uses the current flower name and the existing Hungarian, German, English, and Latin names as context.",
+                    "The result does not overwrite an existing description; it is inserted as a new description panel.",
+                    "The flower name and the labels Botanical name, Other names, and Plant type are formatted in bold in the new panel.",
+                    "On first use, the app asks for an OpenAI API key. The key is stored locally in the browser.",
+                    "Generation requires internet access, a valid OpenAI API key, and available API quota. If something goes wrong, the status line shows the concrete API error."
+                  ]
+                },
                 { subtitle: "Speech Output", text: "Each description panel has a read-aloud icon. A normal click reads that panel; another click on the active icon stops speech output. The app uses browser speech synthesis and sets the language to hu-HU, de-DE, or en-US depending on the description language." },
                 { subtitle: "Voice Diagnostics", text: "Ctrl+mouse click on the read-aloud icon opens a speech bubble. It shows the expected language code, the number of available voices, the voice selected by the app, matching voices, and a shortened list of all browser voices." },
                 {
@@ -758,10 +783,11 @@
               ],
               bullets: [
                 { linkText: "Git-Cheat-Sheet", href: "git-cheat-sheet.pdf", text: "opens the PDF file with a compact Git overview." },
+                { linkText: "arpadszilagyi/flower-inventory", href: "https://github.com/arpadszilagyi/flower-inventory", text: "opens this project's GitHub repository. The remote origin should point to this repository URL." },
                 "Use git add . only when all current changes belong together.",
                 "Files shown with ?? in git status are new and not staged yet.",
                 "If origin/main does not exist yet, git push -u origin main is usually the simplest first push for the branch.",
-                "Use the remote commands only when origin is missing or points to the wrong GitHub repository URL.",
+                "Use the remote commands only when origin is missing or does not point to https://github.com/arpadszilagyi/flower-inventory.",
                 "If git push asks for login, follow the GitHub instructions in the browser or terminal.",
                 "Git stores files in the project folder. Flower data stored in IndexedDB is backed up separately with Export/Import."
               ]
@@ -920,6 +946,18 @@
               blocks: [
                 { subtitle: "Leírás", text: "A leírás külön szerkeszthető magyarul, németül és angolul. A szerkesztő egyszerű formázást, listákat, betűtípust, méretet, szövegszínt és háttérszínt támogat." },
                 { subtitle: "Leíráspanelek", text: "Egy leírás több panelből is állhat. Szerkesztéskor panelek adhatók hozzá, törölhetők, feljebb vagy lejjebb mozgathatók, és egyenként másolhatók. Legalább egy panel mindig megmarad." },
+                {
+                  subtitle: "ChatGPT-leírás",
+                  text: "Szerkesztési módban a Leírás melletti fogaskerék ikon új leírást készít az aktuális virághoz.",
+                  bullets: [
+                    "A Leírás melletti három zászló határozza meg, milyen nyelven készüljön a generált leírás.",
+                    "Az alkalmazás kontextusként felhasználja az aktuális virágnevet, valamint a meglévő magyar, német, angol és latin neveket.",
+                    "Az eredmény nem írja felül a meglévő leírást, hanem új leíráspanelként kerül be.",
+                    "Az új panelben a virágnév, valamint a Botanikai név, További nevek és Növénytípus mezőcímkék félkövér formázást kapnak.",
+                    "Első használatkor az alkalmazás OpenAI API-kulcsot kér. A kulcs helyben, a böngészőben tárolódik.",
+                    "A generáláshoz internetkapcsolat, érvényes OpenAI API-kulcs és rendelkezésre álló API-kvóta szükséges. Hiba esetén a státuszsor megjeleníti az API konkrét hibaüzenetét."
+                  ]
+                },
                 { subtitle: "Felolvasás", text: "Minden leíráspanelhez tartozik felolvasás ikon. Normál kattintás felolvassa az adott panel szövegét; az aktív ikonra kattintva a felolvasás leáll. Az alkalmazás a böngésző beépített beszédszintézisét használja, és a leírás nyelve szerint hu-HU, de-DE vagy en-US nyelvkódot állít be." },
                 { subtitle: "Hangdiagnosztika", text: "Ctrl+egérkattintás a felolvasás ikonon megnyit egy beszédbuborékot. Ez mutatja az elvárt nyelvkódot, az elérhető hangok számát, az alkalmazás által kiválasztott hangot, az illeszkedő hangokat és az összes böngészőhang rövidített listáját." },
                 {
@@ -986,10 +1024,11 @@
               ],
               bullets: [
                 { linkText: "Git-Cheat-Sheet", href: "git-cheat-sheet.pdf", text: "megnyitja a tömör Git-áttekintést tartalmazó PDF-fájlt." },
+                { linkText: "arpadszilagyi/flower-inventory", href: "https://github.com/arpadszilagyi/flower-inventory", text: "megnyitja ennek a projektnek a GitHub repositoryját. Az origin remote-nak erre a repository URL-re kell mutatnia." },
                 "A git add . parancsot akkor használd, ha minden aktuális módosítás összetartozik.",
                 "A git status által ?? jellel mutatott fájlok újak, és még nincsenek előkészítve.",
                 "Ha az origin/main még nem létezik, a git push -u origin main általában a legegyszerűbb első push ehhez az ághoz.",
-                "A remote parancsokra csak akkor van szükség, ha az origin hiányzik, vagy rossz GitHub repository URL-re mutat.",
+                "A remote parancsokra csak akkor van szükség, ha az origin hiányzik, vagy nem a https://github.com/arpadszilagyi/flower-inventory címre mutat.",
                 "Ha a git push bejelentkezést kér, kövesd a GitHub utasításait a böngészőben vagy a terminálban.",
                 "A Git a projektmappában lévő fájlokat menti. Az IndexedDB-ben tárolt virágadatokat külön, Export/Import segítségével kell menteni."
               ]

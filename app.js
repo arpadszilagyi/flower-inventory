@@ -122,6 +122,15 @@
       labelDe: "Német",
       labelEn: "Angol",
       descriptionTitle: "Leírás",
+      generateDescription: "Leírás készítése ChatGPT-vel",
+      generateDescriptionMissingName: "Először adj meg legalább egy virágnevet.",
+      generateDescriptionApiKeyPrompt: "OpenAI API-kulcs a ChatGPT-leíráshoz:",
+      generateDescriptionMissingApiKey: "A leírás készítéséhez OpenAI API-kulcs szükséges.",
+      generateDescriptionWorking: "ChatGPT-leírás készül...",
+      generateDescriptionDone: "A ChatGPT-leírás új panelként bekerült.",
+      generateDescriptionFailed: "A ChatGPT-leírást nem sikerült elkészíteni.",
+      generateDescriptionFailedDetails: "A ChatGPT-leírást nem sikerült elkészíteni: {details}",
+      generateDescriptionNetworkError: "A kérés nem érte el az OpenAI API-t. Ellenőrizd az internetkapcsolatot, a böngésző CORS-hibáit vagy a biztonsági beállításokat.",
       linksTitle: "Links",
       addLink: "Link hozzáadása",
       moveLinkUp: "Link feljebb",
@@ -313,6 +322,15 @@
       labelDe: "Deutsch",
       labelEn: "English",
       descriptionTitle: "Beschreibung",
+      generateDescription: "Beschreibung mit ChatGPT erstellen",
+      generateDescriptionMissingName: "Bitte gib zuerst mindestens einen Blumennamen ein.",
+      generateDescriptionApiKeyPrompt: "OpenAI API-Key für die ChatGPT-Beschreibung:",
+      generateDescriptionMissingApiKey: "Für die Beschreibung wird ein OpenAI API-Key benötigt.",
+      generateDescriptionWorking: "ChatGPT-Beschreibung wird erstellt...",
+      generateDescriptionDone: "Die ChatGPT-Beschreibung wurde als neues Panel eingefügt.",
+      generateDescriptionFailed: "Die ChatGPT-Beschreibung konnte nicht erstellt werden.",
+      generateDescriptionFailedDetails: "Die ChatGPT-Beschreibung konnte nicht erstellt werden: {details}",
+      generateDescriptionNetworkError: "Die Anfrage hat die OpenAI API nicht erreicht. Prüfe Internetverbindung, CORS-Fehler im Browser oder Sicherheitseinstellungen.",
       linksTitle: "Links",
       addLink: "Link hinzufügen",
       moveLinkUp: "Link nach oben",
@@ -504,6 +522,15 @@
       labelDe: "German",
       labelEn: "English",
       descriptionTitle: "Description",
+      generateDescription: "Generate description with ChatGPT",
+      generateDescriptionMissingName: "Please enter at least one flower name first.",
+      generateDescriptionApiKeyPrompt: "OpenAI API key for the ChatGPT description:",
+      generateDescriptionMissingApiKey: "An OpenAI API key is required for the description.",
+      generateDescriptionWorking: "Creating ChatGPT description...",
+      generateDescriptionDone: "The ChatGPT description was added as a new panel.",
+      generateDescriptionFailed: "The ChatGPT description could not be created.",
+      generateDescriptionFailedDetails: "The ChatGPT description could not be created: {details}",
+      generateDescriptionNetworkError: "The request did not reach the OpenAI API. Check internet access, browser CORS errors, or security settings.",
       linksTitle: "Links",
       addLink: "Add link",
       moveLinkUp: "Move link up",
@@ -677,6 +704,7 @@
     descriptionFontFamilySelect: document.getElementById("descriptionFontFamilySelect"),
     descriptionFontSizeSelect: document.getElementById("descriptionFontSizeSelect"),
     descriptionLanguageTabs: document.querySelector(".description-language-tabs"),
+    generateDescriptionButton: document.getElementById("generateDescriptionButton"),
     addLinkButton: document.getElementById("addLinkButton"),
     linksEditorList: document.getElementById("linksEditorList"),
     editorToolbar: document.querySelector(".editor-toolbar"),
@@ -795,6 +823,9 @@
 
       event.preventDefault();
       setDescriptionLanguage(button.dataset.descriptionLang);
+    });
+    elements.generateDescriptionButton.addEventListener("click", function () {
+      generateDescriptionWithChatGpt();
     });
     elements.addLinkButton.addEventListener("click", function () {
       addLinkEditorRow();
@@ -1362,6 +1393,242 @@
       swapArrayItems(state.descriptionDrafts[state.descriptionLanguage], index, index + 1);
       state.activeDescriptionPanelIndex = index + 1;
     }
+    state.editorRange = null;
+    renderDescriptionEditors();
+    focusActiveDescriptionEditor();
+  }
+
+  function generateDescriptionWithChatGpt() {
+    var promptText = buildGeneratedDescriptionPrompt();
+    if (!promptText) {
+      setAutoFillStatus(t("generateDescriptionMissingName"), true);
+      return;
+    }
+    if (!window.fetch) {
+      setAutoFillStatus(t("autoFillUnavailable"), true);
+      return;
+    }
+    if (window.navigator && window.navigator.onLine === false) {
+      setAutoFillStatus(t("offline"), true);
+      return;
+    }
+
+    var apiKey = getOpenAiApiKey();
+    if (!apiKey) {
+      setAutoFillStatus(t("generateDescriptionMissingApiKey"), true);
+      return;
+    }
+
+    elements.generateDescriptionButton.disabled = true;
+    setAutoFillStatus(t("generateDescriptionWorking"));
+
+    requestChatGptDescription(promptText, apiKey)
+      .then(function (generatedText) {
+        if (!generatedText) {
+          throw new Error("empty response");
+        }
+        addGeneratedDescriptionPanel(generatedText);
+        setAutoFillStatus(t("generateDescriptionDone"));
+      })
+      .catch(function (error) {
+        if (error && error.status === 401) {
+          window.localStorage.removeItem("flowerInventoryOpenAiApiKey");
+        }
+        setAutoFillStatus(t("generateDescriptionFailedDetails", { details: getChatGptErrorDetails(error) }), true);
+      })
+      .finally(function () {
+        elements.generateDescriptionButton.disabled = false;
+      });
+  }
+
+  function buildGeneratedDescriptionPrompt() {
+    var flowerNames = {
+      hu: elements.nameHu.value.trim(),
+      la: elements.nameLa.value.trim(),
+      de: elements.nameDe.value.trim(),
+      en: elements.nameEn.value.trim()
+    };
+    var flowerName = getGeneratedDescriptionFlowerName(flowerNames, state.descriptionLanguage);
+    if (!flowerName) {
+      return "";
+    }
+
+    return buildGeneratedDescriptionPromptForLanguage(state.descriptionLanguage, flowerName, flowerNames);
+  }
+
+  function getGeneratedDescriptionFlowerName(flowerNames, language) {
+    return flowerNames[language] || flowerNames.de || flowerNames.hu || flowerNames.en || flowerNames.la || "";
+  }
+
+  function buildGeneratedDescriptionPromptForLanguage(language, flowerName, flowerNames) {
+    if (language === "hu") {
+      return [
+        "Készíts magyar nyelvű leírást az aktuális virágról (" + flowerName + ") a következő struktúrában:",
+        flowerName,
+        "Botanikai név: xxx",
+        "További nevek: xxxx",
+        "Növénytípus: xxx",
+        "",
+        "<Leírás>",
+        "",
+        "Ismert adatok:",
+        "Magyar név: " + (flowerNames.hu || "-"),
+        "Botanikai/latin név: " + (flowerNames.la || "-"),
+        "Német név: " + (flowerNames.de || "-"),
+        "Angol név: " + (flowerNames.en || "-"),
+        "",
+        "A virág nevét, a \"Botanikai név:\", \"További nevek:\" és \"Növénytípus:\" mezőcímkéket emeld ki félkövérrel.",
+        "Ha a kiválasztott nyelven nincsenek további nevek, akkor pontosan ezt írd: További nevek: -",
+        "Ha a növénytípus nem állapítható meg megbízhatóan, akkor pontosan ezt írd: Növénytípus: -",
+        "Használj általánosan ismert botanikai tudást. Ha egy konkrét adat bizonytalan, írd azt, hogy ismeretlen."
+      ].join("\n");
+    }
+    if (language === "en") {
+      return [
+        "Create the English description for the current flower " + flowerName + " in the following structure:",
+        flowerName,
+        "Botanical name: xxx",
+        "Other names: xxxx",
+        "Plant type: xxx",
+        "",
+        "<Description>",
+        "",
+        "Known data:",
+        "Hungarian name: " + (flowerNames.hu || "-"),
+        "Botanical/Latin name: " + (flowerNames.la || "-"),
+        "German name: " + (flowerNames.de || "-"),
+        "English name: " + (flowerNames.en || "-"),
+        "",
+        "Format the flower name and the labels \"Botanical name:\", \"Other names:\" and \"Plant type:\" in bold.",
+        "If there are no other names in the selected language, write exactly: Other names: -",
+        "If the plant type cannot be determined reliably, write exactly: Plant type: -",
+        "Use generally known botanical knowledge. If a concrete detail is uncertain, write unknown."
+      ].join("\n");
+    }
+    return [
+      "Erstelle die deutschsprachige Beschreibung für die aktuelle Blume " + flowerName + " in der folgenden Struktur:",
+      flowerName,
+      "Botanischer Name: xxx",
+      "Weitere Namen: xxxx",
+      "Pflanzentyp: xxx",
+      "",
+      "<Beschreibung>",
+      "",
+      "Bekannte Daten:",
+      "Ungarischer Name: " + (flowerNames.hu || "-"),
+      "Botanischer/lateinischer Name: " + (flowerNames.la || "-"),
+      "Deutscher Name: " + (flowerNames.de || "-"),
+      "Englischer Name: " + (flowerNames.en || "-"),
+      "",
+      "Formatiere den Blumennamen sowie die Feldbezeichnungen \"Botanischer Name:\", \"Weitere Namen:\" und \"Pflanzentyp:\" fett.",
+      "Falls weitere Namen in der ausgewählten Sprache nicht vorhanden sind, schreibe genau: Weitere Namen: -",
+      "Falls der Pflanzentyp nicht zuverlässig bestimmbar ist, schreibe genau: Pflanzentyp: -",
+      "Nutze allgemein bekanntes botanisches Wissen. Wenn eine konkrete Angabe unsicher ist, schreibe unbekannt."
+    ].join("\n");
+  }
+
+  function getOpenAiApiKey() {
+    var storedKey = window.localStorage.getItem("flowerInventoryOpenAiApiKey");
+    if (storedKey) {
+      return storedKey;
+    }
+
+    var enteredKey = window.prompt(t("generateDescriptionApiKeyPrompt"));
+    if (!enteredKey || !enteredKey.trim()) {
+      return "";
+    }
+
+    enteredKey = enteredKey.trim();
+    window.localStorage.setItem("flowerInventoryOpenAiApiKey", enteredKey);
+    return enteredKey;
+  }
+
+  function requestChatGptDescription(promptText, apiKey) {
+    var model = window.localStorage.getItem("flowerInventoryOpenAiModel") || "gpt-4o-mini";
+    return window.fetch("https://api.openai.com/v1/responses", {
+      method: "POST",
+      headers: {
+        "Authorization": "Bearer " + apiKey,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        model: model,
+        input: promptText
+      })
+    })
+      .then(function (response) {
+        return response.text().then(function (bodyText) {
+          var data = parseJsonSafely(bodyText);
+          if (!response.ok) {
+            var error = new Error("OpenAI request failed");
+            error.status = response.status;
+            error.details = getOpenAiResponseErrorDetails(response.status, data, bodyText);
+            throw error;
+          }
+          return data || {};
+        });
+      })
+      .then(function (data) {
+        return extractOpenAiResponseText(data).trim();
+      });
+  }
+
+  function parseJsonSafely(text) {
+    if (!text) {
+      return null;
+    }
+    try {
+      return JSON.parse(text);
+    } catch (error) {
+      return null;
+    }
+  }
+
+  function getOpenAiResponseErrorDetails(status, data, bodyText) {
+    var message = data && data.error && data.error.message ? data.error.message : String(bodyText || "").trim();
+    if (!message) {
+      message = "HTTP " + status;
+    }
+    return "HTTP " + status + ": " + message;
+  }
+
+  function getChatGptErrorDetails(error) {
+    if (error && error.details) {
+      return error.details;
+    }
+    if (error && error.name === "TypeError") {
+      return t("generateDescriptionNetworkError") + " (" + error.message + ")";
+    }
+    if (error && error.message) {
+      return error.message;
+    }
+    return t("generateDescriptionFailed");
+  }
+
+  function extractOpenAiResponseText(data) {
+    if (data && typeof data.output_text === "string") {
+      return data.output_text;
+    }
+
+    var parts = [];
+    (data && data.output || []).forEach(function (item) {
+      (item.content || []).forEach(function (content) {
+        if (typeof content.text === "string") {
+          parts.push(content.text);
+        }
+      });
+    });
+    return parts.join("\n");
+  }
+
+  function addGeneratedDescriptionPanel(text) {
+    saveCurrentDescriptionDraft();
+    var html = generatedDescriptionTextToHtml(text, state.descriptionLanguage);
+    if (!state.descriptionDrafts[state.descriptionLanguage]) {
+      state.descriptionDrafts[state.descriptionLanguage] = [""];
+    }
+    state.descriptionDrafts[state.descriptionLanguage].push(html);
+    state.activeDescriptionPanelIndex = state.descriptionDrafts[state.descriptionLanguage].length - 1;
     state.editorRange = null;
     renderDescriptionEditors();
     focusActiveDescriptionEditor();
@@ -6076,6 +6343,77 @@
     var template = document.createElement("template");
     template.innerHTML = sanitizeDescriptionHtml(html);
     return template.content.textContent || "";
+  }
+
+  function plainTextToDescriptionHtml(text) {
+    return String(text || "")
+      .trim()
+      .split(/\n{2,}/)
+      .map(function (block) {
+        return "<p>" + escapeHtml(block.trim()).replace(/\n/g, "<br>") + "</p>";
+      })
+      .join("");
+  }
+
+  function generatedDescriptionTextToHtml(text, language) {
+    var labelPatterns = getGeneratedDescriptionBoldLabels(language);
+    var lines = String(text || "").trim().split(/\r?\n/);
+    var htmlBlocks = [];
+    var paragraphLines = [];
+    var firstTextLineSeen = false;
+
+    function flushParagraph() {
+      if (!paragraphLines.length) {
+        return;
+      }
+      htmlBlocks.push("<p>" + paragraphLines.join("<br>") + "</p>");
+      paragraphLines = [];
+    }
+
+    lines.forEach(function (line) {
+      var trimmedLine = line.trim();
+      if (!trimmedLine) {
+        flushParagraph();
+        return;
+      }
+
+      var formattedLine = formatGeneratedDescriptionLine(trimmedLine, labelPatterns, !firstTextLineSeen);
+      firstTextLineSeen = true;
+      paragraphLines.push(formattedLine);
+    });
+    flushParagraph();
+
+    return htmlBlocks.join("");
+  }
+
+  function getGeneratedDescriptionBoldLabels(language) {
+    if (language === "hu") {
+      return [/^Botanikai név:/i, /^További nevek:/i, /^Növénytípus:/i];
+    }
+    if (language === "en") {
+      return [/^Botanical name:/i, /^Other names:/i, /^Plant type:/i];
+    }
+    return [/^Botanischer Name:/i, /^Weitere Namen:/i, /^Pflanzentyp:/i];
+  }
+
+  function formatGeneratedDescriptionLine(line, labelPatterns, isFirstTextLine) {
+    var normalizedLine = stripGeneratedMarkdownBold(line);
+    if (isFirstTextLine) {
+      return "<strong>" + escapeHtml(normalizedLine) + "</strong>";
+    }
+
+    for (var i = 0; i < labelPatterns.length; i += 1) {
+      var match = normalizedLine.match(labelPatterns[i]);
+      if (match) {
+        return "<strong>" + escapeHtml(match[0]) + "</strong>" + escapeHtml(normalizedLine.slice(match[0].length));
+      }
+    }
+
+    return escapeHtml(normalizedLine);
+  }
+
+  function stripGeneratedMarkdownBold(value) {
+    return String(value || "").replace(/\*\*(.*?)\*\*/g, "$1").replace(/__(.*?)__/g, "$1");
   }
 
   function sparqlString(value) {

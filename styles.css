@@ -1522,6 +1522,31 @@ button.primary:hover,
   box-shadow: inset 0 -3px 0 var(--accent);
 }
 
+.description-generate-button {
+  display: inline-flex;
+  width: 36px;
+  height: 36px;
+  min-height: 36px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.92);
+  cursor: pointer;
+  padding: 3px;
+}
+
+.description-generate-button img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.description-generate-button:disabled {
+  cursor: wait;
+  opacity: 0.55;
+}
+
 .editor-toolbar {
   display: flex;
   flex-wrap: wrap;
@@ -1589,7 +1614,7 @@ button.primary:hover,
 }
 
 .description-editor {
-  min-height: 160px;
+  min-height: 190px;
   overflow: auto;
   border: 1px solid var(--image-surface-line);
   border-radius: var(--radius);
@@ -1607,24 +1632,24 @@ button.primary:hover,
 
 .description-editor-row {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 34px;
-  gap: 8px;
+  grid-template-columns: minmax(0, 1fr) 30px;
+  gap: 7px;
   align-items: start;
 }
 
 .description-panel-actions {
   display: grid;
-  gap: 5px;
+  gap: 3px;
 }
 
 .description-panel-action {
   display: inline-flex;
-  width: 32px;
-  height: 32px;
-  min-height: 32px;
+  width: 28px;
+  height: 28px;
+  min-height: 28px;
   align-items: center;
   justify-content: center;
-  padding: 3px;
+  padding: 2px;
 }
 
 .description-panel-action img {
