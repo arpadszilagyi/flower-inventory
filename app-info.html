@@ -198,7 +198,7 @@
                 "Links befindet sich die Blumenliste mit Werkzeugen, Filter und Suche. Rechts befindet sich die Detailanzeige oder der Bearbeitungsmodus."
               ],
               items: [
-                ["Exportieren", "speichert den Datenbestand als ZIP-Datei oder JSON-Datei. ZIP ist voreingestellt."],
+                ["Alle Blumen exportieren / Gefilterte Blumen Exportieren", "speichert den Datenbestand als ZIP-Datei oder JSON-Datei. Ohne Filter werden alle Blumen exportiert; mit aktivem Filter werden nur die gefilterten Blumen exportiert. ZIP ist voreingestellt."],
                 ["Importieren", "lädt eine ZIP- oder JSON-Sicherung zurück."],
                 ["Neue Blume", "öffnet ein leeres Formular."],
                 ["Blume aus dem Internet erstellen", "sucht online nach Namen, Beschreibung und Bildern."],
@@ -255,6 +255,7 @@
                 ["Bearbeiten", "öffnet das Formular zur aktuellen Blume."],
                 ["Löschen", "entfernt die aktuelle Blume nach Rückfrage."],
                 ["Neue Blume", "legt eine neue Blume an."],
+                ["Exportieren", "exportiert nur die aktuelle Blume als ZIP- oder JSON-Datei."],
                 ["PDF", "erstellt ein PDF zur aktuellen Blume."],
                 ["Websuche", "sucht die aktuelle Blume im Browser."],
                 ["Info", "öffnet dieses Handbuch."]
@@ -338,7 +339,7 @@
               id: "import-export",
               title: "Import, Export und PDF",
               blocks: [
-                { subtitle: "Export", text: "Der ZIP-Export ist voreingestellt und enthält eine JSON-Sicherung mit Blumen, Bildern, Bild-Infos, Beschreibungen und Links. JSON kann weiterhin bewusst ausgewählt werden." },
+                { subtitle: "Export", text: "Der ZIP-Export ist voreingestellt und enthält eine JSON-Sicherung mit Blumen, Bildern, Bild-Infos, Beschreibungen und Links. JSON kann weiterhin bewusst ausgewählt werden. Der Toolbar-Export heißt ohne Filter Alle Blumen exportieren und mit aktivem Filter Gefilterte Blumen Exportieren; der Dateiname enthält bei gefiltertem Export blumen-inventar-export-gefiltert. In der Detailanzeige heißt das Export-Icon Aktuelle Blume exportieren und exportiert nur diese Blume; der Dateiname enthält blumen-inventar-export-<Blumenname>." },
                 { subtitle: "Import", text: "Beim Import fragt die App, ob bestehende Daten ersetzt oder importierte Blumen ergänzt werden sollen." },
                 { subtitle: "PDF", text: "In der Detailanzeige kann ein PDF zur aktuellen Blume erstellt werden." }
               ]
@@ -414,7 +415,7 @@
               title: "Interface",
               paragraphs: ["The flower list, tools, filter, and search are on the left. The detail view or edit form is on the right."],
               items: [
-                ["Export", "saves the inventory as a ZIP or JSON file. ZIP is the default."],
+                ["Export all flowers / Export filtered flowers", "saves the inventory as a ZIP or JSON file. Without a filter, all flowers are exported; with an active filter, only filtered flowers are exported. ZIP is the default."],
                 ["Import", "loads a ZIP or JSON backup."],
                 ["New flower", "opens an empty form."],
                 ["Create flower from the internet", "searches online for names, description, and images."],
@@ -469,6 +470,7 @@
                 ["Edit", "opens the form for the current flower."],
                 ["Delete", "removes the current flower after confirmation."],
                 ["New flower", "creates a new flower."],
+                ["Export", "exports only the current flower as a ZIP or JSON file."],
                 ["PDF", "creates a PDF for the current flower."],
                 ["Web search", "searches the current flower in the browser."],
                 ["Info", "opens this manual."]
@@ -542,7 +544,7 @@
               id: "import-export",
               title: "Import, Export, And PDF",
               blocks: [
-                { subtitle: "Export", text: "The ZIP export is the default and contains a JSON backup with flowers, images, image information, descriptions, and links. JSON can still be selected explicitly." },
+                { subtitle: "Export", text: "The ZIP export is the default and contains a JSON backup with flowers, images, image information, descriptions, and links. JSON can still be selected explicitly. The toolbar export is titled Export all flowers without a filter and Export filtered flowers with an active filter; filtered export file names contain blumen-inventar-export-gefiltert. In the detail view, the export icon is titled Export current flower and exports only that flower; the file name contains blumen-inventar-export-<flower-name>." },
                 { subtitle: "Import", text: "During import, choose whether to replace existing data or add imported flowers." },
                 { subtitle: "PDF", text: "The detail view can create a PDF for the current flower." }
               ]
@@ -618,7 +620,7 @@
               title: "Felület",
               paragraphs: ["Bal oldalon található a viráglista, az eszközök, a szűrő és a kereső. Jobb oldalon a részletes nézet vagy a szerkesztő űrlap látható."],
               items: [
-                ["Exportálás", "ZIP vagy JSON fájlba menti az adatállományt. A ZIP az alapértelmezett."],
+                ["Összes virág exportálása / Szűrt virágok exportálása", "ZIP vagy JSON fájlba menti az adatállományt. Szűrés nélkül minden virágot exportál; aktív szűrésnél csak a szűrt virágokat. A ZIP az alapértelmezett."],
                 ["Importálás", "visszatölt egy ZIP vagy JSON mentést."],
                 ["Új virág", "üres űrlapot nyit."],
                 ["Virág létrehozása az internetről", "online keres neveket, leírást és képeket."],
@@ -673,6 +675,7 @@
                 ["Szerkesztés", "megnyitja az aktuális virág űrlapját."],
                 ["Törlés", "megerősítés után törli az aktuális virágot."],
                 ["Új virág", "új virágot hoz létre."],
+                ["Exportálás", "csak az aktuális virágot exportálja ZIP vagy JSON fájlba."],
                 ["PDF", "PDF-et készít az aktuális virágról."],
                 ["Webkeresés", "a böngészőben keres az aktuális virágra."],
                 ["Információ", "megnyitja ezt az útmutatót."]
@@ -746,7 +749,7 @@
               id: "import-export",
               title: "Import, export és PDF",
               blocks: [
-                { subtitle: "Export", text: "A ZIP export az alapértelmezett, és JSON mentést tartalmaz a virágokkal, képekkel, képinformációkkal, leírásokkal és linkekkel. A JSON továbbra is külön kiválasztható." },
+                { subtitle: "Export", text: "A ZIP export az alapértelmezett, és JSON mentést tartalmaz a virágokkal, képekkel, képinformációkkal, leírásokkal és linkekkel. A JSON továbbra is külön kiválasztható. Az eszköztári export szűrés nélkül Összes virág exportálása, aktív szűrésnél Szűrt virágok exportálása címet kap; szűrt exportnál a fájlnévben szerepel a blumen-inventar-export-gefiltert szöveg. A részletes nézet export ikonja Aktuális virág exportálása címmel csak az aktuális virágot exportálja; a fájlnévben szerepel a blumen-inventar-export-<virágnév> szöveg." },
                 { subtitle: "Import", text: "Importáláskor kiválasztható, hogy a meglévő adatok cserélődjenek vagy az importált virágok hozzáadódjanak." },
                 { subtitle: "PDF", text: "A részletes nézet PDF-et tud készíteni az aktuális virágról." }
               ]

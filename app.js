@@ -34,6 +34,11 @@
     searchMode: "names",
     detailHistory: [],
     detailHistoryIndex: -1,
+    currentLocationName: "",
+    currentLocationStatus: "idle",
+    currentInfoTimer: null,
+    imageMetadataCache: {},
+    imageLocationNameCache: {},
     sortDirections: loadSortDirections()
   };
 
@@ -74,6 +79,9 @@
       createOnlineFlowerFailed: "A virágot nem sikerült online létrehozni.",
       createOnlineFlowerNoMatch: "Nem található megfelelő online találat.",
       export: "Exportálás",
+      exportAllFlowers: "Összes virág exportálása",
+      exportFilteredFlowers: "Szűrt virágok exportálása",
+      exportSingleFlower: "Aktuális virág exportálása",
       import: "Importálás",
       sortAz: "Rendezés A-Z",
       sortZa: "Rendezés Z-A",
@@ -157,7 +165,9 @@
       favoriteImage: "Kedvenc kép",
       setFavoriteImage: "Beállítás kedvenc képként",
       showThumbnails: "Miniatűrök megjelenítése (T)",
-      imageSource: "Kép forrása",
+      imageSource: "Kép forrásának megnyitása",
+      manageImageSource: "Kép forrásának kezelése",
+      imageSourcePrompt: "Kép forráslinkje:",
       noImageSource: "Ehhez a képhez nincs online forrás mentve.",
       imageInfo: "Kép információ",
       editImageInfo: "Kép információ megadása vagy módosítása",
@@ -215,6 +225,11 @@
       exportFormatQuestion: "Milyen formátumban készüljön az export? A ZIP az alapértelmezett.",
       exportStatus: "Exportálandó virágok száma: {count}.",
       importStatus: "Importálandó virágok száma: {count}.",
+      currentLocationSearching: "Hely meghatározása...",
+      currentLocationUnavailable: "Hely nem elérhető",
+      imageMetadataReading: "Képadatok olvasása...",
+      imageMetadataUnavailable: "Nincs dátum, idő vagy hely a kép metaadataiban",
+      imageLocationResolving: "Helynév keresése...",
       exportZip: "ZIP",
       exportJson: "JSON",
       importDone: "Importálás befejezve.",
@@ -239,6 +254,9 @@
       createOnlineFlowerFailed: "Die Blume konnte nicht online erstellt werden.",
       createOnlineFlowerNoMatch: "Es wurde kein passender Online-Treffer gefunden.",
       export: "Exportieren",
+      exportAllFlowers: "Alle Blumen exportieren",
+      exportFilteredFlowers: "Gefilterte Blumen Exportieren",
+      exportSingleFlower: "Aktuelle Blume exportieren",
       import: "Importieren",
       sortAz: "Sortieren A-Z",
       sortZa: "Sortieren Z-A",
@@ -323,6 +341,8 @@
       setFavoriteImage: "Als Lieblingsbild markieren",
       showThumbnails: "Thumbnails anzeigen (T)",
       imageSource: "Bildquelle öffnen",
+      manageImageSource: "Bildquelle verwalten",
+      imageSourcePrompt: "Link zur Bildquelle:",
       noImageSource: "Für dieses Bild ist keine Online-Quelle gespeichert.",
       imageInfo: "Bild-Info",
       editImageInfo: "Bild-Info eingeben oder ändern",
@@ -380,6 +400,11 @@
       exportFormatQuestion: "In welchem Format soll exportiert werden? ZIP ist voreingestellt.",
       exportStatus: "Zu exportierende Blumen: {count}.",
       importStatus: "Zu importierende Blumen: {count}.",
+      currentLocationSearching: "Ort wird ermittelt...",
+      currentLocationUnavailable: "Ort nicht verfügbar",
+      imageMetadataReading: "Bild-Metadaten werden gelesen...",
+      imageMetadataUnavailable: "Kein Datum, keine Uhrzeit oder kein Ort in den Bild-Metadaten",
+      imageLocationResolving: "Ortsname wird ermittelt...",
       exportZip: "ZIP",
       exportJson: "JSON",
       importDone: "Import abgeschlossen.",
@@ -404,6 +429,9 @@
       createOnlineFlowerFailed: "The flower could not be created online.",
       createOnlineFlowerNoMatch: "No matching online result was found.",
       export: "Export",
+      exportAllFlowers: "Export all flowers",
+      exportFilteredFlowers: "Export filtered flowers",
+      exportSingleFlower: "Export current flower",
       import: "Import",
       sortAz: "Sort A-Z",
       sortZa: "Sort Z-A",
@@ -488,6 +516,8 @@
       setFavoriteImage: "Mark as favorite image",
       showThumbnails: "Show thumbnails (T)",
       imageSource: "Open image source",
+      manageImageSource: "Manage image source",
+      imageSourcePrompt: "Image source link:",
       noImageSource: "No online source is stored for this image.",
       imageInfo: "Image info",
       editImageInfo: "Enter or edit image info",
@@ -545,6 +575,11 @@
       exportFormatQuestion: "Which format should be used for export? ZIP is the default.",
       exportStatus: "Flowers to export: {count}.",
       importStatus: "Flowers to import: {count}.",
+      currentLocationSearching: "Finding location...",
+      currentLocationUnavailable: "Location unavailable",
+      imageMetadataReading: "Reading image metadata...",
+      imageMetadataUnavailable: "No date, time, or location in image metadata",
+      imageLocationResolving: "Resolving place name...",
       exportZip: "ZIP",
       exportJson: "JSON",
       importDone: "Import completed.",
@@ -1032,6 +1067,7 @@
     }
     updateLinkEditorLabels();
     updateSortButton();
+    updateExportButton();
     elements.filterPreviousButton.title = t("previousFilterMatch");
     elements.filterPreviousButton.setAttribute("aria-label", t("previousFilterMatch"));
     elements.filterNextButton.title = t("nextFilterMatch");
@@ -1052,6 +1088,17 @@
 
   function updateFilterClearButton() {
     elements.clearFilterButton.classList.toggle("hidden", !elements.filterInput.value);
+    updateExportButton();
+  }
+
+  function updateExportButton() {
+    var label = t(normalizeSearchText(elements.filterInput.value) ? "exportFilteredFlowers" : "exportAllFlowers");
+    elements.exportButton.title = label;
+    elements.exportButton.setAttribute("aria-label", label);
+    var text = elements.exportButton.querySelector("span");
+    if (text) {
+      text.textContent = label;
+    }
   }
 
   function updateSearchClearButton() {
@@ -2138,6 +2185,11 @@
           editFlowerImageInfo(flower, index, {
             reopenThumbnails: true
           });
+        },
+        onSource: function (index) {
+          editFlowerImageSource(flower, index, {
+            reopenThumbnails: true
+          });
         }
       });
     });
@@ -2150,7 +2202,9 @@
     sourceButton.disabled = !imageSources[imageIndex];
     sourceButton.appendChild(createIconImage("icon-link.png"));
     sourceButton.addEventListener("click", function () {
-      openImageSource(imageSources[imageIndex]);
+      if (imageSources[imageIndex]) {
+        openImageSource(imageSources[imageIndex]);
+      }
     });
 
     var infoButton = createImageInfoButton(imageInfos[imageIndex], imageNames[imageIndex], function () {
@@ -2283,7 +2337,11 @@
       },
       onInfo: function (index) {
         return editFlowerImageInfo(flower, index);
-      }
+      },
+      onSource: function (index) {
+        return editFlowerImageSource(flower, index);
+      },
+      manageSources: true
     });
   }
 
@@ -2384,36 +2442,7 @@
         if (options && options.reopenThumbnails) {
           var updatedFlower = getSelectedFlower();
           if (updatedFlower) {
-            openThumbnailChooser({
-              images: getFlowerImages(updatedFlower),
-              imageSources: getFlowerImageSources(updatedFlower),
-              imageNames: getFlowerImageNames(updatedFlower),
-              imageInfos: getFlowerImageInfos(updatedFlower),
-              currentIndex: getFlowerImageIndex(updatedFlower),
-              favoriteIndex: getFavoriteImageIndex(updatedFlower),
-              onSelect: function (index) {
-                selectFlowerImageByIndex(updatedFlower, index);
-              },
-              onFavorite: function (index) {
-                setFavoriteImage(updatedFlower, index);
-              },
-              onDelete: function (index) {
-                deleteFlowerImageByIndex(updatedFlower, index, {
-                  reopenThumbnails: true
-                });
-              },
-              onAddFiles: function (files, insertIndex) {
-                appendImagesToFlower(updatedFlower, files, {
-                  reopenThumbnails: true,
-                  insertIndex: insertIndex
-                });
-              },
-              onInfo: function (index) {
-                editFlowerImageInfo(updatedFlower, index, {
-                  reopenThumbnails: true
-                });
-              }
-            });
+            openThumbnailChooserForFlower(updatedFlower);
           }
         }
       })
@@ -2474,36 +2503,7 @@
         if (options && options.reopenThumbnails) {
           var updatedFlower = getSelectedFlower();
           if (updatedFlower) {
-            openThumbnailChooser({
-              images: getFlowerImages(updatedFlower),
-              imageSources: getFlowerImageSources(updatedFlower),
-              imageNames: getFlowerImageNames(updatedFlower),
-              imageInfos: getFlowerImageInfos(updatedFlower),
-              currentIndex: getFlowerImageIndex(updatedFlower),
-              favoriteIndex: getFavoriteImageIndex(updatedFlower),
-              onSelect: function (index) {
-                selectFlowerImageByIndex(updatedFlower, index);
-              },
-              onFavorite: function (index) {
-                setFavoriteImage(updatedFlower, index);
-              },
-              onDelete: function (index) {
-                deleteFlowerImageByIndex(updatedFlower, index, {
-                  reopenThumbnails: true
-                });
-              },
-              onAddFiles: function (files, insertIndex) {
-                appendImagesToFlower(updatedFlower, files, {
-                  reopenThumbnails: true,
-                  insertIndex: insertIndex
-                });
-              },
-              onInfo: function (index) {
-                editFlowerImageInfo(updatedFlower, index, {
-                  reopenThumbnails: true
-                });
-              }
-            });
+            openThumbnailChooserForFlower(updatedFlower);
           }
         }
       })
@@ -2569,6 +2569,11 @@
         editFlowerImageInfo(flower, index, {
           reopenThumbnails: true
         });
+      },
+      onSource: function (index) {
+        editFlowerImageSource(flower, index, {
+          reopenThumbnails: true
+        });
       }
     });
   }
@@ -2606,7 +2611,13 @@
         editPendingImageInfo(index, {
           reopenThumbnails: true
         });
-      }
+      },
+      onSource: function (index) {
+        editPendingImageSource(index, {
+          reopenThumbnails: true
+        });
+      },
+      manageSources: true
     });
   }
 
@@ -2675,15 +2686,21 @@
         }
       });
 
+      var hasImageSource = Boolean(imageSources[index]);
       sourceButton.type = "button";
       sourceButton.className = "thumbnail-source";
-      sourceButton.title = t("imageSource");
-      sourceButton.setAttribute("aria-label", t("imageSource"));
-      sourceButton.disabled = !imageSources[index];
+      sourceButton.classList.toggle("active", hasImageSource);
+      sourceButton.title = options.manageSources ? t("manageImageSource") : t("imageSource");
+      sourceButton.setAttribute("aria-label", sourceButton.title);
+      sourceButton.disabled = !options.manageSources && !hasImageSource;
+      sourceButton.classList.toggle("looks-disabled", options.manageSources && !hasImageSource);
+      sourceButton.setAttribute("aria-disabled", options.manageSources && !hasImageSource ? "true" : "false");
       sourceButton.appendChild(createIconImage("icon-link.png"));
       sourceButton.addEventListener("click", function (event) {
         event.stopPropagation();
-        if (imageSources[index]) {
+        if (options.manageSources && typeof options.onSource === "function") {
+          options.onSource(index);
+        } else if (hasImageSource) {
           openImageSource(imageSources[index]);
         }
       });
@@ -2926,10 +2943,21 @@
     sourceButton.appendChild(createIconImage("icon-link.png"));
     sourceButton.addEventListener("click", function (event) {
       event.stopPropagation();
-      if (!imageSources[currentIndex]) {
+      if (options && options.manageSources && typeof options.onSource === "function") {
+        var managedResult = options.onSource(currentIndex);
+        if (managedResult && typeof managedResult.then === "function") {
+          managedResult.then(function (value) {
+            if (value !== null && value !== undefined) {
+              imageSources[currentIndex] = value;
+              updateOriginalImageActions();
+            }
+          });
+        }
         return;
       }
-      openImageSource(imageSources[currentIndex]);
+      if (imageSources[currentIndex]) {
+        openImageSource(imageSources[currentIndex]);
+      }
     });
 
     var infoButton = createImageInfoButton(imageInfos[currentIndex], imageNames[currentIndex], function (event) {
@@ -2961,9 +2989,11 @@
       favoriteButton.title = isFavorite ? t("favoriteImage") : t("setFavoriteImage");
       favoriteButton.setAttribute("aria-label", favoriteButton.title);
       favoriteButton.disabled = !options || typeof options.onFavorite !== "function";
-      sourceButton.title = t("imageSource");
-      sourceButton.setAttribute("aria-label", t("imageSource"));
-      sourceButton.disabled = !imageSources[currentIndex];
+      sourceButton.title = options && options.manageSources ? t("manageImageSource") : t("imageSource");
+      sourceButton.setAttribute("aria-label", sourceButton.title);
+      sourceButton.disabled = !(options && options.manageSources) && !imageSources[currentIndex];
+      sourceButton.classList.toggle("looks-disabled", Boolean(options && options.manageSources && !imageSources[currentIndex]));
+      sourceButton.setAttribute("aria-disabled", options && options.manageSources && !imageSources[currentIndex] ? "true" : "false");
     }
 
     function updateOriginalImageInfo() {
@@ -3353,7 +3383,307 @@
       return;
     }
 
+    elements.topDetailActions.appendChild(createImageMetadataDisplay(flower));
     elements.topDetailActions.appendChild(createDetailActions(flower));
+  }
+
+  function createImageMetadataDisplay(flower) {
+    var display = document.createElement("div");
+    display.className = "current-context-display";
+    display.setAttribute("aria-live", "polite");
+    display.textContent = t("imageMetadataReading");
+    updateImageMetadataDisplay(display, flower);
+    return display;
+  }
+
+  function updateImageMetadataDisplay(display, flower) {
+    var images = getFlowerImages(flower);
+    var image = images[getFlowerImageIndex(flower)] || "";
+    if (!image) {
+      display.textContent = t("imageMetadataUnavailable");
+      return;
+    }
+    getImageDisplayMetadata(image).then(function (text) {
+      display.textContent = text || t("imageMetadataUnavailable");
+    });
+  }
+
+  function ensureCurrentContextUpdates() {
+    if (state.currentInfoTimer) {
+      return;
+    }
+    state.currentInfoTimer = window.setInterval(updateCurrentContextDisplays, 1000);
+  }
+
+  function updateCurrentContextDisplays() {
+    document.querySelectorAll(".current-context-display").forEach(updateCurrentContextDisplay);
+  }
+
+  function updateCurrentContextDisplay(display) {
+    var location = state.currentLocationName || t(state.currentLocationStatus === "loading" ? "currentLocationSearching" : "currentLocationUnavailable");
+    display.textContent = formatCurrentDateTime(new Date()) + " · " + location;
+  }
+
+  function formatCurrentDateTime(date) {
+    var localeByLanguage = {
+      hu: "hu-HU",
+      de: "de-DE",
+      en: "en-GB"
+    };
+    return new Intl.DateTimeFormat(localeByLanguage[state.language] || "de-DE", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit"
+    }).format(date);
+  }
+
+  function requestCurrentLocationName() {
+    if (state.currentLocationStatus !== "idle" || state.currentLocationName) {
+      return;
+    }
+    if (!navigator.geolocation) {
+      state.currentLocationStatus = "unavailable";
+      updateCurrentContextDisplays();
+      return;
+    }
+    state.currentLocationStatus = "loading";
+    updateCurrentContextDisplays();
+    navigator.geolocation.getCurrentPosition(function (position) {
+      reverseGeocodeCurrentPosition(position.coords.latitude, position.coords.longitude);
+    }, function () {
+      state.currentLocationStatus = "unavailable";
+      updateCurrentContextDisplays();
+    }, {
+      enableHighAccuracy: false,
+      maximumAge: 600000,
+      timeout: 9000
+    });
+  }
+
+  function reverseGeocodeCurrentPosition(latitude, longitude) {
+    var url = "https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=" + encodeURIComponent(latitude) + "&lon=" + encodeURIComponent(longitude) + "&zoom=10&addressdetails=1&accept-language=" + encodeURIComponent(state.language);
+    fetch(url)
+      .then(function (response) {
+        if (!response.ok) {
+          throw new Error("reverse geocode failed");
+        }
+        return response.json();
+      })
+      .then(function (data) {
+        state.currentLocationName = getLocationNameFromReverseGeocode(data);
+        state.currentLocationStatus = state.currentLocationName ? "ready" : "unavailable";
+        updateCurrentContextDisplays();
+      })
+      .catch(function () {
+        state.currentLocationStatus = "unavailable";
+        updateCurrentContextDisplays();
+      });
+  }
+
+  function getLocationNameFromReverseGeocode(data) {
+    var address = data && data.address ? data.address : {};
+    return address.city || address.town || address.village || address.municipality || address.county || address.state || data.display_name || "";
+  }
+
+  function getImageDisplayMetadata(imageDataUrl) {
+    var cacheKey = getImageMetadataCacheKey(imageDataUrl);
+    if (state.imageMetadataCache[cacheKey]) {
+      return formatImageDisplayMetadata(state.imageMetadataCache[cacheKey]);
+    }
+    return Promise.resolve()
+      .then(function () {
+        return extractImageMetadataFromDataUrl(imageDataUrl);
+      })
+      .then(function (metadata) {
+        state.imageMetadataCache[cacheKey] = metadata;
+        return formatImageDisplayMetadata(metadata);
+      })
+      .catch(function () {
+        state.imageMetadataCache[cacheKey] = {};
+        return "";
+      });
+  }
+
+  function getImageMetadataCacheKey(imageDataUrl) {
+    return String(imageDataUrl || "").length + ":" + String(imageDataUrl || "").slice(0, 96);
+  }
+
+  function formatImageDisplayMetadata(metadata) {
+    var parts = [];
+    if (metadata && metadata.takenAt) {
+      parts.push(formatExifDateTime(metadata.takenAt));
+    }
+    if (metadata && Number.isFinite(metadata.latitude) && Number.isFinite(metadata.longitude)) {
+      return getImageLocationName(metadata.latitude, metadata.longitude).then(function (locationName) {
+        return parts.concat(locationName || t("imageLocationResolving")).filter(Boolean).join(" · ");
+      });
+    }
+    return Promise.resolve(parts.join(" · "));
+  }
+
+  function formatExifDateTime(value) {
+    var match = String(value || "").match(/^(\d{4}):(\d{2}):(\d{2})\s+(\d{2}):(\d{2})(?::(\d{2}))?/);
+    if (!match) {
+      return String(value || "").trim();
+    }
+    var date = new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]), Number(match[4]), Number(match[5]), Number(match[6] || 0));
+    return formatCurrentDateTime(date);
+  }
+
+  function getImageLocationName(latitude, longitude) {
+    var key = latitude.toFixed(4) + "," + longitude.toFixed(4);
+    if (state.imageLocationNameCache[key]) {
+      return Promise.resolve(state.imageLocationNameCache[key]);
+    }
+    return reverseGeocodeCoordinates(latitude, longitude).then(function (locationName) {
+      state.imageLocationNameCache[key] = locationName;
+      return locationName;
+    }).catch(function () {
+      return latitude.toFixed(5) + ", " + longitude.toFixed(5);
+    });
+  }
+
+  function reverseGeocodeCoordinates(latitude, longitude) {
+    var url = "https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=" + encodeURIComponent(latitude) + "&lon=" + encodeURIComponent(longitude) + "&zoom=10&addressdetails=1&accept-language=" + encodeURIComponent(state.language);
+    return fetch(url)
+      .then(function (response) {
+        if (!response.ok) {
+          throw new Error("reverse geocode failed");
+        }
+        return response.json();
+      })
+      .then(getLocationNameFromReverseGeocode);
+  }
+
+  function extractImageMetadataFromDataUrl(dataUrl) {
+    if (!/^data:image\/jpe?g/i.test(String(dataUrl || ""))) {
+      return {};
+    }
+    return parseExifFromJpegBytes(dataUrlToBytes(dataUrl));
+  }
+
+  function parseExifFromJpegBytes(bytes) {
+    if (!bytes || bytes.length < 12 || bytes[0] !== 0xff || bytes[1] !== 0xd8) {
+      return {};
+    }
+    var offset = 2;
+    while (offset + 4 < bytes.length) {
+      if (bytes[offset] !== 0xff) {
+        break;
+      }
+      var marker = bytes[offset + 1];
+      var length = readBigEndianUint16(bytes, offset + 2);
+      var dataOffset = offset + 4;
+      if (marker === 0xe1 && hasExifHeader(bytes, dataOffset)) {
+        return parseExifTiff(bytes, dataOffset + 6);
+      }
+      offset += 2 + length;
+    }
+    return {};
+  }
+
+  function hasExifHeader(bytes, offset) {
+    return bytes[offset] === 0x45 && bytes[offset + 1] === 0x78 && bytes[offset + 2] === 0x69 && bytes[offset + 3] === 0x66 && bytes[offset + 4] === 0 && bytes[offset + 5] === 0;
+  }
+
+  function parseExifTiff(bytes, tiffOffset) {
+    var littleEndian = bytes[tiffOffset] === 0x49 && bytes[tiffOffset + 1] === 0x49;
+    var bigEndian = bytes[tiffOffset] === 0x4d && bytes[tiffOffset + 1] === 0x4d;
+    if (!littleEndian && !bigEndian) {
+      return {};
+    }
+    var read16 = function (offset) {
+      return littleEndian ? bytes[offset] | (bytes[offset + 1] << 8) : readBigEndianUint16(bytes, offset);
+    };
+    var read32 = function (offset) {
+      return littleEndian ? (bytes[offset] | (bytes[offset + 1] << 8) | (bytes[offset + 2] << 16) | (bytes[offset + 3] << 24)) >>> 0 : readBigEndianUint32(bytes, offset);
+    };
+    var firstIfdOffset = read32(tiffOffset + 4);
+    var rootTags = readExifIfd(bytes, tiffOffset, tiffOffset + firstIfdOffset, read16, read32);
+    var exifTags = rootTags[0x8769] ? readExifIfd(bytes, tiffOffset, tiffOffset + rootTags[0x8769], read16, read32) : {};
+    var gpsTags = rootTags[0x8825] ? readExifIfd(bytes, tiffOffset, tiffOffset + rootTags[0x8825], read16, read32) : {};
+    return {
+      takenAt: exifTags[0x9003] || exifTags[0x9004] || rootTags[0x0132] || "",
+      latitude: getGpsCoordinate(gpsTags[0x0001], gpsTags[0x0002]),
+      longitude: getGpsCoordinate(gpsTags[0x0003], gpsTags[0x0004])
+    };
+  }
+
+  function readExifIfd(bytes, tiffOffset, ifdOffset, read16, read32) {
+    var tags = {};
+    if (ifdOffset <= 0 || ifdOffset + 2 > bytes.length) {
+      return tags;
+    }
+    var count = read16(ifdOffset);
+    for (var index = 0; index < count; index += 1) {
+      var entryOffset = ifdOffset + 2 + index * 12;
+      if (entryOffset + 12 > bytes.length) {
+        break;
+      }
+      var tag = read16(entryOffset);
+      var type = read16(entryOffset + 2);
+      var valueCount = read32(entryOffset + 4);
+      tags[tag] = readExifValue(bytes, tiffOffset, entryOffset, type, valueCount, read32);
+    }
+    return tags;
+  }
+
+  function readExifValue(bytes, tiffOffset, entryOffset, type, count, read32) {
+    var typeSize = { 1: 1, 2: 1, 3: 2, 4: 4, 5: 8 }[type] || 1;
+    var valueLength = typeSize * count;
+    var valueOffset = valueLength <= 4 ? entryOffset + 8 : tiffOffset + read32(entryOffset + 8);
+    if (valueOffset < 0 || valueOffset + valueLength > bytes.length) {
+      return null;
+    }
+    if (type === 2) {
+      return readExifAscii(bytes, valueOffset, count);
+    }
+    if (type === 5) {
+      return readExifRationals(bytes, valueOffset, count, read32);
+    }
+    if (type === 3 || type === 4) {
+      return read32(entryOffset + 8);
+    }
+    return null;
+  }
+
+  function readExifAscii(bytes, offset, count) {
+    var text = "";
+    for (var index = 0; index < count && offset + index < bytes.length; index += 1) {
+      if (bytes[offset + index] === 0) {
+        break;
+      }
+      text += String.fromCharCode(bytes[offset + index]);
+    }
+    return text.trim();
+  }
+
+  function readExifRationals(bytes, offset, count, read32) {
+    var values = [];
+    for (var index = 0; index < count; index += 1) {
+      var numerator = read32(offset + index * 8);
+      var denominator = read32(offset + index * 8 + 4);
+      values.push(denominator ? numerator / denominator : 0);
+    }
+    return values;
+  }
+
+  function getGpsCoordinate(reference, values) {
+    if (!Array.isArray(values) || values.length < 3) {
+      return null;
+    }
+    var coordinate = values[0] + values[1] / 60 + values[2] / 3600;
+    return reference === "S" || reference === "W" ? -coordinate : coordinate;
+  }
+
+  function readBigEndianUint16(bytes, offset) {
+    return (bytes[offset] << 8) | bytes[offset + 1];
+  }
+
+  function readBigEndianUint32(bytes, offset) {
+    return ((bytes[offset] << 24) | (bytes[offset + 1] << 16) | (bytes[offset + 2] << 8) | bytes[offset + 3]) >>> 0;
   }
 
   function createDetailActions(flower) {
@@ -3384,6 +3714,11 @@
     nextListButton.title = t("nextFlower");
     nextListButton.addEventListener("click", function () {
       selectFlowerByOffset(1);
+    });
+
+    var exportSingleButton = createActionButton(t("exportSingleFlower"), "icon-export.png", "icon-action icon-only-action");
+    exportSingleButton.addEventListener("click", function () {
+      exportSingleFlower(flower);
     });
 
     var editButton = createActionButton(t("edit"), "icon-edit.png", "icon-action icon-only-action");
@@ -3420,6 +3755,7 @@
     actions.appendChild(nextButton);
     actions.appendChild(previousListButton);
     actions.appendChild(nextListButton);
+    actions.appendChild(exportSingleButton);
     actions.appendChild(editButton);
     actions.appendChild(deleteButton);
     actions.appendChild(addButton);
@@ -3621,6 +3957,85 @@
     window.open(sourceUrl, "_blank", "noopener");
   }
 
+  function normalizeImageSourceInput(value) {
+    return String(value || "").replace(/[\r\n]+/g, " ").trim();
+  }
+
+  function promptImageSource(currentSource) {
+    return openImageSourceDialog(currentSource);
+  }
+
+  function openImageSourceDialog(currentSource) {
+    return new Promise(function (resolve) {
+      var overlay = document.createElement("div");
+      var panel = document.createElement("div");
+      var title = document.createElement("h2");
+      var form = document.createElement("form");
+      var label = document.createElement("label");
+      var input = document.createElement("input");
+      var saveButton = document.createElement("button");
+      var cancelButton = document.createElement("button");
+      var finished = false;
+
+      function finish(value) {
+        if (finished) {
+          return;
+        }
+        finished = true;
+        overlay.remove();
+        document.removeEventListener("keydown", handleEscape, true);
+        resolve(value);
+      }
+
+      function handleEscape(event) {
+        if (event.key === "Escape") {
+          event.preventDefault();
+          event.stopPropagation();
+          event.stopImmediatePropagation();
+          finish(null);
+        }
+      }
+
+      overlay.className = "online-search-overlay image-info-overlay";
+      panel.className = "online-search-panel image-info-panel";
+      form.className = "online-search-form image-info-form";
+      title.textContent = t("manageImageSource");
+      label.textContent = t("imageSourcePrompt");
+      label.setAttribute("for", "imageSourceInput");
+      input.id = "imageSourceInput";
+      input.type = "url";
+      input.autocomplete = "off";
+      input.value = currentSource || "";
+      saveButton.type = "submit";
+      configureDialogIconButton(saveButton, t("save"), "icon-save.png");
+      cancelButton.type = "button";
+      configureDialogIconButton(cancelButton, t("cancel"), "icon-exit.png");
+
+      form.appendChild(label);
+      form.appendChild(input);
+      form.appendChild(saveButton);
+      form.appendChild(cancelButton);
+      panel.appendChild(title);
+      panel.appendChild(form);
+      overlay.appendChild(panel);
+      document.body.appendChild(overlay);
+
+      form.addEventListener("submit", function (event) {
+        event.preventDefault();
+        finish(normalizeImageSourceInput(input.value));
+      });
+      cancelButton.addEventListener("click", function () {
+        finish(null);
+      });
+      document.addEventListener("keydown", handleEscape, true);
+
+      window.setTimeout(function () {
+        input.focus();
+        input.select();
+      });
+    });
+  }
+
   function createImageInfoButton(infoText, imageName, onClick) {
     var button = document.createElement("button");
     var hasInfo = hasImageInfoForCurrentLanguage(infoText);
@@ -3804,6 +4219,42 @@
     });
   }
 
+  function editFlowerImageSource(flower, imageIndex, options) {
+    var images = getFlowerImages(flower);
+    var imageSources = getFlowerImageSources(flower);
+    if (imageIndex < 0 || imageIndex >= images.length) {
+      return Promise.resolve(null);
+    }
+
+    return promptImageSource(imageSources[imageIndex]).then(function (value) {
+      if (value === null) {
+        return null;
+      }
+
+      imageSources[imageIndex] = value;
+      var updatedFlower = Object.assign({}, flower, {
+        imageSources: imageSources,
+        updatedAt: new Date().toISOString()
+      });
+      return saveFlower(updatedFlower)
+        .then(loadFlowers)
+        .then(function () {
+          setSelectedFlower(flower.id);
+          render();
+          if (options && options.reopenThumbnails) {
+            var refreshedFlower = getSelectedFlower();
+            if (refreshedFlower) {
+              openThumbnailChooserForFlower(refreshedFlower);
+            }
+          }
+          return imageSources[imageIndex];
+        });
+    }).catch(function () {
+      window.alert(t("saveFailed"));
+      return null;
+    });
+  }
+
   function editPendingImageInfo(imageIndex, options) {
     var images = normalizeImages(state.pendingImages);
     var imageInfos = normalizeImageInfos(state.pendingImageInfos, images.length);
@@ -3822,6 +4273,27 @@
         openThumbnailChooserForPendingImages();
       }
       return imageInfos[imageIndex];
+    });
+  }
+
+  function editPendingImageSource(imageIndex, options) {
+    var images = normalizeImages(state.pendingImages);
+    var imageSources = normalizeImageSources(state.pendingImageSources, images.length);
+    if (imageIndex < 0 || imageIndex >= images.length) {
+      return Promise.resolve(null);
+    }
+
+    return promptImageSource(imageSources[imageIndex]).then(function (value) {
+      if (value === null) {
+        return null;
+      }
+      imageSources[imageIndex] = value;
+      state.pendingImageSources = imageSources;
+      renderImagePreview(state.pendingImages);
+      if (options && options.reopenThumbnails) {
+        openThumbnailChooserForPendingImages();
+      }
+      return imageSources[imageIndex];
     });
   }
 
@@ -5185,32 +5657,7 @@
       elements.imageInput.value = "";
       clearFormError();
       if (options && options.reopenThumbnails) {
-        openThumbnailChooser({
-          images: state.pendingImages,
-          imageSources: state.pendingImageSources,
-          imageNames: state.pendingImageNames,
-          imageInfos: state.pendingImageInfos,
-          currentIndex: state.pendingImageIndex,
-          favoriteIndex: state.pendingFavoriteImageIndex,
-          onSelect: selectPendingImageByIndex,
-          onFavorite: setPendingFavoriteImage,
-          onDelete: function (index) {
-            deletePendingImageByIndex(index, {
-              reopenThumbnails: true
-            });
-          },
-          onAddFiles: function (files, insertIndex) {
-            useImageFiles(files, {
-              reopenThumbnails: true,
-              insertIndex: insertIndex
-            });
-          },
-          onInfo: function (index) {
-            editPendingImageInfo(index, {
-              reopenThumbnails: true
-            });
-          }
-        });
+        openThumbnailChooserForPendingImages();
       }
     }).catch(function () {
       showFormError(t("readImageFailed"));
@@ -5786,7 +6233,9 @@
         favoriteIndex: favoriteImageIndex,
         onFavorite: setPendingFavoriteImage,
         onDelete: deletePendingImageByIndex,
-        onInfo: editPendingImageInfo
+        onInfo: editPendingImageInfo,
+        onSource: editPendingImageSource,
+        manageSources: true
       });
     });
 
@@ -5858,18 +6307,25 @@
           editPendingImageInfo(index, {
             reopenThumbnails: true
           });
-        }
+        },
+        onSource: function (index) {
+          editPendingImageSource(index, {
+            reopenThumbnails: true
+          });
+        },
+        manageSources: true
       });
     });
 
     sourceButton.type = "button";
     sourceButton.className = "hero-image-source";
-    sourceButton.title = t("imageSource");
-    sourceButton.setAttribute("aria-label", t("imageSource"));
-    sourceButton.disabled = !imageSources[imageIndex];
+    sourceButton.title = t("manageImageSource");
+    sourceButton.setAttribute("aria-label", t("manageImageSource"));
+    sourceButton.classList.toggle("looks-disabled", !imageSources[imageIndex]);
+    sourceButton.setAttribute("aria-disabled", imageSources[imageIndex] ? "false" : "true");
     sourceButton.appendChild(createIconImage("icon-link.png"));
     sourceButton.addEventListener("click", function () {
-      openImageSource(imageSources[imageIndex]);
+      editPendingImageSource(imageIndex);
     });
 
     infoButton = createImageInfoButton(imageInfos[imageIndex], imageNames[imageIndex], function () {
@@ -5974,32 +6430,7 @@
     state.pendingFavoriteImageIndex = getFavoriteIndexAfterImageDelete(favoriteImageIndex, imageIndex, nextIndex);
     renderImagePreview(updatedImages);
     if (options && options.reopenThumbnails) {
-      openThumbnailChooser({
-        images: state.pendingImages,
-        imageSources: state.pendingImageSources,
-        imageNames: state.pendingImageNames,
-        imageInfos: state.pendingImageInfos,
-        currentIndex: state.pendingImageIndex,
-        favoriteIndex: state.pendingFavoriteImageIndex,
-        onSelect: selectPendingImageByIndex,
-        onFavorite: setPendingFavoriteImage,
-        onDelete: function (index) {
-          deletePendingImageByIndex(index, {
-            reopenThumbnails: true
-          });
-        },
-        onAddFiles: function (files, insertIndex) {
-          useImageFiles(files, {
-            reopenThumbnails: true,
-            insertIndex: insertIndex
-          });
-        },
-        onInfo: function (index) {
-          editPendingImageInfo(index, {
-            reopenThumbnails: true
-          });
-        }
-      });
+      openThumbnailChooserForPendingImages();
     }
   }
 
@@ -6021,19 +6452,38 @@
 
   function exportFlowers() {
     loadFlowers().then(function () {
-      var exportData = {
-        app: "flower-inventory",
-        version: 1,
-        exportedAt: new Date().toISOString(),
-        flowers: state.flowers
-      };
-      return saveExportData(exportData);
+      var hasFilter = Boolean(normalizeSearchText(elements.filterInput.value));
+      var flowers = hasFilter ? getVisibleFlowers() : state.flowers;
+      return saveExportData(createExportData(flowers), {
+        stem: hasFilter ? "blumen-inventar-export-gefiltert" : "blumen-inventar-export",
+        titleKey: hasFilter ? "exportFilteredFlowers" : "exportAllFlowers"
+      });
     });
   }
 
-  function saveExportData(exportData) {
-    var baseName = getExportBaseFileName();
-    return chooseExportFormat(exportData.flowers.length).then(function (format) {
+  function exportSingleFlower(flower) {
+    var currentFlower = flower || getSelectedFlower();
+    if (!currentFlower) {
+      return;
+    }
+    saveExportData(createExportData([currentFlower]), {
+      stem: "blumen-inventar-export-" + getExportFlowerNamePart(currentFlower),
+      titleKey: "exportSingleFlower"
+    });
+  }
+
+  function createExportData(flowers) {
+    return {
+      app: "flower-inventory",
+      version: 1,
+      exportedAt: new Date().toISOString(),
+      flowers: Array.isArray(flowers) ? flowers : []
+    };
+  }
+
+  function saveExportData(exportData, options) {
+    var baseName = getExportBaseFileName(options && options.stem);
+    return chooseExportFormat(exportData.flowers.length, options && options.titleKey).then(function (format) {
       if (!format) {
         return;
       }
@@ -6068,9 +6518,9 @@
     });
   }
 
-  function chooseExportFormat(count) {
+  function chooseExportFormat(count, titleKey) {
     return showAppChoiceDialog({
-      title: t("export"),
+      title: t(titleKey || "export"),
       message: t("exportStatus", { count: count }) + "\n" + t("exportFormatQuestion"),
       acceptLabel: t("exportZip"),
       cancelLabel: t("exportJson"),
@@ -6106,7 +6556,7 @@
     return fallbackFormat || "zip";
   }
 
-  function getExportBaseFileName() {
+  function getExportBaseFileName(stem) {
     var now = new Date();
     return [
       now.getFullYear(),
@@ -6114,7 +6564,23 @@
       padDatePart(now.getDate()),
       padDatePart(now.getHours()),
       padDatePart(now.getMinutes())
-    ].join("-") + "-blumen-inventar-export";
+    ].join("-") + "-" + (stem || "blumen-inventar-export");
+  }
+
+  function getExportFlowerNamePart(flower) {
+    var name = getLocalizedFlowerName(flower) || flower.names.hu || flower.names.la || "blume";
+    var firstPart = String(name || "blume").split("/")[0].trim() || "blume";
+    return safeExportNamePart(firstPart);
+  }
+
+  function safeExportNamePart(value) {
+    return String(value || "blume")
+      .trim()
+      .replace(/\s+/g, "-")
+      .replace(/[\\/:*?"<>|]+/g, "-")
+      .replace(/-+/g, "-")
+      .replace(/^-|-$/g, "")
+      .slice(0, 80) || "blume";
   }
 
   function createZipBlob(fileName, text) {
