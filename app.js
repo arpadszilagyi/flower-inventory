@@ -171,6 +171,7 @@
       noImageSource: "Ehhez a képhez nincs online forrás mentve.",
       imageInfo: "Kép információ",
       editImageInfo: "Kép információ megadása vagy módosítása",
+      descriptionButton: "Leírás",
       imageInfoPrompt: "Egysoros információ ehhez a képhez ({language}):",
       onlineSearchTitle: "Virág létrehozása az internetről",
       onlineSearchInputLabel: "Virágnév",
@@ -346,6 +347,7 @@
       noImageSource: "Für dieses Bild ist keine Online-Quelle gespeichert.",
       imageInfo: "Bild-Info",
       editImageInfo: "Bild-Info eingeben oder ändern",
+      descriptionButton: "Beschreibung",
       imageInfoPrompt: "Einzeilige Info zu diesem Bild ({language}):",
       onlineSearchTitle: "Blume aus dem Internet erstellen",
       onlineSearchInputLabel: "Blumenname",
@@ -521,6 +523,7 @@
       noImageSource: "No online source is stored for this image.",
       imageInfo: "Image info",
       editImageInfo: "Enter or edit image info",
+      descriptionButton: "Description",
       imageInfoPrompt: "One-line info for this image ({language}):",
       onlineSearchTitle: "Create flower from the internet",
       onlineSearchInputLabel: "Flower name",
@@ -3746,7 +3749,7 @@
       searchFlowerOnline(flower);
     });
 
-    var appInfoButton = createActionButton(t("appInfo"), "icon-info.png", "icon-action icon-only-action");
+    var appInfoButton = createActionButton(t("descriptionButton"), "icon-description-book.png", "icon-action icon-only-action");
     appInfoButton.addEventListener("click", function () {
       openAppInfo();
     });
