@@ -1029,7 +1029,6 @@ button.primary:hover,
   object-fit: cover;
 }
 
-.export-format-dialog .app-dialog-actions,
 .import-mode-dialog .app-dialog-actions {
   gap: 14px;
   align-items: center;
@@ -1045,15 +1044,6 @@ button.primary:hover,
   width: 64px;
   height: 64px;
   border-radius: 10px;
-}
-
-.export-format-dialog .dialog-icon-button.icon-only-choice {
-  background: var(--panel);
-  color: var(--text);
-}
-
-.export-format-dialog .dialog-icon-button.icon-only-choice:hover {
-  background: #f7f4ee;
 }
 
 .dialog-icon-button.small-icon-choice {
@@ -1096,6 +1086,185 @@ button.primary:hover,
   display: flex;
   justify-content: flex-end;
   gap: 10px;
+}
+
+.import-integrated-dialog {
+  width: min(760px, calc(100vw - 48px));
+}
+
+.import-integrated-form {
+  display: grid;
+  gap: 6px;
+}
+
+.import-mode-icon-group {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: flex-start;
+  width: max-content;
+  margin-left: 46px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 5px 14px rgba(34, 33, 29, 0.2);
+  padding: 8px 14px 8px 8px;
+}
+
+.import-mode-text {
+  margin-left: 6px;
+  color: var(--text);
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.import-mode-text.replace-warning {
+  color: var(--danger);
+}
+
+.import-mode-button.dialog-icon-button {
+  width: 48px;
+  min-height: 48px;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  box-shadow: none;
+  opacity: 1;
+  padding: 2px;
+}
+
+.import-mode-button.dialog-icon-button img {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  filter: none;
+}
+
+.import-mode-button.dialog-icon-button.active {
+  box-shadow: 0 0 0 3px rgba(47, 125, 98, 0.22);
+}
+
+.import-file-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  gap: 8px;
+  align-items: center;
+}
+
+.import-file-button.dialog-icon-button {
+  width: 46px;
+  min-height: 46px;
+  padding: 3px;
+}
+
+.import-file-button.dialog-icon-button img {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  object-fit: contain;
+}
+
+.import-submit-button.dialog-icon-button {
+  width: 54px;
+  min-height: 54px;
+  padding: 4px;
+}
+
+.import-submit-button.dialog-icon-button img {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+}
+
+.import-file-row input {
+  min-height: 42px;
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--image-surface);
+  color: var(--text);
+  font-size: 16px;
+  padding: 9px 11px;
+}
+
+.export-format-dialog {
+  width: min(760px, calc(100vw - 48px));
+}
+
+.export-format-form {
+  display: grid;
+  gap: 8px;
+}
+
+.export-file-icon-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.export-format-icon-group {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.export-format-button.dialog-icon-button,
+.export-prefix-button.dialog-icon-button {
+  width: 54px;
+  min-height: 54px;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  box-shadow: none;
+  opacity: 1;
+  padding: 4px;
+}
+
+.export-format-button.dialog-icon-button img,
+.export-prefix-button.dialog-icon-button img {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  filter: none;
+}
+
+.export-format-button.dialog-icon-button.active {
+  background: transparent;
+  box-shadow: 0 0 0 3px rgba(47, 125, 98, 0.32);
+}
+
+.export-file-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 8px;
+  align-items: center;
+}
+
+.export-submit-button.dialog-icon-button {
+  width: 54px;
+  min-height: 54px;
+  padding: 4px;
+}
+
+.export-submit-button.dialog-icon-button img {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+}
+
+.export-prefix-button.dialog-icon-button.active {
+  box-shadow: 0 0 0 3px rgba(47, 125, 98, 0.32);
+}
+
+.export-file-row input {
+  min-height: 42px;
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--image-surface);
+  color: var(--text);
+  font-size: 16px;
+  padding: 9px 11px;
 }
 
 .online-search-history {

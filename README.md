@@ -24,7 +24,7 @@ Die Anwendung lädt bis zu 10 ausreichend große Bilder, speichert aber eine beg
 
 ## Export und Import
 
-Mit `Exportieren` wird eine JSON-Datei gespeichert. Der vorgeschlagene Dateiname beginnt mit Datum und Uhrzeit, zum Beispiel `2026-06-21-09-50-blumen-inventar-export.json`. In Browsern mit File System Access API kann Speicherort und Dateiname im Speichern-Dialog ausgewählt werden. Der Ordner `export` im App-Verzeichnis ist als Ablage für Sicherungen vorgesehen.
+Mit `Exportieren` wird eine ZIP- oder JSON-Datei gespeichert. Der vorgeschlagene Dateiname kann mit Datum und Uhrzeit beginnen, zum Beispiel `2026-06-21-09-50-flower-inventory-export.json`; im Exportdialog kann der timestamp-Präfix mit dem Prefix-Icon ein- oder ausgeschaltet und der Dateiname bearbeitet werden. In Browsern mit File System Access API kann Speicherort und Dateiname im Speichern-Dialog ausgewählt werden. Der Ordner `export` im App-Verzeichnis ist als Ablage für Sicherungen vorgesehen.
 
 Mit `Importieren` kann eine zuvor exportierte JSON-Datei über einen Dateiauswahldialog wieder geladen werden. Export und Import verwenden dieselbe Ordner-Erinnerung des Browsers. Beim Import fragt die Anwendung, ob die bestehenden Daten ersetzt oder ob die importierten Blumen ergänzt werden sollen.
 

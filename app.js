@@ -251,9 +251,17 @@
       lookupFailed: "Az online keresés nem lehetséges. Az adatok kézzel is kitölthetők.",
       importQuestion: "Lecseréljük a meglévő adatokat?\n\nOK = csere\nMégse = hozzáadás",
       importReplaceQuestion: "Lecseréljük a meglévő adatokat, vagy hozzáadjuk az importált virágokat?",
+      importChooseFile: "Mentésfájl kiválasztása",
+      importFileName: "Importfájl",
+      importNoFile: "Nincs fájl kiválasztva",
+      importReplacePreview: "A képek cserélődnek",
+      importAddPreview: "A képek hozzáadódnak",
       replaceImportData: "Csere",
       addImportData: "Hozzáadás",
       exportFormatQuestion: "Milyen formátumban készüljön az export? A ZIP az alapértelmezett.",
+      exportWithTimestampPrefix: "timestamp-előtaggal",
+      exportWithoutTimestampPrefix: "timestamp-előtag nélkül",
+      exportFileName: "Fájlnév",
       exportStatus: "Exportálandó virágok száma: {count}.",
       importStatus: "Importálandó virágok száma: {count}.",
       currentLocationSearching: "Hely meghatározása...",
@@ -453,9 +461,17 @@
       lookupFailed: "Online-Ermittlung nicht möglich. Eingaben können manuell ergänzt werden.",
       importQuestion: "Sollen die bestehenden Daten ersetzt werden?\n\nOK = ersetzen\nAbbrechen = ergänzen",
       importReplaceQuestion: "Sollen die bestehenden Daten ersetzt oder die importierten Blumen ergänzt werden?",
+      importChooseFile: "Sicherungsdatei auswählen",
+      importFileName: "Importdatei",
+      importNoFile: "Keine Datei ausgewählt",
+      importReplacePreview: "Bilder werden ersetzt!!!",
+      importAddPreview: "Bilder werden hinzugefügt",
       replaceImportData: "Ersetzen",
       addImportData: "Ergänzen",
       exportFormatQuestion: "In welchem Format soll exportiert werden? ZIP ist voreingestellt.",
+      exportWithTimestampPrefix: "mit timestamp-Präfix",
+      exportWithoutTimestampPrefix: "ohne timestamp-Präfix",
+      exportFileName: "Dateiname",
       exportStatus: "Zu exportierende Blumen: {count}.",
       importStatus: "Zu importierende Blumen: {count}.",
       currentLocationSearching: "Ort wird ermittelt...",
@@ -655,9 +671,17 @@
       lookupFailed: "Online lookup is not possible. Entries can be completed manually.",
       importQuestion: "Replace existing data?\n\nOK = replace\nCancel = add",
       importReplaceQuestion: "Replace the existing data or add the imported flowers?",
+      importChooseFile: "Choose backup file",
+      importFileName: "Import file",
+      importNoFile: "No file selected",
+      importReplacePreview: "Images will be replaced",
+      importAddPreview: "Images will be added",
       replaceImportData: "Replace",
       addImportData: "Add",
       exportFormatQuestion: "Which format should be used for export? ZIP is the default.",
+      exportWithTimestampPrefix: "with timestamp prefix",
+      exportWithoutTimestampPrefix: "without timestamp prefix",
+      exportFileName: "File name",
       exportStatus: "Flowers to export: {count}.",
       importStatus: "Flowers to import: {count}.",
       currentLocationSearching: "Finding location...",
@@ -8016,7 +8040,7 @@
       var hasFilter = hasAnyFlowerFilter();
       var flowers = hasFilter ? getFilterScopeFlowers() : state.flowers;
       return saveExportData(createExportData(flowers), {
-        stem: hasFilter ? "blumen-inventar-export-gefiltert" : "blumen-inventar-export",
+        stem: hasFilter ? "flower-inventory-export-gefiltert" : "flower-inventory-export",
         titleKey: hasFilter ? "exportFilteredFlowers" : "exportAllFlowers"
       });
     });
@@ -8028,7 +8052,7 @@
       return;
     }
     saveExportData(createExportData([currentFlower]), {
-      stem: "blumen-inventar-export-" + getExportFlowerNamePart(currentFlower),
+      stem: "flower-inventory-export-" + getExportFlowerNamePart(currentFlower),
       titleKey: "exportSingleFlower"
     });
   }
@@ -8043,23 +8067,25 @@
   }
 
   function saveExportData(exportData, options) {
-    var baseName = getExportBaseFileName(options && options.stem);
-    return chooseExportFormat(exportData.flowers.length, options && options.titleKey).then(function (format) {
-      if (!format) {
+    var stem = options && options.stem || "flower-inventory-export";
+    return chooseExportOptions(exportData.flowers.length, options && options.titleKey, stem).then(function (choice) {
+      if (!choice) {
         return;
       }
+      var format = choice.format || "zip";
+      var fileName = ensureExportFileExtension(choice.fileName, format);
       if (window.showSaveFilePicker) {
-        return saveExportDataWithFilePicker(exportData, baseName, format);
+        return saveExportDataWithFilePicker(exportData, fileName, format);
       }
       return createExportBlob(exportData, format).then(function (blob) {
-        downloadExportBlob(blob, baseName + "." + format);
+        downloadExportBlob(blob, fileName);
       });
     });
   }
 
-  function saveExportDataWithFilePicker(exportData, baseName, format) {
+  function saveExportDataWithFilePicker(exportData, fileName, format) {
     return window.showSaveFilePicker(createExportPickerOptions(format, {
-      suggestedName: baseName + "." + format
+      suggestedName: fileName
     })).then(function (handle) {
       var selectedFormat = getExportFormatFromFileName(handle.name, format);
       return createExportBlob(exportData, selectedFormat).then(function (blob) {
@@ -8074,28 +8100,159 @@
         return;
       }
       return createExportBlob(exportData, format).then(function (blob) {
-        downloadExportBlob(blob, baseName + "." + format);
+        downloadExportBlob(blob, fileName);
       });
     });
   }
 
-  function chooseExportFormat(count, titleKey) {
-    return showAppChoiceDialog({
-      title: t(titleKey || "export"),
-      message: t("exportStatus", { count: count }) + "\n" + t("exportFormatQuestion"),
-      acceptLabel: t("exportZip"),
-      cancelLabel: t("exportJson"),
-      acceptIcon: "icon-zip.png",
-      cancelIcon: "icon-json.png",
-      acceptValue: "zip",
-      cancelValue: "json",
-      dismissValue: null,
-      extraLabel: t("cancel"),
-      extraIcon: "icon-exit.png",
-      extraValue: null,
-      iconOnly: true,
-      noPrimary: true,
-      panelClassName: "export-format-dialog"
+  function chooseExportOptions(count, titleKey, stem) {
+    return new Promise(function (resolve) {
+      var overlay = document.createElement("div");
+      var panel = document.createElement("div");
+      var title = document.createElement("h2");
+      var message = document.createElement("p");
+      var form = document.createElement("form");
+      var formatGroup = document.createElement("div");
+      var iconRow = document.createElement("div");
+      var prefixButton = document.createElement("button");
+      var fileRow = document.createElement("div");
+      var fileLabel = document.createElement("label");
+      var fileInput = document.createElement("input");
+      var saveButton = document.createElement("button");
+      var cancelButton = document.createElement("button");
+      var format = "zip";
+      var includeTimestamp = true;
+      var finished = false;
+
+      function finish(value) {
+        if (finished) {
+          return;
+        }
+        finished = true;
+        overlay.remove();
+        document.removeEventListener("keydown", handleKeydown);
+        resolve(value);
+      }
+
+      function handleKeydown(event) {
+        if (event.key === "Escape") {
+          event.preventDefault();
+          finish(null);
+        }
+      }
+
+      function currentBaseName() {
+        return getExportBaseFileName(stem, includeTimestamp);
+      }
+
+      function updateFileNameFromOptions() {
+        fileInput.value = currentBaseName() + "." + format;
+      }
+
+      function updatePrefixButton() {
+        prefixButton.classList.toggle("active", includeTimestamp);
+        prefixButton.setAttribute("aria-pressed", includeTimestamp ? "true" : "false");
+        prefixButton.title = includeTimestamp ? t("exportWithTimestampPrefix") : t("exportWithoutTimestampPrefix");
+        prefixButton.setAttribute("aria-label", prefixButton.title);
+      }
+
+      function setFormat(nextFormat) {
+        format = nextFormat === "json" ? "json" : "zip";
+        formatGroup.querySelectorAll("button[data-export-format]").forEach(function (button) {
+          var active = button.dataset.exportFormat === format;
+          button.classList.toggle("active", active);
+          button.setAttribute("aria-checked", active ? "true" : "false");
+        });
+        fileInput.value = ensureExportFileExtension(fileInput.value || currentBaseName(), format);
+      }
+
+      function createFormatButton(nextFormat, label, iconSrc) {
+        var button = document.createElement("button");
+        button.type = "button";
+        button.className = "dialog-icon-button export-format-button";
+        button.dataset.exportFormat = nextFormat;
+        button.setAttribute("role", "radio");
+        button.setAttribute("aria-label", label);
+        button.title = label;
+        button.appendChild(createIconImage(iconSrc));
+        button.addEventListener("click", function () {
+          setFormat(nextFormat);
+        });
+        return button;
+      }
+
+      overlay.className = "online-search-overlay app-dialog-overlay";
+      panel.className = "online-search-panel app-dialog-panel export-format-dialog";
+      title.textContent = t(titleKey || "export");
+      message.className = "app-dialog-message";
+      message.textContent = t("exportStatus", { count: count });
+      form.className = "export-format-form";
+      iconRow.className = "export-file-icon-row";
+      formatGroup.className = "export-format-icon-group";
+      formatGroup.setAttribute("role", "radiogroup");
+      formatGroup.setAttribute("aria-label", t("exportFormatQuestion"));
+      formatGroup.appendChild(createFormatButton("zip", t("exportZip"), "icon-zip.png"));
+      formatGroup.appendChild(createFormatButton("json", t("exportJson"), "icon-json.png"));
+
+      prefixButton.type = "button";
+      prefixButton.className = "dialog-icon-button export-prefix-button";
+      prefixButton.appendChild(createIconImage("icon-prefix.png"));
+      prefixButton.addEventListener("click", function () {
+        includeTimestamp = !includeTimestamp;
+        updatePrefixButton();
+        updateFileNameFromOptions();
+      });
+
+      fileRow.className = "export-file-row";
+      fileLabel.className = "visually-hidden";
+      fileLabel.setAttribute("for", "exportFileNameInput");
+      fileLabel.textContent = t("exportFileName");
+      fileInput.id = "exportFileNameInput";
+      fileInput.type = "text";
+      fileInput.autocomplete = "off";
+      saveButton.type = "submit";
+      saveButton.className = "dialog-icon-button export-submit-button";
+      configureDialogIconButton(saveButton, t("export"), "icon-export.png");
+      cancelButton.type = "button";
+      configureDialogIconButton(cancelButton, t("cancel"), "icon-exit.png");
+      cancelButton.addEventListener("click", function () {
+        finish(null);
+      });
+      iconRow.appendChild(prefixButton);
+      iconRow.appendChild(formatGroup);
+      fileRow.appendChild(fileLabel);
+      fileRow.appendChild(fileInput);
+      fileRow.appendChild(saveButton);
+      fileRow.appendChild(cancelButton);
+
+      form.appendChild(iconRow);
+      form.appendChild(fileRow);
+      panel.appendChild(title);
+      panel.appendChild(message);
+      panel.appendChild(form);
+      overlay.appendChild(panel);
+      document.body.appendChild(overlay);
+
+      form.addEventListener("submit", function (event) {
+        event.preventDefault();
+        finish({
+          format: format,
+          fileName: ensureExportFileExtension(fileInput.value || currentBaseName(), format)
+        });
+      });
+      overlay.addEventListener("click", function (event) {
+        if (event.target === overlay) {
+          finish(null);
+        }
+      });
+      document.addEventListener("keydown", handleKeydown);
+      setFormat("zip");
+      updatePrefixButton();
+      updateFileNameFromOptions();
+      window.setTimeout(function () {
+        fileInput.focus();
+        fileInput.select();
+      });
     });
   }
 
@@ -8104,7 +8261,7 @@
     if (format === "json") {
       return Promise.resolve(new Blob([jsonText], { type: "application/json" }));
     }
-    return createZipBlob("blumen-inventar-export.json", jsonText);
+    return createZipBlob("flower-inventory-export.json", jsonText);
   }
 
   function getExportFormatFromFileName(fileName, fallbackFormat) {
@@ -8117,7 +8274,17 @@
     return fallbackFormat || "zip";
   }
 
-  function getExportBaseFileName(stem) {
+  function ensureExportFileExtension(fileName, format) {
+    var extension = format === "json" ? "json" : "zip";
+    var name = String(fileName || "").trim() || ("flower-inventory-export." + extension);
+    name = name.replace(/\.(json|zip)$/i, "");
+    return safeFileName(name) + "." + extension;
+  }
+
+  function getExportBaseFileName(stem, includeTimestamp) {
+    if (includeTimestamp === false) {
+      return stem || "flower-inventory-export";
+    }
     var now = new Date();
     return [
       now.getFullYear(),
@@ -8125,7 +8292,7 @@
       padDatePart(now.getDate()),
       padDatePart(now.getHours()),
       padDatePart(now.getMinutes())
-    ].join("-") + "-" + (stem || "blumen-inventar-export");
+    ].join("-") + "-" + (stem || "flower-inventory-export");
   }
 
   function getExportFlowerNamePart(flower) {
@@ -8305,32 +8472,7 @@
   }
 
   function chooseImportFile() {
-    if (window.showOpenFilePicker) {
-      getExportDirectoryHandle("read").then(function (directoryHandle) {
-        return window.showOpenFilePicker(createImportPickerOptions({
-          multiple: false,
-          startIn: directoryHandle
-        }));
-      }).then(function (handles) {
-        if (!handles || !handles[0]) {
-          return null;
-        }
-        return handles[0].getFile();
-      }).then(function (file) {
-        if (file) {
-          importFlowerFile(file);
-        }
-      }).catch(function (error) {
-        if (!error || error.name !== "AbortError") {
-          elements.importFileInput.value = "";
-          elements.importFileInput.click();
-        }
-      });
-      return;
-    }
-
-    elements.importFileInput.value = "";
-    elements.importFileInput.click();
+    showImportDialog();
   }
 
   function createExportPickerOptions(format, options) {
@@ -8445,7 +8587,6 @@
         if (flowers.length === 0) {
           throw new Error("empty");
         }
-
         return showImportModeDialog(flowers.length).then(function (replace) {
           if (replace === null) {
             throw new Error("import-cancelled");
@@ -8467,6 +8608,19 @@
           return;
         }
         showAppMessageDialog(t("importFailed"));
+      });
+  }
+
+  function runImportFlowers(flowers, replace) {
+    return importNormalizedFlowers(flowers, replace)
+      .then(loadFlowers)
+      .then(function () {
+        setSelectedFlower(state.flowers[0] ? state.flowers[0].id : null, {
+          replaceHistory: true
+        });
+        closeForm();
+        render();
+        return showAppMessageDialog(t("importDone"));
       });
   }
 
@@ -8569,10 +8723,227 @@
     }
   }
 
+  function showImportDialog() {
+    var selectedFile = null;
+    var selectedFlowers = null;
+    var replaceMode = true;
+    showIntegratedImportDialog({
+      onChooseFile: chooseImportDialogFile,
+      onImport: function (flowers, replace) {
+        return runImportFlowers(flowers, replace);
+      }
+    });
+
+    function chooseImportDialogFile() {
+      return pickImportFileFromDialog().then(function (file) {
+        if (!file) {
+          return null;
+        }
+        selectedFile = file;
+        return readImportFlowersFromFile(file).then(function (flowers) {
+          if (!flowers.length) {
+            throw new Error("empty");
+          }
+          selectedFlowers = flowers;
+          return {
+            file: selectedFile,
+            flowers: selectedFlowers,
+            replace: replaceMode
+          };
+        });
+      });
+    }
+  }
+
+  function showIntegratedImportDialog(options) {
+    return new Promise(function (resolve) {
+      var overlay = document.createElement("div");
+      var panel = document.createElement("div");
+      var title = document.createElement("h2");
+      var message = document.createElement("p");
+      var form = document.createElement("form");
+      var modeGroup = document.createElement("div");
+      var modeText = document.createElement("span");
+      var fileRow = document.createElement("div");
+      var fileLabel = document.createElement("label");
+      var fileInput = document.createElement("input");
+      var chooseButton = document.createElement("button");
+      var importButton = document.createElement("button");
+      var cancelButton = document.createElement("button");
+      var importState = {
+        flowers: null,
+        replace: true
+      };
+      var finished = false;
+
+      function finish(value) {
+        if (finished) {
+          return;
+        }
+        finished = true;
+        overlay.remove();
+        document.removeEventListener("keydown", handleKeydown);
+        resolve(value);
+      }
+
+      function handleKeydown(event) {
+        if (event.key === "Escape") {
+          event.preventDefault();
+          finish(null);
+        }
+      }
+
+      function setReplaceMode(value) {
+        importState.replace = Boolean(value);
+        modeGroup.querySelectorAll("button[data-import-mode]").forEach(function (button) {
+          var active = button.dataset.importMode === (importState.replace ? "replace" : "add");
+          button.classList.toggle("active", active);
+          button.setAttribute("aria-checked", active ? "true" : "false");
+        });
+        modeText.textContent = t(importState.replace ? "importReplacePreview" : "importAddPreview");
+        modeText.classList.toggle("replace-warning", importState.replace);
+      }
+
+      function updateSelectedFile(result) {
+        if (!result || !result.file || !result.flowers) {
+          return;
+        }
+        importState.flowers = result.flowers;
+        fileInput.value = result.file.name || t("importFileName");
+        message.textContent = t("importStatus", { count: result.flowers.length });
+        importButton.disabled = false;
+      }
+
+      function createModeButton(mode, label, iconSrc) {
+        var button = document.createElement("button");
+        button.type = "button";
+        button.className = "dialog-icon-button import-mode-button";
+        button.dataset.importMode = mode;
+        button.setAttribute("role", "radio");
+        button.title = label;
+        button.setAttribute("aria-label", label);
+        button.appendChild(createIconImage(iconSrc));
+        button.addEventListener("click", function () {
+          setReplaceMode(mode === "replace");
+        });
+        return button;
+      }
+
+      overlay.className = "online-search-overlay app-dialog-overlay";
+      panel.className = "online-search-panel app-dialog-panel import-integrated-dialog";
+      title.textContent = t("import");
+      message.className = "app-dialog-message";
+      message.textContent = t("importNoFile");
+      form.className = "import-integrated-form";
+      modeGroup.className = "import-mode-icon-group";
+      modeGroup.setAttribute("role", "radiogroup");
+      modeGroup.setAttribute("aria-label", t("import"));
+      modeGroup.appendChild(createModeButton("replace", t("replaceImportData"), "icon-replace.png"));
+      modeGroup.appendChild(createModeButton("add", t("addImportData"), "icon-import-add.png"));
+      modeText.className = "import-mode-text";
+      modeGroup.appendChild(modeText);
+
+      fileRow.className = "import-file-row";
+      fileLabel.className = "visually-hidden";
+      fileLabel.setAttribute("for", "importFileNameDisplay");
+      fileLabel.textContent = t("importFileName");
+      fileInput.id = "importFileNameDisplay";
+      fileInput.type = "text";
+      fileInput.readOnly = true;
+      fileInput.value = t("importNoFile");
+      chooseButton.type = "button";
+      chooseButton.className = "dialog-icon-button import-file-button";
+      configureDialogIconButton(chooseButton, t("importChooseFile"), "icon-import-file.png");
+      importButton.type = "submit";
+      importButton.className = "dialog-icon-button import-submit-button";
+      configureDialogIconButton(importButton, t("import"), "icon-import.png");
+      importButton.disabled = true;
+      cancelButton.type = "button";
+      configureDialogIconButton(cancelButton, t("cancel"), "icon-exit.png");
+
+      chooseButton.addEventListener("click", function () {
+        if (!options || typeof options.onChooseFile !== "function") {
+          return;
+        }
+        options.onChooseFile().then(updateSelectedFile).catch(function () {
+          message.textContent = t("importFailed");
+          importButton.disabled = true;
+        });
+      });
+      cancelButton.addEventListener("click", function () {
+        finish(null);
+      });
+      form.addEventListener("submit", function (event) {
+        event.preventDefault();
+        if (!importState.flowers || !options || typeof options.onImport !== "function") {
+          return;
+        }
+        importButton.disabled = true;
+        options.onImport(importState.flowers, importState.replace).then(function () {
+          finish(true);
+        }).catch(function () {
+          importButton.disabled = false;
+          message.textContent = t("importFailed");
+        });
+      });
+      overlay.addEventListener("click", function (event) {
+        if (event.target === overlay) {
+          finish(null);
+        }
+      });
+
+      fileRow.appendChild(fileLabel);
+      fileRow.appendChild(chooseButton);
+      fileRow.appendChild(fileInput);
+      fileRow.appendChild(importButton);
+      fileRow.appendChild(cancelButton);
+      form.appendChild(modeGroup);
+      form.appendChild(fileRow);
+      panel.appendChild(title);
+      panel.appendChild(message);
+      panel.appendChild(form);
+      overlay.appendChild(panel);
+      document.body.appendChild(overlay);
+      document.addEventListener("keydown", handleKeydown);
+      setReplaceMode(true);
+    });
+  }
+
+  function pickImportFileFromDialog() {
+    if (window.showOpenFilePicker) {
+      return getExportDirectoryHandle("read").then(function (directoryHandle) {
+        return window.showOpenFilePicker(createImportPickerOptions({
+          multiple: false,
+          startIn: directoryHandle
+        }));
+      }).then(function (handles) {
+        return handles && handles[0] ? handles[0].getFile() : null;
+      }).catch(function (error) {
+        if (error && error.name === "AbortError") {
+          return null;
+        }
+        return pickImportFileWithInput();
+      });
+    }
+    return pickImportFileWithInput();
+  }
+
+  function pickImportFileWithInput() {
+    return new Promise(function (resolve) {
+      var input = document.createElement("input");
+      input.type = "file";
+      input.accept = "application/json,application/zip,application/x-zip-compressed,.json,.zip";
+      input.addEventListener("change", function () {
+        resolve(input.files && input.files[0] ? input.files[0] : null);
+      }, { once: true });
+      input.click();
+    });
+  }
+
   function showImportModeDialog(count) {
     return showAppChoiceDialog({
       title: t("import"),
-      message: t("importStatus", { count: count }) + "\n" + t("importReplaceQuestion"),
+      message: t("importStatus", { count: count }),
       acceptLabel: t("replaceImportData"),
       cancelLabel: t("addImportData"),
       acceptIcon: "icon-replace.png",
@@ -8594,8 +8965,9 @@
       title: t("appTitle"),
       message: message,
       acceptLabel: "OK",
-      acceptIcon: "icon-save.png?v=20260625-2",
-      hideCancel: true
+      acceptIcon: "icon-exit.png",
+      hideCancel: true,
+      noPrimary: true
     });
   }
 
@@ -8692,14 +9064,35 @@
 
     return work.then(function () {
       return Promise.all(flowers.map(function (flower) {
-        if (!replace && flower.id && state.flowers.some(function (existing) {
-          return existing.id === flower.id;
-        })) {
-          flower.id = createId();
+        if (!replace) {
+          var existingFlower = findExistingFlowerForImport(flower);
+          if (existingFlower) {
+            flower.id = existingFlower.id;
+          }
         }
         return saveFlower(flower);
       }));
     });
+  }
+
+  function findExistingFlowerForImport(importedFlower) {
+    if (!importedFlower) {
+      return null;
+    }
+    if (importedFlower.id) {
+      var byId = getFlowerById(importedFlower.id);
+      if (byId) {
+        return byId;
+      }
+    }
+    var importedNames = importedFlower.names || {};
+    var importedLatin = normalizeSearchText(importedNames.la);
+    var importedHungarian = normalizeSearchText(importedNames.hu);
+    return state.flowers.find(function (flower) {
+      var names = flower.names || {};
+      return importedLatin && normalizeSearchText(names.la) === importedLatin
+        || importedHungarian && normalizeSearchText(names.hu) === importedHungarian;
+    }) || null;
   }
 
   function normalizeImportData(data) {
