@@ -73,9 +73,9 @@
       newFlower: "Új virág",
       createOnlineFlower: "Virág létrehozása az internetről",
       createOnlineFlowerPrompt: "Add meg a magyar vagy latin virágnevet:",
-      createOnlineFlowerPromptHu: "Add meg a magyar vagy latin virágnevet, vagy egy vagy több virágnevet hu:<magyar virágnév> de:<német virágnév> en:<angol virágnév> formában:",
-      createOnlineFlowerPromptDe: "Add meg a német vagy latin virágnevet:",
-      createOnlineFlowerPromptEn: "Add meg az angol vagy latin virágnevet:",
+      createOnlineFlowerPromptHu: "Adj meg egy vagy több virágnevet hu:<magyar virágnév> de:<német virágnév> en:<angol virágnév> la:<latin virágnév> formában:",
+      createOnlineFlowerPromptDe: "Adj meg egy vagy több virágnevet hu:<magyar virágnév> de:<német virágnév> en:<angol virágnév> la:<latin virágnév> formában:",
+      createOnlineFlowerPromptEn: "Adj meg egy vagy több virágnevet hu:<magyar virágnév> de:<német virágnév> en:<angol virágnév> la:<latin virágnév> formában:",
       createOnlineFlowerSearching: "Online adatok keresése…",
       createOnlineFlowerDone: "A virág létrejött {count} képpel.",
       createOnlineFlowerNoImage: "Nem sikerült megfelelő képet találni. A virág nem jött létre.",
@@ -275,9 +275,9 @@
       newFlower: "Neue Blume",
       createOnlineFlower: "Blume aus dem Internet erstellen",
       createOnlineFlowerPrompt: "Bitte gib den Blumen- oder lateinischen Namen ein:",
-      createOnlineFlowerPromptHu: "Bitte gib den ungarischen oder lateinischen Blumennamen ein:",
-      createOnlineFlowerPromptDe: "Bitte gib den deutschen oder lateinischen Blumennamen ein oder einen oder mehrere Blumennamen in der Form hu:<ungarischer Blumenname> de:<deutscher Blumenname> en:<englischer Blumenname>:",
-      createOnlineFlowerPromptEn: "Bitte gib den englischen oder lateinischen Blumennamen ein:",
+      createOnlineFlowerPromptHu: "Bitte gib einen oder mehrere Blumennamen in der Form hu:<ungarischer Blumenname> de:<deutscher Blumenname> en:<englischer Blumenname> la:<lateinischer Blumenname> ein:",
+      createOnlineFlowerPromptDe: "Bitte gib einen oder mehrere Blumennamen in der Form hu:<ungarischer Blumenname> de:<deutscher Blumenname> en:<englischer Blumenname> la:<lateinischer Blumenname> ein:",
+      createOnlineFlowerPromptEn: "Bitte gib einen oder mehrere Blumennamen in der Form hu:<ungarischer Blumenname> de:<deutscher Blumenname> en:<englischer Blumenname> la:<lateinischer Blumenname> ein:",
       createOnlineFlowerSearching: "Online-Daten werden gesucht…",
       createOnlineFlowerDone: "Die Blume wurde mit {count} Bildern angelegt.",
       createOnlineFlowerNoImage: "Es konnte kein geeignetes Bild gefunden werden. Die Blume wurde nicht angelegt.",
@@ -477,9 +477,9 @@
       newFlower: "New flower",
       createOnlineFlower: "Create flower from the internet",
       createOnlineFlowerPrompt: "Enter the flower or Latin name:",
-      createOnlineFlowerPromptHu: "Enter the Hungarian or Latin flower name:",
-      createOnlineFlowerPromptDe: "Enter the German or Latin flower name:",
-      createOnlineFlowerPromptEn: "Enter the English or Latin flower name, or one or more flower names in the form hu:<Hungarian flower name> de:<German flower name> en:<English flower name>:",
+      createOnlineFlowerPromptHu: "Enter one or more flower names in the form hu:<Hungarian flower name> de:<German flower name> en:<English flower name> la:<Latin flower name>:",
+      createOnlineFlowerPromptDe: "Enter one or more flower names in the form hu:<Hungarian flower name> de:<German flower name> en:<English flower name> la:<Latin flower name>:",
+      createOnlineFlowerPromptEn: "Enter one or more flower names in the form hu:<Hungarian flower name> de:<German flower name> en:<English flower name> la:<Latin flower name>:",
       createOnlineFlowerSearching: "Searching online data…",
       createOnlineFlowerDone: "The flower was created with {count} images.",
       createOnlineFlowerNoImage: "No suitable image could be found. The flower was not created.",
@@ -1653,7 +1653,7 @@
     focusActiveDescriptionEditor();
   }
 
-  function generateDescriptionStorageWithChatGpt(flowerNames) {
+  function generateDescriptionStorageWithChatGpt(flowerNames, apiKeyOverride) {
     if (!window.fetch) {
       return Promise.reject(new Error(t("autoFillUnavailable")));
     }
@@ -1661,7 +1661,7 @@
       return Promise.reject(new Error(t("offline")));
     }
 
-    var apiKey = getOpenAiApiKey();
+    var apiKey = apiKeyOverride || getOpenAiApiKey();
     if (!apiKey) {
       return Promise.reject(new Error(t("generateDescriptionMissingApiKey")));
     }
@@ -1690,6 +1690,75 @@
         }
         throw error;
       });
+  }
+
+  function completeFlowerNamesWithChatGpt(flowerNames, apiKey) {
+    var names = normalizeFlowerNamesObject(flowerNames);
+    if (!hasMissingFlowerName(names)) {
+      return Promise.resolve(names);
+    }
+    return requestChatGptDescription(buildMissingFlowerNamesPrompt(names), apiKey)
+      .then(function (responseText) {
+        return mergeMissingFlowerNames(names, parseFlowerNamesJson(responseText));
+      });
+  }
+
+  function normalizeFlowerNamesObject(flowerNames) {
+    return {
+      hu: flowerNames && flowerNames.hu || "",
+      de: flowerNames && flowerNames.de || "",
+      en: flowerNames && flowerNames.en || "",
+      la: flowerNames && flowerNames.la || ""
+    };
+  }
+
+  function hasMissingFlowerName(flowerNames) {
+    return !flowerNames.hu || !flowerNames.de || !flowerNames.en || !flowerNames.la;
+  }
+
+  function buildMissingFlowerNamesPrompt(flowerNames) {
+    return [
+      "Ermittle die fehlenden Blumennamen für dieselbe Pflanze.",
+      "Gib ausschließlich ein JSON-Objekt ohne Markdown und ohne Erklärung zurück.",
+      "Schema: {\"hu\":\"...\",\"de\":\"...\",\"en\":\"...\",\"la\":\"...\"}",
+      "Wenn ein Name nicht zuverlässig ermittelbar ist, verwende einen leeren String.",
+      "Überschreibe die vorhandenen Werte nicht, sondern ergänze nur die fehlenden.",
+      "",
+      "Vorhandene Namen:",
+      "hu: " + (flowerNames.hu || ""),
+      "de: " + (flowerNames.de || ""),
+      "en: " + (flowerNames.en || ""),
+      "la: " + (flowerNames.la || "")
+    ].join("\n");
+  }
+
+  function parseFlowerNamesJson(responseText) {
+    var text = String(responseText || "").trim();
+    var fencedMatch = text.match(/```(?:json)?\s*([\s\S]*?)```/i);
+    if (fencedMatch) {
+      text = fencedMatch[1].trim();
+    }
+    var objectMatch = text.match(/\{[\s\S]*\}/);
+    var parsed = objectMatch ? parseJsonSafely(objectMatch[0]) : parseJsonSafely(text);
+    if (!parsed || typeof parsed !== "object") {
+      return {};
+    }
+    return {
+      hu: normalizeOnlineSearchText(parsed.hu),
+      de: normalizeOnlineSearchText(parsed.de),
+      en: normalizeOnlineSearchText(parsed.en),
+      la: normalizeOnlineSearchText(parsed.la)
+    };
+  }
+
+  function mergeMissingFlowerNames(names, generatedNames) {
+    var merged = normalizeFlowerNamesObject(names);
+    ["hu", "de", "en", "la"].forEach(function (language) {
+      if (!merged[language] && generatedNames && generatedNames[language]) {
+        merged[language] = generatedNames[language];
+      }
+    });
+    return merged;
   }
 
   function updateDescriptionEditorLabels() {
@@ -5842,7 +5911,15 @@
         };
       }
 
-      return generateDescriptionStorageWithChatGpt(names).then(function (description) {
+      var apiKey = getOpenAiApiKey();
+      if (!apiKey) {
+        return Promise.reject(new Error(t("generateDescriptionMissingApiKey")));
+      }
+
+      return completeFlowerNamesWithChatGpt(names, apiKey).then(function (completedNames) {
+        names = completedNames;
+        return generateDescriptionStorageWithChatGpt(names, apiKey);
+      }).then(function (description) {
         return {
           id: createId(),
           names: names,
