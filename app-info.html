@@ -537,7 +537,11 @@
                   "git add .",
                   "git commit -m\"weitere Anpassungen...\"",
                   "git push -u origin main",
-                  "git status"
+                  "git status",
+                  "Compress-Archive `",
+                  "  -Path \"F:\\tresorit\\knowhow\\flowers\\flower-inventory\\*\" `",
+                  "  -DestinationPath \"F:\\tresorit\\knowhow\\flowers\\flower-inventory.zip\" `",
+                  "  -Force"
                 ]
               ],
               items: [
@@ -552,7 +556,8 @@
                 ["git push -u origin main", "wird beim ersten Push verwendet, wenn origin/main noch nicht existiert. Dabei wird main nach GitHub hochgeladen und der Upstream gesetzt."],
                 ["git remote add origin <repository-url>", "richtet den Remote origin neu ein, also die URL zum GitHub-Repository."],
                 ["git remote set-url origin <repository-url>", "ändert die URL eines bereits vorhandenen origin."],
-                ["git status", "prüft nach dem Push, ob der Arbeitsstand sauber ist und ob main mit origin/main synchron ist."]
+                ["git status", "prüft nach dem Push, ob der Arbeitsstand sauber ist und ob main mit origin/main synchron ist."],
+                ["Compress-Archive -Path \"F:\\tresorit\\knowhow\\flowers\\flower-inventory\\*\" -DestinationPath \"F:\\tresorit\\knowhow\\flowers\\flower-inventory.zip\" -Force", "erstellt zusätzlich eine ZIP-Datei des Projektordners. Das .git-Verzeichnis ist durch den Stern-Pfad nicht in dieser ZIP-Datei enthalten."]
               ],
               bullets: [
                 { linkText: "Git-Cheat-Sheet", href: "git-cheat-sheet.pdf", text: "öffnet die PDF-Datei mit einer kompakten Git-Übersicht." },
@@ -562,7 +567,8 @@
                 "Wenn origin/main noch nicht existiert, ist git push -u origin main meistens der einfachste Weg beim ersten Push des Branches.",
                 "Die Remote-Befehle brauchst du nur, wenn origin fehlt oder nicht auf https://github.com/arpadszilagyi/flower-inventory zeigt.",
                 "Wenn git push eine Anmeldung verlangt, folge den GitHub-Anweisungen im Browser oder Terminal.",
-                "Git speichert nur Dateien im Projektordner. Die Blumen-Daten in IndexedDB werden separat über Export/Import gesichert."
+                "Git speichert nur Dateien im Projektordner. Die Blumen-Daten in IndexedDB werden separat über Export/Import gesichert.",
+                "Die zusätzliche Projekt-ZIP ist eine normale Dateisicherung ohne Git-Historie, weil das .git-Verzeichnis nicht enthalten ist."
               ]
             },
             {
@@ -792,7 +798,11 @@
                   "git add .",
                   "git commit -m\"weitere Anpassungen...\"",
                   "git push -u origin main",
-                  "git status"
+                  "git status",
+                  "Compress-Archive `",
+                  "  -Path \"F:\\tresorit\\knowhow\\flowers\\flower-inventory\\*\" `",
+                  "  -DestinationPath \"F:\\tresorit\\knowhow\\flowers\\flower-inventory.zip\" `",
+                  "  -Force"
                 ]
               ],
               items: [
@@ -807,7 +817,8 @@
                 ["git push -u origin main", "is used for the first push when origin/main does not exist yet. It uploads main to GitHub and sets the upstream."],
                 ["git remote add origin <repository-url>", "adds the remote named origin, meaning the URL of the GitHub repository."],
                 ["git remote set-url origin <repository-url>", "changes the URL of an existing origin remote."],
-                ["git status", "checks after pushing whether the working tree is clean and main is synchronized with origin/main."]
+                ["git status", "checks after pushing whether the working tree is clean and main is synchronized with origin/main."],
+                ["Compress-Archive -Path \"F:\\tresorit\\knowhow\\flowers\\flower-inventory\\*\" -DestinationPath \"F:\\tresorit\\knowhow\\flowers\\flower-inventory.zip\" -Force", "also creates a ZIP file of the project folder. The .git directory is not included in this ZIP file because the command uses the star path."]
               ],
               bullets: [
                 { linkText: "Git-Cheat-Sheet", href: "git-cheat-sheet.pdf", text: "opens the PDF file with a compact Git overview." },
@@ -817,7 +828,8 @@
                 "If origin/main does not exist yet, git push -u origin main is usually the simplest first push for the branch.",
                 "Use the remote commands only when origin is missing or does not point to https://github.com/arpadszilagyi/flower-inventory.",
                 "If git push asks for login, follow the GitHub instructions in the browser or terminal.",
-                "Git stores files in the project folder. Flower data stored in IndexedDB is backed up separately with Export/Import."
+                "Git stores files in the project folder. Flower data stored in IndexedDB is backed up separately with Export/Import.",
+                "The additional project ZIP is a normal file backup without Git history, because the .git directory is not included."
               ]
             },
             {
@@ -1047,7 +1059,11 @@
                   "git add .",
                   "git commit -m\"weitere Anpassungen...\"",
                   "git push -u origin main",
-                  "git status"
+                  "git status",
+                  "Compress-Archive `",
+                  "  -Path \"F:\\tresorit\\knowhow\\flowers\\flower-inventory\\*\" `",
+                  "  -DestinationPath \"F:\\tresorit\\knowhow\\flowers\\flower-inventory.zip\" `",
+                  "  -Force"
                 ]
               ],
               items: [
@@ -1062,7 +1078,8 @@
                 ["git push -u origin main", "az első pushnál használandó, ha az origin/main még nem létezik. Feltölti a main ágat GitHubra, és beállítja az upstream kapcsolatot."],
                 ["git remote add origin <repository-url>", "létrehozza az origin remote-ot, vagyis a GitHub repository URL-jét."],
                 ["git remote set-url origin <repository-url>", "módosítja egy már meglévő origin URL-jét."],
-                ["git status", "push után ellenőrzi, hogy tiszta-e a munkakönyvtár, és a main szinkronban van-e az origin/main ággal."]
+                ["git status", "push után ellenőrzi, hogy tiszta-e a munkakönyvtár, és a main szinkronban van-e az origin/main ággal."],
+                ["Compress-Archive -Path \"F:\\tresorit\\knowhow\\flowers\\flower-inventory\\*\" -DestinationPath \"F:\\tresorit\\knowhow\\flowers\\flower-inventory.zip\" -Force", "egy további ZIP-fájlt készít a projektmappáról. A .git mappa a csillagos útvonal miatt nem kerül bele ebbe a ZIP-fájlba."]
               ],
               bullets: [
                 { linkText: "Git-Cheat-Sheet", href: "git-cheat-sheet.pdf", text: "megnyitja a tömör Git-áttekintést tartalmazó PDF-fájlt." },
@@ -1072,7 +1089,8 @@
                 "Ha az origin/main még nem létezik, a git push -u origin main általában a legegyszerűbb első push ehhez az ághoz.",
                 "A remote parancsokra csak akkor van szükség, ha az origin hiányzik, vagy nem a https://github.com/arpadszilagyi/flower-inventory címre mutat.",
                 "Ha a git push bejelentkezést kér, kövesd a GitHub utasításait a böngészőben vagy a terminálban.",
-                "A Git a projektmappában lévő fájlokat menti. Az IndexedDB-ben tárolt virágadatokat külön, Export/Import segítségével kell menteni."
+                "A Git a projektmappában lévő fájlokat menti. Az IndexedDB-ben tárolt virágadatokat külön, Export/Import segítségével kell menteni.",
+                "A további projekt-ZIP normál fájlmentés Git-előzmények nélkül, mert a .git mappa nem kerül bele."
               ]
             },
             {
