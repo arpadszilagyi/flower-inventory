@@ -12,6 +12,7 @@
   --shadow: 0 14px 35px rgba(34, 33, 29, 0.12);
   --radius: 8px;
   --image-surface: #e6e6d2;
+  --image-navigation-surface: #d7d7bd;
   --image-surface-line: #d2d2bc;
 }
 
@@ -533,17 +534,24 @@ button.primary:hover,
 }
 
 .hero-image-shell {
+  --hero-image-navigation-width: clamp(42px, 7%, 72px);
   box-sizing: border-box;
   position: relative;
   width: 100%;
   height: clamp(380px, 52vw, 580px);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
-  background: var(--image-surface);
+  background:
+    linear-gradient(
+      90deg,
+      var(--image-navigation-surface) 0 var(--hero-image-navigation-width),
+      var(--image-surface) var(--hero-image-navigation-width) calc(100% - var(--hero-image-navigation-width)),
+      var(--image-navigation-surface) calc(100% - var(--hero-image-navigation-width)) 100%
+    );
   border: 1px solid var(--image-surface-line);
   cursor: default;
   overflow: hidden;
-  padding: 0 clamp(42px, 7%, 72px);
+  padding: 0 var(--hero-image-navigation-width);
 }
 
 .hero-image {

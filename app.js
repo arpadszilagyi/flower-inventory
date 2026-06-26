@@ -3247,12 +3247,13 @@
     } else {
       selectFlowerImageByIndex(flower, imageCount - 1);
     }
+    restoreHeroImageShellCursorAtPoint(event.clientX, event.clientY);
     return true;
   }
 
   function updateHeroImageShellCursor(event, imageShell, image, imageCount) {
     clearHeroImageShellCursor(imageShell);
-    if (imageCount <= 1 || event.target === image || event.target.closest("button, input")) {
+    if (imageCount <= 1 || event.target.closest("button, input")) {
       return;
     }
     var action = getHeroImageNavigationAction(event.clientX, event.clientY, image);
@@ -3263,6 +3264,27 @@
 
   function clearHeroImageShellCursor(imageShell) {
     imageShell.classList.remove("navigate-first", "navigate-previous", "navigate-next", "navigate-last");
+  }
+
+  function restoreHeroImageShellCursorAtPoint(clientX, clientY) {
+    window.requestAnimationFrame(function () {
+      var element = document.elementFromPoint(clientX, clientY);
+      var imageShell = element && element.closest ? element.closest(".hero-image-shell") : null;
+      if (!imageShell) {
+        return;
+      }
+      var image = imageShell.querySelector(".hero-image");
+      var flower = getSelectedFlower();
+      var imageCount = flower ? getFlowerImages(flower).length : 0;
+      if (!image) {
+        return;
+      }
+      clearHeroImageShellCursor(imageShell);
+      var action = getHeroImageNavigationAction(clientX, clientY, image);
+      if (imageCount > 1 && action) {
+        imageShell.classList.add("navigate-" + action);
+      }
+    });
   }
 
   function getHeroImageNavigationAction(clientX, clientY, image) {
