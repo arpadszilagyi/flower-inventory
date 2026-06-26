@@ -630,32 +630,38 @@ button.primary:hover,
 }
 
 .hero-image-favorite:not(.active) {
-  opacity: 0.42;
+  opacity: 0.62;
 }
 
 .hero-image-info:not(.active) {
-  opacity: 0.42;
+  opacity: 0.62;
 }
 
 .hero-image-favorite:not(.active) img {
-  filter: grayscale(1);
+  filter: grayscale(0.85) contrast(1.08);
 }
 
 .hero-image-info:not(.active) img {
-  filter: grayscale(1);
+  filter: grayscale(0.85) contrast(1.08);
 }
 
 .hero-image-delete:disabled,
 .hero-image-source:disabled,
 .hero-image-source.looks-disabled {
   cursor: default;
-  opacity: 0.42;
+  border-color: rgba(45, 45, 45, 0.34);
+  background: rgba(255, 255, 255, 0.82);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.86),
+    0 5px 14px rgba(0, 0, 0, 0.32);
+  opacity: 0.72;
 }
 
 .hero-image-delete:disabled img,
 .hero-image-source:disabled img,
 .hero-image-source.looks-disabled img {
-  filter: grayscale(1);
+  filter: grayscale(0.9) contrast(1.12);
+  opacity: 0.82;
 }
 
 .hero-image-nav {
@@ -925,7 +931,7 @@ button.primary:hover,
 .thumbnail-source:disabled,
 .thumbnail-source.looks-disabled,
 .thumbnail-delete:disabled {
-  opacity: 0.52;
+  opacity: 0.68;
 }
 
 .thumbnail-favorite:not(.active) img,
@@ -933,18 +939,26 @@ button.primary:hover,
 .thumbnail-source:disabled img,
 .thumbnail-source.looks-disabled img,
 .thumbnail-delete:disabled img {
-  filter: grayscale(1);
+  filter: grayscale(0.85) contrast(1.08);
 }
 
 .thumbnail-source:disabled,
-.thumbnail-source.looks-disabled {
+.thumbnail-source.looks-disabled,
+.thumbnail-delete:disabled {
   cursor: default;
-  opacity: 0.42;
+  border-color: rgba(45, 45, 45, 0.34);
+  background: rgba(255, 255, 255, 0.84);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.86),
+    0 4px 12px rgba(0, 0, 0, 0.3);
+  opacity: 0.72;
 }
 
 .thumbnail-source:disabled img,
-.thumbnail-source.looks-disabled img {
-  filter: grayscale(1);
+.thumbnail-source.looks-disabled img,
+.thumbnail-delete:disabled img {
+  filter: grayscale(0.9) contrast(1.12);
+  opacity: 0.82;
 }
 
 .thumbnail-source.active {
@@ -1753,6 +1767,7 @@ button.primary:hover,
   border-radius: var(--radius);
   background: var(--image-surface);
   color: var(--text);
+  font-size: 16px;
   font-weight: 400;
   line-height: 1.55;
   padding: 10px 12px;
@@ -1978,7 +1993,7 @@ button.primary:hover,
   border-radius: var(--radius);
   background: var(--image-surface);
   color: var(--text);
-  font-size: 17px;
+  font-size: 16px;
   line-height: 1.6;
   padding: 14px 16px;
 }

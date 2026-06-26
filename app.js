@@ -6,6 +6,7 @@
   var STORE_NAME = "flowers";
   var SETTINGS_STORE_NAME = "settings";
   var DEMO_SEEDED_KEY = "demoSeeded";
+  var HUNGARIAN_CAPITALIZATION_FIX_KEY = "hungarianCapitalizationFix20260626";
   var EXPORT_DIRECTORY_KEY = "exportDirectoryHandle";
   var ONLINE_SEARCH_HISTORY_KEY = "flowerInventoryOnlineSearchHistory";
   var PENDING_REPAIR_IMPORT_KEY = "flowerInventoryPendingRepairImport";
@@ -791,6 +792,9 @@
       })
       .then(function () {
         return seedDemoFlowersIfNeeded();
+      })
+      .then(function () {
+        return capitalizeHungarianFlowerDataOnce();
       })
       .then(function () {
         setSelectedFlower(state.flowers[0] ? state.flowers[0].id : null, {
@@ -2388,7 +2392,7 @@
 
   function saveFlower(flower) {
     return new Promise(function (resolve, reject) {
-      var request = transaction("readwrite").put(flower);
+      var request = transaction("readwrite").put(normalizeFlowerRecord(flower));
       request.onsuccess = resolve;
       request.onerror = function () {
         reject(request.error);
@@ -2402,15 +2406,17 @@
     var imageNames = normalizeImageNames(flower.imageNames, images.length, getFirstNamePart((flower.names && (flower.names.hu || flower.names.de || flower.names.en)) || "blume"));
     var imageInfos = normalizeImageInfos(flower.imageInfos, images.length);
     var promoted = promoteImageToFirst(images, imageSources, normalizeFavoriteImageIndex(flower.favoriteImageIndex, images), imageNames, imageInfos);
+    var descriptionPanels = normalizeDescriptionPanels(flower.description);
+    descriptionPanels.hu = normalizeHungarianDescriptionPanels(descriptionPanels.hu);
     return {
       id: flower.id,
       names: {
-        hu: flower.names && flower.names.hu ? String(flower.names.hu).trim() : "",
+        hu: capitalizeFirstLetter(flower.names && flower.names.hu ? String(flower.names.hu).trim() : ""),
         la: flower.names && flower.names.la ? String(flower.names.la).trim() : "",
         de: flower.names && flower.names.de ? String(flower.names.de).trim() : "",
         en: flower.names && flower.names.en ? String(flower.names.en).trim() : ""
       },
-      description: createDescriptionForStorage(normalizeDescriptionPanels(flower.description)),
+      description: createDescriptionForStorage(descriptionPanels),
       links: normalizeLinks(flower.links),
       imageData: promoted.images[0] || flower.imageData || "",
       images: promoted.images,
@@ -2455,6 +2461,98 @@
           return setSetting(DEMO_SEEDED_KEY, true);
         })
         .then(loadFlowers);
+    });
+  }
+
+  function capitalizeHungarianFlowerDataOnce() {
+    return getSetting(HUNGARIAN_CAPITALIZATION_FIX_KEY).then(function (done) {
+      if (done) {
+        return null;
+      }
+      var changedFlowers = state.flowers.map(capitalizeHungarianFlowerData).filter(Boolean);
+      var chain = Promise.resolve();
+      changedFlowers.forEach(function (flower) {
+        chain = chain.then(function () {
+          return saveFlower(flower);
+        });
+      });
+      return chain
+        .then(function () {
+          return setSetting(HUNGARIAN_CAPITALIZATION_FIX_KEY, true);
+        })
+        .then(function () {
+          return changedFlowers.length ? loadFlowers() : null;
+        });
+    });
+  }
+
+  function capitalizeHungarianFlowerData(flower) {
+    var nextFlower = Object.assign({}, flower);
+    var changed = false;
+    var names = Object.assign({}, flower.names || {});
+    var capitalizedName = capitalizeFirstLetter(names.hu);
+    if (capitalizedName !== names.hu) {
+      names.hu = capitalizedName;
+      nextFlower.names = names;
+      changed = true;
+    }
+
+    var panels = normalizeDescriptionPanels(flower.description);
+    var nextPanels = {
+      hu: panels.hu.slice(),
+      de: panels.de.slice(),
+      en: panels.en.slice()
+    };
+    for (var index = 0; index < nextPanels.hu.length; index += 1) {
+      if (!htmlToPlainText(nextPanels.hu[index]).trim()) {
+        continue;
+      }
+      var capitalizedPanel = capitalizeFirstTextInHtml(nextPanels.hu[index]);
+      if (capitalizedPanel !== nextPanels.hu[index]) {
+        nextPanels.hu[index] = capitalizedPanel;
+        nextFlower.description = createDescriptionForStorage(nextPanels);
+        changed = true;
+      }
+      break;
+    }
+
+    return changed ? nextFlower : null;
+  }
+
+  function capitalizeFirstTextInHtml(html) {
+    var template = document.createElement("template");
+    template.innerHTML = sanitizeDescriptionHtml(html);
+    var walker = document.createTreeWalker(template.content, NodeFilter.SHOW_TEXT);
+    var node = walker.nextNode();
+    while (node) {
+      var capitalized = capitalizeFirstLetter(node.nodeValue);
+      if (capitalized !== node.nodeValue) {
+        node.nodeValue = capitalized;
+        return template.innerHTML;
+      }
+      if (String(node.nodeValue || "").trim()) {
+        return template.innerHTML;
+      }
+      node = walker.nextNode();
+    }
+    return template.innerHTML;
+  }
+
+  function normalizeHungarianDescriptionPanels(panels) {
+    var changedFirstText = false;
+    return normalizeDescriptionPanelList(panels).map(function (html) {
+      if (changedFirstText || !htmlToPlainText(html).trim()) {
+        return html;
+      }
+      changedFirstText = true;
+      return capitalizeFirstTextInHtml(html);
+    });
+  }
+
+  function capitalizeFirstLetter(value) {
+    var text = String(value || "");
+    return text.replace(/^(\s*)(\p{L})/u, function (_, prefix, letter) {
+      return prefix + letter.toLocaleUpperCase("hu-HU");
     });
   }
 
@@ -5343,12 +5441,15 @@
         }
         finished = true;
         overlay.remove();
-        document.removeEventListener("keydown", handleEscape);
+        document.removeEventListener("keydown", handleEscape, true);
         resolve(value);
       }
 
       function handleEscape(event) {
         if (event.key === "Escape") {
+          event.preventDefault();
+          event.stopPropagation();
+          event.stopImmediatePropagation();
           finish(null);
         }
       }
@@ -5389,7 +5490,7 @@
           finish(null);
         }
       });
-      document.addEventListener("keydown", handleEscape);
+      document.addEventListener("keydown", handleEscape, true);
 
       window.setTimeout(function () {
         input.focus();
