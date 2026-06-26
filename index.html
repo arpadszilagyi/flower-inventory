@@ -28,14 +28,14 @@
 
       <form id="searchForm" class="search-form" role="search">
         <label class="visually-hidden" for="filterInput" data-i18n="filterFlower">Blume filtern</label>
-        <div class="search-input-row">
+        <div class="search-input-row filter-input-row">
           <div class="search-field-row">
             <span class="search-side-icon" aria-hidden="true"><img src="icon-filter.png" alt=""></span>
             <div class="search-input-wrap">
               <input id="filterInput" type="text" placeholder="Blume filtern" autocomplete="off" data-i18n-attr="placeholder:filterPlaceholder">
-              <button id="clearFilterButton" class="search-clear-button hidden" type="button" title="Filter löschen" aria-label="Filter löschen" data-i18n-attr="title:clearFilter;aria-label:clearFilter">×</button>
             </div>
           </div>
+          <button id="clearFilterButton" class="search-step-button filter-clear-step-button" type="button" title="Filter löschen" aria-label="Filter löschen" data-i18n-attr="title:clearFilter;aria-label:clearFilter" disabled><img src="icon-delete.png" alt=""></button>
           <button id="filterPreviousButton" class="search-step-button" type="button" title="Vorherige gefilterte Blume" aria-label="Vorherige gefilterte Blume"><img src="icon-prev.png" alt=""></button>
           <button id="filterNextButton" class="search-step-button" type="button" title="Nächste gefilterte Blume" aria-label="Nächste gefilterte Blume"><img src="icon-next.png" alt=""></button>
         </div>

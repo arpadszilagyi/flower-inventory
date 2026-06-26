@@ -10,10 +10,12 @@
   var ONLINE_SEARCH_HISTORY_KEY = "flowerInventoryOnlineSearchHistory";
   var PENDING_REPAIR_IMPORT_KEY = "flowerInventoryPendingRepairImport";
   var ACTIVE_DB_NAME_KEY = "flowerInventoryActiveDatabaseName";
+  var MARKED_FLOWERS_KEY = "flowerInventoryMarkedFlowerIds";
   var state = {
     db: null,
     flowers: [],
     selectedId: null,
+    markedFlowerIds: loadMarkedFlowerIds(),
     editingId: null,
     pendingImageData: "",
     pendingImages: [],
@@ -89,6 +91,8 @@
       filterFlower: "Virág szűrése",
       filterPlaceholder: "Virág szűrése",
       clearFilter: "Szűrés törlése",
+      selectFlowerForFilter: "Virág kijelölése",
+      deselectFlowerForFilter: "Virág kijelölésének megszüntetése",
       previousFilterMatch: "Előző szűrt virág",
       nextFilterMatch: "Következő szűrt virág",
       searchFlower: "Virág keresése",
@@ -289,6 +293,8 @@
       filterFlower: "Blume filtern",
       filterPlaceholder: "Blume filtern",
       clearFilter: "Filter löschen",
+      selectFlowerForFilter: "Blume auswählen",
+      deselectFlowerForFilter: "Blumenauswahl entfernen",
       previousFilterMatch: "Vorherige gefilterte Blume",
       nextFilterMatch: "Nächste gefilterte Blume",
       searchFlower: "Blume suchen",
@@ -489,6 +495,8 @@
       filterFlower: "Filter flower",
       filterPlaceholder: "Filter flower",
       clearFilter: "Clear filter",
+      selectFlowerForFilter: "Select flower",
+      deselectFlowerForFilter: "Deselect flower",
       previousFilterMatch: "Previous filtered flower",
       nextFilterMatch: "Next filtered flower",
       searchFlower: "Search flower",
@@ -930,6 +938,7 @@
 
     elements.clearFilterButton.addEventListener("click", function () {
       elements.filterInput.value = "";
+      clearMarkedFlowers();
       elements.searchMessage.textContent = "";
       updateFilterClearButton();
       applyFilterAndSearch(0);
@@ -1192,12 +1201,12 @@
   }
 
   function updateFilterClearButton() {
-    elements.clearFilterButton.classList.toggle("hidden", !elements.filterInput.value);
+    elements.clearFilterButton.disabled = !hasAnyFlowerFilter();
     updateExportButton();
   }
 
   function updateExportButton() {
-    var label = t(normalizeSearchText(elements.filterInput.value) ? "exportFilteredFlowers" : "exportAllFlowers");
+    var label = t(hasAnyFlowerFilter() ? "exportFilteredFlowers" : "exportAllFlowers");
     elements.exportButton.title = label;
     elements.exportButton.setAttribute("aria-label", label);
     var text = elements.exportButton.querySelector("span");
@@ -2357,13 +2366,16 @@
     var normalizedSearchQuery = normalizeSearchText(rawSearchQuery);
 
     getVisibleFlowers().forEach(function (flower) {
-      var item = document.createElement("button");
-      item.type = "button";
+      var item = document.createElement("div");
       item.className = "flower-item";
       item.setAttribute("role", "option");
+      item.tabIndex = 0;
       item.setAttribute("aria-selected", flower.id === state.selectedId ? "true" : "false");
       if (flower.id === state.selectedId) {
         item.classList.add("active");
+      }
+      if (isFlowerMarked(flower.id)) {
+        item.classList.add("marked");
       }
       item.dataset.flowerId = flower.id;
       if (state.searchMode === "everywhere" && normalizedSearchQuery) {
@@ -2390,12 +2402,15 @@
       text.appendChild(subtitle);
       item.appendChild(img);
       item.appendChild(text);
+      item.appendChild(createFlowerMarkButton(flower));
       item.addEventListener("click", function () {
-        setSelectedFlower(flower.id);
-        selectFilterMatchLanguage(flower, normalizeSearchText(elements.filterInput.value));
-        selectSearchMatchImage(flower, normalizedSearchQuery);
-        closeForm();
-        render();
+        openFlowerFromList(flower, normalizedSearchQuery);
+      });
+      item.addEventListener("keydown", function (event) {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          openFlowerFromList(flower, normalizedSearchQuery);
+        }
       });
 
       elements.flowerList.appendChild(item);
@@ -2404,9 +2419,59 @@
     updateSearchStepButtons();
   }
 
+  function openFlowerFromList(flower, normalizedSearchQuery) {
+    setSelectedFlower(flower.id);
+    selectFilterMatchLanguage(flower, normalizeSearchText(elements.filterInput.value));
+    selectSearchMatchImage(flower, normalizedSearchQuery);
+    closeForm();
+    render();
+  }
+
+  function createFlowerMarkButton(flower) {
+    var isMarked = isFlowerMarked(flower.id);
+    var button = document.createElement("button");
+    button.type = "button";
+    button.className = "flower-mark-button";
+    button.classList.toggle("active", isMarked);
+    button.title = t(isMarked ? "deselectFlowerForFilter" : "selectFlowerForFilter");
+    button.setAttribute("aria-label", button.title);
+    button.setAttribute("aria-pressed", isMarked ? "true" : "false");
+    button.appendChild(createIconImage("icon-flower-select.png"));
+    button.addEventListener("click", function (event) {
+      event.preventDefault();
+      event.stopPropagation();
+      toggleFlowerMarked(flower.id);
+    });
+    return button;
+  }
+
+  function isFlowerMarked(flowerId) {
+    return Boolean(state.markedFlowerIds && state.markedFlowerIds[flowerId]);
+  }
+
+  function toggleFlowerMarked(flowerId) {
+    if (isFlowerMarked(flowerId)) {
+      delete state.markedFlowerIds[flowerId];
+    } else {
+      state.markedFlowerIds[flowerId] = true;
+    }
+    saveMarkedFlowerIds();
+    updateFilterClearButton();
+    applyFilterAndSearch(0);
+  }
+
+  function clearMarkedFlowers() {
+    state.markedFlowerIds = {};
+    saveMarkedFlowerIds();
+  }
+
+  function hasMarkedFlowerFilter() {
+    return Object.keys(state.markedFlowerIds || {}).length > 0;
+  }
+
   function applyFilterNavigation(direction) {
-    var visibleFlowers = getVisibleFlowers();
-    var target = getSearchNavigationTarget(visibleFlowers, direction);
+    var filterFlowers = getFilterScopeFlowers();
+    var target = getSearchNavigationTarget(filterFlowers, direction);
     var filterQuery = normalizeSearchText(elements.filterInput.value);
     if (!target) {
       return;
@@ -2422,7 +2487,7 @@
 
   function applyFilterAndSearch(direction) {
     elements.searchMessage.textContent = "";
-    var visibleFlowers = getVisibleFlowers();
+    var filterFlowers = getFilterScopeFlowers();
     var searchMatches = getSearchMatches();
     var searchQuery = normalizeSearchText(elements.searchInput.value);
     var target = null;
@@ -2433,12 +2498,12 @@
       } else {
         target = getSearchNavigationTarget(searchMatches, direction === undefined ? 1 : direction);
       }
-    } else if (visibleFlowers.length) {
+    } else if (filterFlowers.length) {
       target = direction
-        ? getSearchNavigationTarget(visibleFlowers, direction)
-        : visibleFlowers.find(function (flower) {
+        ? getSearchNavigationTarget(filterFlowers, direction)
+        : filterFlowers.find(function (flower) {
           return flower.id === state.selectedId;
-        }) || visibleFlowers[0];
+        }) || filterFlowers[0];
     }
 
     if (target) {
@@ -2455,19 +2520,31 @@
 
   function getVisibleFlowers() {
     var filterQuery = normalizeSearchText(elements.filterInput.value);
+    if (!filterQuery) {
+      return state.flowers.slice();
+    }
     return state.flowers.filter(function (flower) {
-      return flowerMatchesFilter(flower, filterQuery);
+      return flowerMatchesTextOrMarkedFilter(flower, filterQuery);
+    });
+  }
+
+  function getFilterScopeFlowers() {
+    var filterQuery = normalizeSearchText(elements.filterInput.value);
+    if (!filterQuery && !hasMarkedFlowerFilter()) {
+      return state.flowers.slice();
+    }
+    return state.flowers.filter(function (flower) {
+      return filterQuery ? flowerMatchesTextOrMarkedFilter(flower, filterQuery) : isFlowerMarked(flower.id);
     });
   }
 
   function getSearchMatches() {
-    var filterQuery = normalizeSearchText(elements.filterInput.value);
     var searchQuery = normalizeSearchText(elements.searchInput.value);
     if (!searchQuery) {
       return [];
     }
-    return state.flowers.filter(function (flower) {
-      return flowerMatchesFilter(flower, filterQuery) && flowerMatchesSearch(flower, searchQuery);
+    return getFilterScopeFlowers().filter(function (flower) {
+      return flowerMatchesSearch(flower, searchQuery);
     });
   }
 
@@ -2495,6 +2572,10 @@
     return getFlowerNameValues(flower).some(function (name) {
       return normalizeSearchText(name).indexOf(query) !== -1;
     });
+  }
+
+  function flowerMatchesTextOrMarkedFilter(flower, query) {
+    return flowerMatchesFilter(flower, query) || isFlowerMarked(flower.id);
   }
 
   function flowerMatchesSearch(flower, query) {
@@ -2547,11 +2628,15 @@
   }
 
   function updateFilterStepButtons() {
-    var visibleFlowers = getVisibleFlowers();
-    var hasFilter = Boolean(normalizeSearchText(elements.filterInput.value));
-    var disabled = !hasFilter || visibleFlowers.length === 0;
+    var filterFlowers = getFilterScopeFlowers();
+    var hasFilter = hasAnyFlowerFilter();
+    var disabled = !hasFilter || filterFlowers.length === 0;
     elements.filterPreviousButton.disabled = disabled;
     elements.filterNextButton.disabled = disabled;
+  }
+
+  function hasAnyFlowerFilter() {
+    return Boolean(normalizeSearchText(elements.filterInput.value)) || hasMarkedFlowerFilter();
   }
 
   function getFlowerEverywhereSearchGroups(flower) {
@@ -4607,7 +4692,7 @@
   }
 
   function getNavigationFlowers() {
-    return getVisibleFlowers();
+    return getFilterScopeFlowers();
   }
 
   function getNavigationFlowerIndex(id) {
@@ -7374,8 +7459,8 @@
 
   function exportFlowers() {
     loadFlowers().then(function () {
-      var hasFilter = Boolean(normalizeSearchText(elements.filterInput.value));
-      var flowers = hasFilter ? getVisibleFlowers() : state.flowers;
+      var hasFilter = hasAnyFlowerFilter();
+      var flowers = hasFilter ? getFilterScopeFlowers() : state.flowers;
       return saveExportData(createExportData(flowers), {
         stem: hasFilter ? "blumen-inventar-export-gefiltert" : "blumen-inventar-export",
         titleKey: hasFilter ? "exportFilteredFlowers" : "exportAllFlowers"
@@ -8579,6 +8664,27 @@
 
   function saveSortDirections() {
     localStorage.setItem("flowerInventorySortDirections", JSON.stringify(state.sortDirections));
+  }
+
+  function loadMarkedFlowerIds() {
+    try {
+      var stored = JSON.parse(localStorage.getItem(MARKED_FLOWERS_KEY) || "[]");
+      if (!Array.isArray(stored)) {
+        return {};
+      }
+      return stored.reduce(function (result, flowerId) {
+        if (flowerId) {
+          result[flowerId] = true;
+        }
+        return result;
+      }, {});
+    } catch (error) {
+      return {};
+    }
+  }
+
+  function saveMarkedFlowerIds() {
+    localStorage.setItem(MARKED_FLOWERS_KEY, JSON.stringify(Object.keys(state.markedFlowerIds || {})));
   }
 
   function normalizeSearchText(value) {

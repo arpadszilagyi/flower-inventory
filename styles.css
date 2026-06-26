@@ -204,6 +204,10 @@ button.primary:hover,
   gap: 4px;
 }
 
+.filter-input-row {
+  grid-template-columns: minmax(0, 1fr) 30px 30px 30px;
+}
+
 .search-form input {
   width: 100%;
   min-height: 40px;
@@ -214,6 +218,10 @@ button.primary:hover,
 }
 
 .search-form input:placeholder-shown {
+  padding-right: 10px;
+}
+
+.filter-input-row input {
   padding-right: 10px;
 }
 
@@ -267,6 +275,11 @@ button.primary:hover,
   object-fit: contain;
 }
 
+.filter-clear-step-button img {
+  width: 21px;
+  height: 21px;
+}
+
 .search-step-button:disabled {
   cursor: default;
   opacity: 0.42;
@@ -291,6 +304,7 @@ button.primary:hover,
 }
 
 .flower-item {
+  position: relative;
   display: grid;
   grid-template-columns: 54px minmax(0, 1fr);
   align-items: center;
@@ -298,8 +312,24 @@ button.primary:hover,
   width: 100%;
   min-height: 70px;
   margin: 0 0 8px;
-  padding: 8px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--panel);
+  color: var(--text);
+  padding: 8px 34px 8px 8px;
   text-align: left;
+  cursor: pointer;
+  transition: background 140ms ease, border-color 140ms ease, transform 140ms ease;
+}
+
+.flower-item:hover {
+  background: var(--panel-soft);
+}
+
+.flower-item:focus-visible {
+  border-color: var(--accent);
+  outline: 3px solid rgba(47, 125, 98, 0.18);
+  outline-offset: 1px;
 }
 
 .flower-item.active {
@@ -311,6 +341,49 @@ button.primary:hover,
 .flower-item.search-hit {
   outline: 3px solid rgba(47, 125, 98, 0.22);
   outline-offset: 1px;
+}
+
+.flower-item.marked {
+  box-shadow: inset -3px 0 0 var(--accent);
+}
+
+.flower-item.active.marked {
+  box-shadow: inset 4px 0 0 var(--accent), inset -3px 0 0 var(--accent);
+}
+
+.flower-mark-button {
+  position: absolute;
+  right: 5px;
+  bottom: 5px;
+  display: inline-flex;
+  width: 24px;
+  height: 24px;
+  min-height: 24px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.92);
+  cursor: pointer;
+  opacity: 0.42;
+  padding: 4px;
+}
+
+.flower-mark-button img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.flower-mark-button.active {
+  border-color: var(--accent);
+  background: #ddede5;
+  opacity: 1;
+}
+
+.flower-mark-button:focus-visible {
+  outline: 3px solid rgba(47, 125, 98, 0.24);
+  outline-offset: 2px;
 }
 
 .flower-thumb {
