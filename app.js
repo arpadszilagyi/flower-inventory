@@ -273,6 +273,16 @@
       exportJson: "JSON",
       importDone: "Importálás befejezve.",
       importFailed: "A mentésfájlt nem sikerült importálni.",
+      importFailedDetails: "A mentésfájlt nem sikerült importálni: {details}",
+      importErrorEmpty: "A fájl nem tartalmaz importálható virágokat.",
+      importErrorJson: "A JSON-fájl érvénytelen vagy sérült.",
+      importErrorZip: "A ZIP-fájl érvénytelen, sérült, vagy nem tartalmaz JSON-mentést.",
+      importErrorZipCompression: "A ZIP-fájl nem támogatott tömörítést használ.",
+      importErrorUnsupportedFile: "Csak .zip vagy .json mentésfájl importálható.",
+      importErrorRead: "A fájl nem olvasható.",
+      importErrorUnknown: "Ismeretlen importálási hiba.",
+      exportFailedDetails: "Az exportálás nem sikerült: {details}",
+      exportErrorUnknown: "Ismeretlen exportálási hiba.",
       pdfFailed: "A PDF-fájlt nem sikerült létrehozni.",
       appNamePdf: "Virág leltár"
     },
@@ -483,6 +493,16 @@
       exportJson: "JSON",
       importDone: "Import abgeschlossen.",
       importFailed: "Die Sicherungsdatei konnte nicht importiert werden.",
+      importFailedDetails: "Die Sicherungsdatei konnte nicht importiert werden: {details}",
+      importErrorEmpty: "Die Datei enthält keine importierbaren Blumen.",
+      importErrorJson: "Die JSON-Datei ist ungültig oder beschädigt.",
+      importErrorZip: "Die ZIP-Datei ist ungültig, beschädigt oder enthält keine JSON-Sicherung.",
+      importErrorZipCompression: "Die ZIP-Datei verwendet eine nicht unterstützte Komprimierung.",
+      importErrorUnsupportedFile: "Es können nur .zip- oder .json-Sicherungsdateien importiert werden.",
+      importErrorRead: "Die Datei konnte nicht gelesen werden.",
+      importErrorUnknown: "Unbekannter Importfehler.",
+      exportFailedDetails: "Der Export konnte nicht ausgeführt werden: {details}",
+      exportErrorUnknown: "Unbekannter Exportfehler.",
       pdfFailed: "Die PDF-Datei konnte nicht erstellt werden.",
       appNamePdf: "Blumen-Inventar"
     },
@@ -693,6 +713,16 @@
       exportJson: "JSON",
       importDone: "Import completed.",
       importFailed: "The backup file could not be imported.",
+      importFailedDetails: "The backup file could not be imported: {details}",
+      importErrorEmpty: "The file does not contain any importable flowers.",
+      importErrorJson: "The JSON file is invalid or damaged.",
+      importErrorZip: "The ZIP file is invalid, damaged, or does not contain a JSON backup.",
+      importErrorZipCompression: "The ZIP file uses unsupported compression.",
+      importErrorUnsupportedFile: "Only .zip or .json backup files can be imported.",
+      importErrorRead: "The file could not be read.",
+      importErrorUnknown: "Unknown import error.",
+      exportFailedDetails: "The export could not be completed: {details}",
+      exportErrorUnknown: "Unknown export error.",
       pdfFailed: "The PDF file could not be created.",
       appNamePdf: "Flower Inventory"
     }
@@ -2195,6 +2225,22 @@
     hiddenLabel.className = "visually-hidden";
     hiddenLabel.textContent = label;
     button.appendChild(hiddenLabel);
+  }
+
+  function setDialogMessageContent(container, text, iconSrc, type) {
+    var textNode = document.createElement("span");
+    container.textContent = "";
+    container.className = "app-dialog-message";
+    if (iconSrc) {
+      var icon = createIconImage(iconSrc);
+      container.classList.add("with-icon");
+      container.classList.add(type === "error" ? "error" : "info");
+      icon.className = "app-dialog-message-icon";
+      container.appendChild(icon);
+    }
+    textNode.className = "app-dialog-message-text";
+    textNode.textContent = text || "";
+    container.appendChild(textNode);
   }
 
   function updateLinkEditorLabels() {
@@ -8043,6 +8089,10 @@
         stem: hasFilter ? "flower-inventory-export-gefiltert" : "flower-inventory-export",
         titleKey: hasFilter ? "exportFilteredFlowers" : "exportAllFlowers"
       });
+    }).catch(function (error) {
+      showAppMessageDialog(formatExportFailedMessage(error), {
+        type: "error"
+      });
     });
   }
 
@@ -8054,6 +8104,10 @@
     saveExportData(createExportData([currentFlower]), {
       stem: "flower-inventory-export-" + getExportFlowerNamePart(currentFlower),
       titleKey: "exportSingleFlower"
+    }).catch(function (error) {
+      showAppMessageDialog(formatExportFailedMessage(error), {
+        type: "error"
+      });
     });
   }
 
@@ -8184,8 +8238,7 @@
       overlay.className = "online-search-overlay app-dialog-overlay";
       panel.className = "online-search-panel app-dialog-panel export-format-dialog";
       title.textContent = t(titleKey || "export");
-      message.className = "app-dialog-message";
-      message.textContent = t("exportStatus", { count: count });
+      setDialogMessageContent(message, t("exportStatus", { count: count }), "icon-info.png", "info");
       form.className = "export-format-form";
       iconRow.className = "export-file-icon-row";
       formatGroup.className = "export-format-icon-group";
@@ -8607,7 +8660,9 @@
         if (error && error.message === "import-cancelled") {
           return;
         }
-        showAppMessageDialog(t("importFailed"));
+        showAppMessageDialog(formatImportFailedMessage(error), {
+          type: "error"
+        });
       });
   }
 
@@ -8625,6 +8680,9 @@
   }
 
   function readImportFlowersFromFile(file) {
+    if (!isZipFile(file) && !isJsonFile(file)) {
+      return Promise.reject(new Error("unsupported-import-file"));
+    }
     if (isZipFile(file)) {
       return readFileAsArrayBuffer(file)
         .then(readJsonTextFromZip)
@@ -8642,6 +8700,47 @@
     var name = file && file.name ? file.name : "";
     var type = file && file.type ? file.type : "";
     return /\.zip$/i.test(name) || /zip/i.test(type);
+  }
+
+  function isJsonFile(file) {
+    var name = file && file.name ? file.name : "";
+    var type = file && file.type ? file.type : "";
+    return /\.json$/i.test(name) || /json/i.test(type);
+  }
+
+  function formatImportFailedMessage(error) {
+    return t("importFailedDetails", {
+      details: getImportErrorDetails(error)
+    });
+  }
+
+  function getImportErrorDetails(error) {
+    var message = error && error.message ? String(error.message) : "";
+    if (message === "empty") {
+      return t("importErrorEmpty");
+    }
+    if (message === "unsupported-import-file") {
+      return t("importErrorUnsupportedFile");
+    }
+    if (message === "zip-compression-unsupported") {
+      return t("importErrorZipCompression");
+    }
+    if (/^zip-/.test(message) || message === "json-entry-not-found") {
+      return t("importErrorZip");
+    }
+    if (error instanceof SyntaxError || /json/i.test(message)) {
+      return t("importErrorJson");
+    }
+    if (error && (error.name === "NotReadableError" || error.name === "SecurityError")) {
+      return t("importErrorRead");
+    }
+    return message || t("importErrorUnknown");
+  }
+
+  function formatExportFailedMessage(error) {
+    return t("exportFailedDetails", {
+      details: error && error.message ? String(error.message) : t("exportErrorUnknown")
+    });
   }
 
   function readJsonTextFromZip(arrayBuffer) {
@@ -8810,7 +8909,7 @@
         }
         importState.flowers = result.flowers;
         fileInput.value = result.file.name || t("importFileName");
-        message.textContent = t("importStatus", { count: result.flowers.length });
+        setDialogMessageContent(message, t("importStatus", { count: result.flowers.length }), "icon-info.png", "info");
         importButton.disabled = false;
       }
 
@@ -8832,8 +8931,7 @@
       overlay.className = "online-search-overlay app-dialog-overlay";
       panel.className = "online-search-panel app-dialog-panel import-integrated-dialog";
       title.textContent = t("import");
-      message.className = "app-dialog-message";
-      message.textContent = t("importNoFile");
+      setDialogMessageContent(message, t("importNoFile"), "icon-info.png", "info");
       form.className = "import-integrated-form";
       modeGroup.className = "import-mode-icon-group";
       modeGroup.setAttribute("role", "radiogroup");
@@ -8865,8 +8963,8 @@
         if (!options || typeof options.onChooseFile !== "function") {
           return;
         }
-        options.onChooseFile().then(updateSelectedFile).catch(function () {
-          message.textContent = t("importFailed");
+        options.onChooseFile().then(updateSelectedFile).catch(function (error) {
+          setDialogMessageContent(message, formatImportFailedMessage(error), "icon-warning.png", "error");
           importButton.disabled = true;
         });
       });
@@ -8881,9 +8979,9 @@
         importButton.disabled = true;
         options.onImport(importState.flowers, importState.replace).then(function () {
           finish(true);
-        }).catch(function () {
+        }).catch(function (error) {
           importButton.disabled = false;
-          message.textContent = t("importFailed");
+          setDialogMessageContent(message, formatImportFailedMessage(error), "icon-warning.png", "error");
         });
       });
       overlay.addEventListener("click", function (event) {
@@ -8960,10 +9058,14 @@
     });
   }
 
-  function showAppMessageDialog(message) {
+  function showAppMessageDialog(message, options) {
+    var dialogOptions = options || {};
+    var type = dialogOptions.type || "info";
     return showAppChoiceDialog({
       title: t("appTitle"),
       message: message,
+      messageIcon: dialogOptions.icon || (type === "error" ? "icon-warning.png" : "icon-info.png"),
+      messageType: type,
       acceptLabel: "OK",
       acceptIcon: "icon-exit.png",
       hideCancel: true,
@@ -9004,8 +9106,7 @@
         panel.classList.add(options.panelClassName);
       }
       title.textContent = options.title || t("appTitle");
-      message.className = "app-dialog-message";
-      message.textContent = options.message || "";
+      setDialogMessageContent(message, options.message || "", options.messageIcon || "icon-info.png", options.messageType || "info");
       actions.className = "app-dialog-actions";
       acceptButton.type = "button";
       configureDialogIconButton(acceptButton, options.acceptLabel || "OK", options.acceptIcon || "icon-save.png?v=20260625-2");
