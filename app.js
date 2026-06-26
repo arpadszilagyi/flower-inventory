@@ -1149,6 +1149,13 @@
     sortFlowers();
     applyLanguage();
     render();
+    scrollToSelectedFlowerIfFiltered();
+  }
+
+  function scrollToSelectedFlowerIfFiltered() {
+    if (hasAnyFlowerFilter() && state.selectedId) {
+      scrollToFlower(state.selectedId);
+    }
   }
 
   function applyLanguage() {
@@ -1368,7 +1375,7 @@
     }
     if (button.dataset.descriptionPanelAction === "copy") {
       var editor = row.querySelector(".description-editor");
-      copyDescriptionPanelText(editor ? htmlToPlainText(editor.innerHTML).trim() : "", button);
+      copyDescriptionPanel(editor ? editor.innerHTML : "", button);
       return;
     }
     if (button.dataset.descriptionPanelAction === "speak") {
@@ -1948,12 +1955,33 @@
     return fallbackCopyText(text);
   }
 
-  function copyDescriptionPanelText(text, button) {
-    var value = String(text || "").trim();
-    if (!value || !button) {
+  function copyHtmlToClipboard(html, plainText) {
+    var text = String(plainText || "").trim();
+    var sanitizedHtml = sanitizeDescriptionHtml(html);
+    if (!text) {
+      return Promise.resolve();
+    }
+    if (navigator.clipboard && navigator.clipboard.write && window.ClipboardItem) {
+      var htmlDocument = "<!doctype html><html><head><meta charset=\"utf-8\"></head><body>" + sanitizedHtml + "</body></html>";
+      return navigator.clipboard.write([
+        new ClipboardItem({
+          "text/html": new Blob([htmlDocument], { type: "text/html" }),
+          "text/plain": new Blob([text], { type: "text/plain" })
+        })
+      ]).catch(function () {
+        return copyTextToClipboard(text);
+      });
+    }
+    return copyTextToClipboard(text);
+  }
+
+  function copyDescriptionPanel(html, button) {
+    var sanitizedHtml = sanitizeDescriptionHtml(html);
+    var plainText = htmlToPlainText(sanitizedHtml).trim();
+    if (!plainText || !button) {
       return;
     }
-    copyTextToClipboard(value).then(function () {
+    copyHtmlToClipboard(sanitizedHtml, plainText).then(function () {
       button.classList.add("copied");
       button.title = t("copiedDescriptionPanel");
       button.setAttribute("aria-label", t("copiedDescriptionPanel"));
@@ -2979,7 +3007,7 @@
   function updateSearchStepButtons() {
     var matches = getSearchMatches();
     var searchQuery = normalizeSearchText(elements.searchInput.value);
-    var disabled = searchQuery ? matches.length === 0 : getVisibleFlowers().length === 0;
+    var disabled = !searchQuery || matches.length === 0;
     elements.searchPreviousButton.disabled = disabled;
     elements.searchNextButton.disabled = disabled;
   }
@@ -3269,13 +3297,14 @@
   function restoreHeroImageShellCursorAtPoint(clientX, clientY) {
     window.requestAnimationFrame(function () {
       var element = document.elementFromPoint(clientX, clientY);
-      var imageShell = element && element.closest ? element.closest(".hero-image-shell") : null;
+      var imageShell = element && element.closest ? element.closest(".hero-image-shell, .image-preview-stack") : null;
       if (!imageShell) {
         return;
       }
       var image = imageShell.querySelector(".hero-image");
-      var flower = getSelectedFlower();
-      var imageCount = flower ? getFlowerImages(flower).length : 0;
+      var imageCount = imageShell.classList.contains("image-preview-stack")
+        ? normalizeImages(state.pendingImages).length
+        : getSelectedFlowerImageCount();
       if (!image) {
         return;
       }
@@ -3285,6 +3314,11 @@
         imageShell.classList.add("navigate-" + action);
       }
     });
+  }
+
+  function getSelectedFlowerImageCount() {
+    var flower = getSelectedFlower();
+    return flower ? getFlowerImages(flower).length : 0;
   }
 
   function getHeroImageNavigationAction(clientX, clientY, image) {
@@ -4337,7 +4371,7 @@
         });
         copyButton.disabled = !htmlToPlainText(entry.html).trim();
         copyButton.addEventListener("click", function () {
-          copyDescriptionPanelText(htmlToPlainText(entry.html).trim(), copyButton);
+          copyDescriptionPanel(entry.html, copyButton);
         });
         actions.appendChild(speakButton);
         actions.appendChild(copyButton);
@@ -7607,12 +7641,25 @@
 
     preview.className = "image-preview-stack";
     preview.addEventListener("wheel", handlePendingImageWheel, { passive: false });
+    preview.addEventListener("click", function (event) {
+      handlePendingImagePreviewClick(event, image, imageList.length);
+    });
+    preview.addEventListener("mousemove", function (event) {
+      updateHeroImageShellCursor(event, preview, image, imageList.length);
+    });
+    preview.addEventListener("mouseleave", function () {
+      clearHeroImageShellCursor(preview);
+    });
     var image = document.createElement("img");
     image.src = imageList[imageIndex];
     image.alt = t("imagePreview");
     image.title = getImageInfoTooltip(imageInfos[imageIndex], imageNames[imageIndex]);
     image.className = "hero-image";
-    image.addEventListener("click", function () {
+    image.addEventListener("click", function (event) {
+      if (handlePendingImagePreviewClick(event, image, imageList.length)) {
+        return;
+      }
+      event.stopPropagation();
       openOriginalImageOverlay(imageList, imageIndex, t("imagePreview"), function (index) {
         state.pendingImageIndex = index;
         renderImagePreview(state.pendingImages);
@@ -7734,6 +7781,29 @@
     if (imageList.length > 1) {
       elements.imagePreview.appendChild(createPendingImageNavigation(imageList.length, imageIndex));
     }
+  }
+
+  function handlePendingImagePreviewClick(event, image, imageCount) {
+    if (imageCount <= 1 || event.target.closest("button, input")) {
+      return false;
+    }
+    var action = getHeroImageNavigationAction(event.clientX, event.clientY, image);
+    if (!action) {
+      return false;
+    }
+    event.preventDefault();
+    event.stopPropagation();
+    if (action === "first") {
+      selectPendingImageByIndex(0);
+    } else if (action === "previous") {
+      selectPendingImageByOffset(-1);
+    } else if (action === "next") {
+      selectPendingImageByOffset(1);
+    } else {
+      selectPendingImageByIndex(imageCount - 1);
+    }
+    restoreHeroImageShellCursorAtPoint(event.clientX, event.clientY);
+    return true;
   }
 
   function createPendingImageNavigation(imageCount, imageIndex) {
