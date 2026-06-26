@@ -3061,7 +3061,11 @@
     image.src = images[imageIndex] || "";
     image.alt = getLocalizedFlowerName(flower);
     image.title = getImageInfoTooltip(imageInfos[imageIndex], imageNames[imageIndex]);
-    image.addEventListener("click", function () {
+    image.addEventListener("click", function (event) {
+      if (handleHeroImageShellClick(event, flower, image, images.length)) {
+        return;
+      }
+      event.stopPropagation();
       openOriginalImageForFlower(flower);
     });
 
@@ -3070,6 +3074,15 @@
     imageShell.addEventListener("wheel", function (event) {
       handleFlowerImageWheel(event, flower);
     }, { passive: false });
+    imageShell.addEventListener("click", function (event) {
+      handleHeroImageShellClick(event, flower, image, images.length);
+    });
+    imageShell.addEventListener("mousemove", function (event) {
+      updateHeroImageShellCursor(event, imageShell, image, images.length);
+    });
+    imageShell.addEventListener("mouseleave", function () {
+      clearHeroImageShellCursor(imageShell);
+    });
 
     var addInput = document.createElement("input");
     addInput.type = "file";
@@ -3213,6 +3226,92 @@
       frame.appendChild(createImageNavigation(flower, images.length, imageIndex));
     }
     return frame;
+  }
+
+  function handleHeroImageShellClick(event, flower, image, imageCount) {
+    if (imageCount <= 1 || event.target.closest("button, input")) {
+      return false;
+    }
+    var action = getHeroImageNavigationAction(event.clientX, event.clientY, image);
+    if (!action) {
+      return false;
+    }
+    event.preventDefault();
+    event.stopPropagation();
+    if (action === "first") {
+      selectFlowerImageByIndex(flower, 0);
+    } else if (action === "previous") {
+      selectFlowerImageByOffset(flower, -1);
+    } else if (action === "next") {
+      selectFlowerImageByOffset(flower, 1);
+    } else {
+      selectFlowerImageByIndex(flower, imageCount - 1);
+    }
+    return true;
+  }
+
+  function updateHeroImageShellCursor(event, imageShell, image, imageCount) {
+    clearHeroImageShellCursor(imageShell);
+    if (imageCount <= 1 || event.target === image || event.target.closest("button, input")) {
+      return;
+    }
+    var action = getHeroImageNavigationAction(event.clientX, event.clientY, image);
+    if (action) {
+      imageShell.classList.add("navigate-" + action);
+    }
+  }
+
+  function clearHeroImageShellCursor(imageShell) {
+    imageShell.classList.remove("navigate-first", "navigate-previous", "navigate-next", "navigate-last");
+  }
+
+  function getHeroImageNavigationAction(clientX, clientY, image) {
+    var shellRect = image.parentElement.getBoundingClientRect();
+    var imageRect = getContainedImageRect(image);
+    if (clientX < imageRect.left) {
+      return getVerticalSideNavigationAction(clientY, shellRect, "first", "previous");
+    }
+    if (clientX > imageRect.right) {
+      return getVerticalSideNavigationAction(clientY, shellRect, "last", "next");
+    }
+    return "";
+  }
+
+  function getVerticalSideNavigationAction(clientY, bounds, upperAction, lowerAction) {
+    return clientY < bounds.top + (bounds.height / 2) ? upperAction : lowerAction;
+  }
+
+  function getContainedImageRect(image) {
+    var frameRect = image.getBoundingClientRect();
+    var naturalWidth = image.naturalWidth || 0;
+    var naturalHeight = image.naturalHeight || 0;
+    if (!naturalWidth || !naturalHeight || !frameRect.width || !frameRect.height) {
+      return frameRect;
+    }
+    var frameRatio = frameRect.width / frameRect.height;
+    var imageRatio = naturalWidth / naturalHeight;
+    if (imageRatio > frameRatio) {
+      var containedHeight = frameRect.width / imageRatio;
+      var offsetTop = (frameRect.height - containedHeight) / 2;
+      return {
+        left: frameRect.left,
+        right: frameRect.right,
+        top: frameRect.top + offsetTop,
+        bottom: frameRect.bottom - offsetTop,
+        width: frameRect.width,
+        height: containedHeight
+      };
+    }
+    var containedWidth = frameRect.height * imageRatio;
+    var offsetLeft = (frameRect.width - containedWidth) / 2;
+    return {
+      left: frameRect.left + offsetLeft,
+      right: frameRect.right - offsetLeft,
+      top: frameRect.top,
+      bottom: frameRect.bottom,
+      width: containedWidth,
+      height: frameRect.height
+    };
   }
 
   function createImageNavigation(flower, imageCount, imageIndex) {
@@ -3987,6 +4086,54 @@
       }
     }
 
+    function navigateOriginalImageByStageClick(event) {
+      if (images.length <= 1) {
+        return;
+      }
+      var action = getOriginalImageNavigationAction(event.clientX, event.clientY);
+      if (action) {
+        event.preventDefault();
+        event.stopPropagation();
+        updateOriginalImage(getOriginalImageNavigationIndex(action));
+      }
+    }
+
+    function updateOriginalImageCursor(event) {
+      overlay.classList.remove("navigate-first", "navigate-previous", "navigate-next", "navigate-last");
+      if (images.length <= 1 || event.target === image || event.target.closest("button, .original-image-navigation")) {
+        return;
+      }
+      var action = getOriginalImageNavigationAction(event.clientX, event.clientY);
+      if (action) {
+        overlay.classList.add("navigate-" + action);
+      }
+    }
+
+    function getOriginalImageNavigationAction(clientX, clientY) {
+      var imageRect = image.getBoundingClientRect();
+      var stageRect = imageStage.getBoundingClientRect();
+      if (clientX < imageRect.left) {
+        return getVerticalSideNavigationAction(clientY, stageRect, "first", "previous");
+      }
+      if (clientX > imageRect.right) {
+        return getVerticalSideNavigationAction(clientY, stageRect, "last", "next");
+      }
+      return "";
+    }
+
+    function getOriginalImageNavigationIndex(action) {
+      if (action === "first") {
+        return 0;
+      }
+      if (action === "previous") {
+        return currentIndex - 1;
+      }
+      if (action === "next") {
+        return currentIndex + 1;
+      }
+      return images.length - 1;
+    }
+
     function handleOriginalImageKeydown(event) {
       if (event.key === "Escape") {
         event.preventDefault();
@@ -4030,6 +4177,7 @@
     }
 
     imageStage.appendChild(image);
+    imageStage.addEventListener("click", navigateOriginalImageByStageClick);
     actionBar.appendChild(deleteButton);
     actionBar.appendChild(favoriteButton);
     actionBar.appendChild(sourceButton);
@@ -4044,9 +4192,17 @@
     }
     overlay.appendChild(content);
     overlay._originalImageKeydownHandler = handleOriginalImageKeydown;
+    overlay.addEventListener("mousemove", updateOriginalImageCursor);
+    overlay.addEventListener("mouseleave", function () {
+      overlay.classList.remove("navigate-first", "navigate-previous", "navigate-next", "navigate-last");
+    });
     overlay.addEventListener("click", function (event) {
-      if (event.target === overlay || event.target === content || event.target === image) {
+      if (event.target === image) {
         closeOriginalImageOverlay();
+        return;
+      }
+      if (event.target === overlay || event.target === content) {
+        navigateOriginalImageByStageClick(event);
       }
     });
     document.body.appendChild(overlay);
