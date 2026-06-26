@@ -1336,6 +1336,9 @@
     if (!editor || !elements.descriptionEditorList.contains(editor)) {
       return;
     }
+    if (event.type === "input") {
+      removeWhiteBackgroundsFromDescriptionEditor(editor);
+    }
     var row = editor.closest(".description-editor-row");
     var rows = Array.prototype.slice.call(elements.descriptionEditorList.querySelectorAll(".description-editor-row"));
     state.activeDescriptionPanelIndex = rows.indexOf(row);
@@ -6256,7 +6259,7 @@
     if (color) {
       element.style.color = color;
     }
-    if (backgroundColor) {
+    if (backgroundColor && !isWhiteColor(backgroundColor)) {
       element.style.backgroundColor = backgroundColor;
     }
     if (fontFamily) {
@@ -6276,6 +6279,19 @@
     }
   }
 
+  function removeWhiteBackgroundsFromDescriptionEditor(editor) {
+    Array.prototype.slice.call(editor.querySelectorAll("[style]")).forEach(function (element) {
+      if (!isWhiteColor(element.style.backgroundColor) && !isWhiteColor(element.style.background)) {
+        return;
+      }
+      element.style.backgroundColor = "";
+      element.style.background = "";
+      if (!element.getAttribute("style")) {
+        element.removeAttribute("style");
+      }
+    });
+  }
+
   function readSafeColor(value) {
     var color = String(value || "").trim();
     if (/^#[0-9a-f]{3}([0-9a-f]{3})?$/i.test(color)) {
@@ -6285,6 +6301,11 @@
       return color;
     }
     return "";
+  }
+
+  function isWhiteColor(value) {
+    var color = String(value || "").trim().toLowerCase().replace(/\s+/g, "");
+    return color === "white" || color === "#fff" || color === "#ffffff" || color === "rgb(255,255,255)";
   }
 
   function readSafeFontFamily(value) {

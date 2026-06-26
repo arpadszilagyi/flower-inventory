@@ -1625,6 +1625,26 @@ button.primary:hover,
   padding: 10px 12px;
 }
 
+.description-editor [style*="background-color: white" i],
+.description-editor [style*="background-color:white" i],
+.description-editor [style*="background-color: rgb(255, 255, 255)" i],
+.description-editor [style*="background-color:rgb(255,255,255)" i],
+.description-editor [style*="background-color: #fff" i],
+.description-editor [style*="background-color:#fff" i],
+.description-editor [style*="background-color: #ffffff" i],
+.description-editor [style*="background-color:#ffffff" i],
+.description-editor [style*="background: white" i],
+.description-editor [style*="background:white" i],
+.description-editor [style*="background: rgb(255, 255, 255)" i],
+.description-editor [style*="background:rgb(255,255,255)" i],
+.description-editor [style*="background: #fff" i],
+.description-editor [style*="background:#fff" i],
+.description-editor [style*="background: #ffffff" i],
+.description-editor [style*="background:#ffffff" i] {
+  background-color: transparent !important;
+  background: transparent !important;
+}
+
 .description-editor-list {
   display: grid;
   gap: 10px;
