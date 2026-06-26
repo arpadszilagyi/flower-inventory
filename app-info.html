@@ -281,6 +281,26 @@
       color: var(--text);
     }
 
+    .command-description-list {
+      display: grid;
+      gap: 8px;
+      margin: 12px 0 0;
+    }
+
+    .command-description-list dt {
+      color: var(--text);
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .command-description-list dd {
+      margin: -6px 0 0 28px;
+      color: var(--muted);
+      font-size: 16px;
+      white-space: pre-line;
+    }
+
     @media (max-width: 620px) {
       header {
         align-items: flex-start;
@@ -1156,6 +1176,20 @@
         return list;
       }
 
+      function createCommandDescriptionList(items) {
+        var list = document.createElement("dl");
+        list.className = "command-description-list";
+        items.forEach(function (item) {
+          var term = document.createElement("dt");
+          var description = document.createElement("dd");
+          term.textContent = Array.isArray(item) ? item[0] : String(item || "");
+          description.textContent = Array.isArray(item) ? item[1] : "";
+          list.appendChild(term);
+          list.appendChild(description);
+        });
+        return list;
+      }
+
       function createIconSvg(pathData) {
         var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
         var path = document.createElementNS("http://www.w3.org/2000/svg", "path");
@@ -1284,7 +1318,9 @@
           section.appendChild(createCopyBlock(lines));
         });
         if (sectionData.items) {
-          section.appendChild(createList(sectionData.items, false, "icon-list"));
+          section.appendChild(sectionData.id === "powershell-git-github"
+            ? createCommandDescriptionList(sectionData.items)
+            : createList(sectionData.items, false, "icon-list"));
         }
         if (sectionData.bullets) {
           section.appendChild(createList(sectionData.bullets, false));
