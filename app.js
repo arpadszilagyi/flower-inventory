@@ -73,7 +73,7 @@
       newFlower: "Új virág",
       createOnlineFlower: "Virág létrehozása az internetről",
       createOnlineFlowerPrompt: "Add meg a magyar vagy latin virágnevet:",
-      createOnlineFlowerPromptHu: "Add meg a magyar vagy latin virágnevet:",
+      createOnlineFlowerPromptHu: "Add meg a magyar vagy latin virágnevet, vagy egy vagy több virágnevet hu:<magyar virágnév> de:<német virágnév> en:<angol virágnév> formában:",
       createOnlineFlowerPromptDe: "Add meg a német vagy latin virágnevet:",
       createOnlineFlowerPromptEn: "Add meg az angol vagy latin virágnevet:",
       createOnlineFlowerSearching: "Online adatok keresése…",
@@ -276,7 +276,7 @@
       createOnlineFlower: "Blume aus dem Internet erstellen",
       createOnlineFlowerPrompt: "Bitte gib den Blumen- oder lateinischen Namen ein:",
       createOnlineFlowerPromptHu: "Bitte gib den ungarischen oder lateinischen Blumennamen ein:",
-      createOnlineFlowerPromptDe: "Bitte gib den deutschen oder lateinischen Blumennamen ein:",
+      createOnlineFlowerPromptDe: "Bitte gib den deutschen oder lateinischen Blumennamen ein oder einen oder mehrere Blumennamen in der Form hu:<ungarischer Blumenname> de:<deutscher Blumenname> en:<englischer Blumenname>:",
       createOnlineFlowerPromptEn: "Bitte gib den englischen oder lateinischen Blumennamen ein:",
       createOnlineFlowerSearching: "Online-Daten werden gesucht…",
       createOnlineFlowerDone: "Die Blume wurde mit {count} Bildern angelegt.",
@@ -479,7 +479,7 @@
       createOnlineFlowerPrompt: "Enter the flower or Latin name:",
       createOnlineFlowerPromptHu: "Enter the Hungarian or Latin flower name:",
       createOnlineFlowerPromptDe: "Enter the German or Latin flower name:",
-      createOnlineFlowerPromptEn: "Enter the English or Latin flower name:",
+      createOnlineFlowerPromptEn: "Enter the English or Latin flower name, or one or more flower names in the form hu:<Hungarian flower name> de:<German flower name> en:<English flower name>:",
       createOnlineFlowerSearching: "Searching online data…",
       createOnlineFlowerDone: "The flower was created with {count} images.",
       createOnlineFlowerNoImage: "No suitable image could be found. The flower was not created.",
@@ -1460,12 +1460,16 @@
       de: elements.nameDe.value.trim(),
       en: elements.nameEn.value.trim()
     };
-    var flowerName = getGeneratedDescriptionFlowerName(flowerNames, state.descriptionLanguage);
+    return buildGeneratedDescriptionPromptFromNames(state.descriptionLanguage, flowerNames);
+  }
+
+  function buildGeneratedDescriptionPromptFromNames(language, flowerNames) {
+    var flowerName = getGeneratedDescriptionFlowerName(flowerNames, language);
     if (!flowerName) {
       return "";
     }
 
-    return buildGeneratedDescriptionPromptForLanguage(state.descriptionLanguage, flowerName, flowerNames);
+    return buildGeneratedDescriptionPromptForLanguage(language, flowerName, flowerNames);
   }
 
   function getGeneratedDescriptionFlowerName(flowerNames, language) {
@@ -1647,6 +1651,45 @@
     state.editorRange = null;
     renderDescriptionEditors();
     focusActiveDescriptionEditor();
+  }
+
+  function generateDescriptionStorageWithChatGpt(flowerNames) {
+    if (!window.fetch) {
+      return Promise.reject(new Error(t("autoFillUnavailable")));
+    }
+    if (window.navigator && window.navigator.onLine === false) {
+      return Promise.reject(new Error(t("offline")));
+    }
+
+    var apiKey = getOpenAiApiKey();
+    if (!apiKey) {
+      return Promise.reject(new Error(t("generateDescriptionMissingApiKey")));
+    }
+
+    var languages = ["hu", "de", "en"];
+    var drafts = { hu: [""], de: [""], en: [""] };
+    return languages.reduce(function (chain, language) {
+      return chain.then(function () {
+        var promptText = buildGeneratedDescriptionPromptFromNames(language, flowerNames);
+        if (!promptText) {
+          drafts[language] = [""];
+          return null;
+        }
+        return requestChatGptDescription(promptText, apiKey)
+          .then(function (generatedText) {
+            drafts[language] = [generatedDescriptionTextToHtml(generatedText, language)];
+          });
+      });
+    }, Promise.resolve())
+      .then(function () {
+        return createDescriptionForStorage(drafts);
+      })
+      .catch(function (error) {
+        if (error && error.status === 401) {
+          window.localStorage.removeItem("flowerInventoryOpenAiApiKey");
+        }
+        throw error;
+      });
   }
 
   function updateDescriptionEditorLabels() {
@@ -5469,8 +5512,8 @@
           window.alert(t("createOnlineFlowerDone", { count: flower.images.length }));
         });
       })
-      .catch(function () {
-        window.alert(t("createOnlineFlowerFailed"));
+      .catch(function (error) {
+        window.alert(t("createOnlineFlowerFailed") + "\n\n" + getChatGptErrorDetails(error));
       })
       .finally(function () {
         elements.createOnlineFlowerButton.disabled = false;
@@ -5773,38 +5816,67 @@
 
   function fetchFlowerOnlineData(searchName, candidate) {
     var entity = candidate.entity;
-    var names = getNamesFromWikidataEntity(entity, searchName);
+    var taggedInput = parseTaggedFlowerNames(searchName);
+    var names = getNamesFromWikidataEntity(entity, taggedInput.hasTagged ? "" : searchName);
     var preferredLatinName = getPreferredLatinNameFromInput(searchName, names.la);
     var sitelinks = getSitelinksFromWikidataEntity(entity);
 
     names = preserveSearchNameForSelectedLanguage(names, searchName, preferredLatinName);
+    names = mergeTaggedFlowerNames(names, taggedInput.names);
 
-    return Promise.all([
-      fetchDescriptionsForSitelinks(sitelinks, entity),
-      fetchOnlineImages(entity, names, searchName)
-    ]).then(function (results) {
-      var description = results[0];
-      var imageResult = results[1];
+    return fetchOnlineImages(entity, names, searchName).then(function (imageResult) {
       var images = imageResult.images;
-      return {
-        id: createId(),
-        names: names,
-        description: description,
-        links: getOnlineLinksFromSitelinks(sitelinks),
-        imageData: images[0] || "",
-        images: images,
-        imageSources: imageResult.sources,
-        imageNames: normalizeImageNames([], images.length, getImageBaseNameForFlower({ names: names })),
-        imageInfos: normalizeImageInfos([], images.length),
-        favoriteImageIndex: 0,
-        updatedAt: new Date().toISOString()
-      };
+      if (!images.length) {
+        return {
+          id: createId(),
+          names: names,
+          description: createDescriptionForStorage(getEmptyDescriptionDrafts()),
+          links: getOnlineLinksFromSitelinks(sitelinks),
+          imageData: "",
+          images: [],
+          imageSources: [],
+          imageNames: [],
+          imageInfos: [],
+          favoriteImageIndex: 0,
+          updatedAt: new Date().toISOString()
+        };
+      }
+
+      return generateDescriptionStorageWithChatGpt(names).then(function (description) {
+        return {
+          id: createId(),
+          names: names,
+          description: description,
+          links: getOnlineLinksFromSitelinks(sitelinks),
+          imageData: images[0] || "",
+          images: images,
+          imageSources: imageResult.sources,
+          imageNames: normalizeImageNames([], images.length, getImageBaseNameForFlower({ names: names })),
+          imageInfos: normalizeImageInfos([], images.length),
+          favoriteImageIndex: 0,
+          updatedAt: new Date().toISOString()
+        };
+      });
     });
   }
 
   function buildOnlineSearchVariants(searchName) {
     var normalized = normalizeOnlineSearchText(searchName);
+    var taggedInput = parseTaggedFlowerNames(normalized);
     var variants = [normalized];
+    if (taggedInput.hasTagged) {
+      variants = Object.keys(taggedInput.names).map(function (language) {
+        return taggedInput.names[language];
+      });
+      Object.keys(taggedInput.names).forEach(function (language) {
+        var baseName = getLatinBaseName(taggedInput.names[language]);
+        if (baseName) {
+          variants.push(baseName);
+          variants.push(removeCultivarWords(baseName));
+        }
+      });
+      return normalizeOnlineSearchVariants(variants);
+    }
     var slashParts = normalized.split("/").map(function (part) {
       return part.trim();
     }).filter(Boolean);
@@ -5812,9 +5884,11 @@
       return getLatinBaseName(part);
     });
 
-    slashParts.forEach(function (part) {
-      variants.push(part);
-    });
+    if (!taggedInput.hasTagged) {
+      slashParts.forEach(function (part) {
+        variants.push(part);
+      });
+    }
 
     if (latinPart) {
       variants.push(latinPart);
@@ -5824,6 +5898,10 @@
     variants.push(removeCultivarWords(normalized));
     variants.push(getLatinBaseName(normalized));
 
+    return normalizeOnlineSearchVariants(variants);
+  }
+
+  function normalizeOnlineSearchVariants(variants) {
     return uniqueValues(variants.map(function (variant) {
       return normalizeOnlineSearchText(variant);
     }).filter(function (variant) {
@@ -5858,6 +5936,10 @@
   }
 
   function getPreferredLatinNameFromInput(searchName, fallbackLatin) {
+    var taggedInput = parseTaggedFlowerNames(searchName);
+    if (taggedInput.names.la) {
+      return taggedInput.names.la;
+    }
     var normalized = normalizeOnlineSearchText(searchName);
     var slashParts = normalized.split("/").map(function (part) {
       return part.trim();
@@ -5870,6 +5952,7 @@
 
   function preserveSearchNameForSelectedLanguage(names, searchName, preferredLatinName) {
     var nextNames = Object.assign({}, names);
+    var taggedInput = parseTaggedFlowerNames(searchName);
     var cleanSearchName = normalizeOnlineSearchText(searchName);
     var languageName = getLanguageNameFromInput(cleanSearchName);
 
@@ -5877,17 +5960,62 @@
       nextNames.la = preferredLatinName;
     }
 
-    if (state.language === "hu" && languageName) {
+    if (!taggedInput.hasTagged && state.language === "hu" && languageName) {
       nextNames.hu = languageName;
     }
-    if (state.language === "de" && languageName) {
+    if (!taggedInput.hasTagged && state.language === "de" && languageName) {
       nextNames.de = languageName;
     }
-    if (state.language === "en" && languageName) {
+    if (!taggedInput.hasTagged && state.language === "en" && languageName) {
       nextNames.en = languageName;
     }
 
     return nextNames;
+  }
+
+  function parseTaggedFlowerNames(value) {
+    var text = normalizeOnlineSearchText(value);
+    var tagPattern = /\b(hu|de|en|la)\s*:/ig;
+    var matches = [];
+    var match = null;
+    while ((match = tagPattern.exec(text)) !== null) {
+      matches.push({
+        language: match[1].toLowerCase(),
+        start: match.index,
+        valueStart: tagPattern.lastIndex
+      });
+    }
+    if (!matches.length) {
+      return {
+        hasTagged: false,
+        names: { hu: "", de: "", en: "", la: "" }
+      };
+    }
+
+    var names = { hu: "", de: "", en: "", la: "" };
+    matches.forEach(function (entry, index) {
+      var valueEnd = index + 1 < matches.length ? matches[index + 1].start : text.length;
+      var name = text.slice(entry.valueStart, valueEnd).trim();
+      if (name) {
+        names[entry.language] = name;
+      }
+    });
+    return {
+      hasTagged: Object.keys(names).some(function (language) {
+        return Boolean(names[language]);
+      }),
+      names: names
+    };
+  }
+
+  function mergeTaggedFlowerNames(names, taggedNames) {
+    var merged = Object.assign({}, names);
+    ["hu", "de", "en", "la"].forEach(function (language) {
+      if (taggedNames && taggedNames[language]) {
+        merged[language] = taggedNames[language];
+      }
+    });
+    return merged;
   }
 
   function getLanguageNameFromInput(searchName) {
