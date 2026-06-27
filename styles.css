@@ -1412,9 +1412,13 @@ button.primary:hover,
   display: grid;
   grid-template-columns: 48px minmax(0, 1fr);
   gap: 14px;
-  align-items: baseline;
+  align-items: center;
   border-bottom: 1px solid var(--line);
   padding: 14px 0;
+}
+
+.name-row.active-language {
+  background: transparent;
 }
 
 .name-label {
@@ -1426,6 +1430,27 @@ button.primary:hover,
   color: var(--muted);
   font-size: 14px;
   font-weight: 700;
+}
+
+button.name-label {
+  border: 1px solid transparent;
+  border-radius: 9px;
+  background: transparent;
+  cursor: pointer;
+  padding: 1px;
+}
+
+button.name-label:hover,
+button.name-label:focus-visible {
+  border-color: var(--accent);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(47, 125, 98, 0.15);
+}
+
+button.name-label.active {
+  border-color: var(--accent);
+  background: var(--white);
+  box-shadow: inset 0 -3px 0 var(--accent), 0 0 0 3px rgba(47, 125, 98, 0.12);
 }
 
 .name-label img,
@@ -1764,6 +1789,27 @@ button.primary:hover,
   height: 34px;
   align-items: center;
   justify-content: center;
+}
+
+button.field-icon-label {
+  border: 1px solid transparent;
+  border-radius: 9px;
+  background: transparent;
+  cursor: pointer;
+  padding: 1px;
+}
+
+button.field-icon-label:hover,
+button.field-icon-label:focus-visible {
+  border-color: var(--accent);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(47, 125, 98, 0.15);
+}
+
+button.field-icon-label.active {
+  border-color: var(--accent);
+  background: var(--white);
+  box-shadow: inset 0 -3px 0 var(--accent), 0 0 0 3px rgba(47, 125, 98, 0.12);
 }
 
 .description-field-label {

@@ -911,6 +911,11 @@
     elements.nameLa.addEventListener("blur", function () {
       autoFillNamesFromLatin(false);
     });
+    document.querySelectorAll("[data-name-lang]").forEach(function (button) {
+      button.addEventListener("click", function () {
+        setLanguage(button.dataset.nameLang, { syncDescriptionLanguage: true });
+      });
+    });
     elements.editorToolbar.addEventListener("mousedown", function (event) {
       if (event.target.closest("button")) {
         event.preventDefault();
@@ -1207,12 +1212,15 @@
     sortFlowers();
     applyLanguage();
     render();
-    scrollToSelectedFlowerIfFiltered();
+    scrollToSelectedFlower();
   }
 
-  function scrollToSelectedFlowerIfFiltered() {
-    if (hasAnyFlowerFilter() && state.selectedId) {
-      scrollToFlower(state.selectedId);
+  function scrollToSelectedFlower() {
+    if (state.selectedId) {
+      scrollToFlower(state.selectedId, {
+        align: "center",
+        behavior: "auto"
+      });
     }
   }
 
@@ -1236,6 +1244,7 @@
     elements.languageSwitcher.querySelectorAll("button[data-lang]").forEach(function (button) {
       button.classList.toggle("active", button.dataset.lang === state.language);
     });
+    updateNameLanguageLabels();
     updateDescriptionLanguageTabs();
     updateDescriptionEditorLabels();
     if (state.editingId !== null) {
@@ -1263,6 +1272,14 @@
     updateFilterStepButtons();
     updateSearchStepButtons();
     setAutoFillStatus("");
+  }
+
+  function updateNameLanguageLabels() {
+    document.querySelectorAll("[data-name-lang]").forEach(function (button) {
+      var active = button.dataset.nameLang === state.language;
+      button.classList.toggle("active", active);
+      button.setAttribute("aria-pressed", active ? "true" : "false");
+    });
   }
 
   function updateFilterClearButton() {
@@ -3180,7 +3197,7 @@
     elements.searchNextButton.disabled = disabled;
   }
 
-  function scrollToFlower(id) {
+  function scrollToFlower(id, options) {
     window.requestAnimationFrame(function () {
       var item = elements.flowerList.querySelector("[data-flower-id=\"" + cssEscape(id) + "\"]");
       if (!item) {
@@ -3188,14 +3205,49 @@
       }
 
       item.classList.add("search-hit");
-      item.scrollIntoView({
-        block: "nearest",
-        behavior: "smooth"
-      });
+      scrollFlowerListItemIntoView(item, options || {});
       window.setTimeout(function () {
         item.classList.remove("search-hit");
       }, 900);
     });
+  }
+
+  function scrollFlowerListItemIntoView(item, options) {
+    var list = elements.flowerList;
+    var listRect = list.getBoundingClientRect();
+    var itemRect = item.getBoundingClientRect();
+    var itemTop = list.scrollTop + itemRect.top - listRect.top;
+    var itemBottom = itemTop + itemRect.height;
+    var visibleTop = list.scrollTop;
+    var visibleBottom = visibleTop + list.clientHeight;
+    var margin = 10;
+    var behavior = options && options.behavior || "smooth";
+
+    if (options && options.align === "center") {
+      list.scrollTo({
+        top: clampScrollTop(itemTop - (list.clientHeight - itemRect.height) / 2, list),
+        behavior: behavior
+      });
+      return;
+    }
+
+    if (itemTop < visibleTop + margin) {
+      list.scrollTo({
+        top: clampScrollTop(itemTop - margin, list),
+        behavior: behavior
+      });
+      return;
+    }
+    if (itemBottom > visibleBottom - margin) {
+      list.scrollTo({
+        top: clampScrollTop(itemBottom - list.clientHeight + margin, list),
+        behavior: behavior
+      });
+    }
+  }
+
+  function clampScrollTop(value, list) {
+    return Math.max(0, Math.min(value, list.scrollHeight - list.clientHeight));
   }
 
   function renderDetailView() {
@@ -4470,11 +4522,8 @@
     ].forEach(function (entry) {
       var row = document.createElement("div");
       row.className = "name-row";
-      var label = document.createElement("span");
-      label.className = "name-label";
-      label.title = entry[1];
-      label.setAttribute("aria-label", entry[1]);
-      label.appendChild(createNameLabelIcon(entry[0]));
+      row.classList.toggle("active-language", entry[0] === state.language);
+      var label = createNameLabelControl(entry[0], entry[1]);
       var value = document.createElement("span");
       value.className = "name-value";
       value.textContent = entry[2] || "—";
@@ -4483,6 +4532,25 @@
       grid.appendChild(row);
     });
     return grid;
+  }
+
+  function createNameLabelControl(field, labelText) {
+    var isLanguage = field === "hu" || field === "de" || field === "en";
+    var label = document.createElement(isLanguage ? "button" : "span");
+    label.className = "name-label";
+    label.title = labelText;
+    label.setAttribute("aria-label", labelText);
+    label.appendChild(createNameLabelIcon(field));
+    if (isLanguage) {
+      label.type = "button";
+      label.classList.add("language-name-label");
+      label.classList.toggle("active", field === state.language);
+      label.setAttribute("aria-pressed", field === state.language ? "true" : "false");
+      label.addEventListener("click", function () {
+        setLanguage(field, { syncDescriptionLanguage: true });
+      });
+    }
+    return label;
   }
 
   function createNameLabelIcon(field) {
