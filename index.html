@@ -64,6 +64,7 @@
         <div id="topDetailActions" class="sticky-detail-actions hidden"></div>
         <div id="formTopActions" class="sticky-form-actions hidden">
           <div class="form-actions form-top-actions detail-actions">
+            <button id="formWebSearchButton" class="icon-action icon-only-action" type="button" title="Blume im Internet suchen" aria-label="Blume im Internet suchen" data-i18n-attr="title:searchFlowerOnline;aria-label:searchFlowerOnline"><img src="icon-web-search.png" alt=""><span class="visually-hidden" data-i18n="searchFlowerOnline">Blume im Internet suchen</span></button>
             <button class="icon-action icon-only-action" type="submit" form="flowerForm" title="Speichern" aria-label="Speichern" data-i18n-attr="title:save;aria-label:save"><img src="icon-save.png?v=20260625-2" alt=""><span class="visually-hidden" data-i18n="save">Speichern</span></button>
             <button id="cancelButton" class="icon-action icon-only-action" type="button" title="Abbrechen" aria-label="Abbrechen" data-i18n-attr="title:cancel;aria-label:cancel"><img src="icon-exit.png" alt=""><span class="visually-hidden" data-i18n="cancel">Abbrechen</span></button>
           </div>
@@ -174,8 +175,12 @@
             </div>
             <div class="field-block links-editor">
               <div class="links-editor-header">
-                <span class="field-label" data-i18n="linksTitle">Links</span>
-                <button id="addLinkButton" type="button" data-i18n="addLink">Link hinzufügen</button>
+                <span class="field-label" data-i18n="linksAddTitle">Links zu der Blume hinzufügen</span>
+                <span class="links-add-type-group">
+                  <button class="links-add-button" type="button" data-link-add-type="info" title="Info-Link in aktueller Sprache hinzufügen" aria-label="Info-Link in aktueller Sprache hinzufügen" data-i18n-attr="title:addInfoLink;aria-label:addInfoLink"><img src="icon-web-search.png" alt=""><span class="visually-hidden" data-i18n="addInfoLink">Info-Link hinzufügen</span></button>
+                  <button class="links-add-button" type="button" data-link-add-type="image" title="Bild-Link in aktueller Sprache hinzufügen" aria-label="Bild-Link in aktueller Sprache hinzufügen" data-i18n-attr="title:addImageLink;aria-label:addImageLink"><img src="icon-link-image.png" alt=""><span class="visually-hidden" data-i18n="addImageLink">Bild-Link hinzufügen</span></button>
+                  <button class="links-add-button" type="button" data-link-add-type="video" title="Video-Link in aktueller Sprache hinzufügen" aria-label="Video-Link in aktueller Sprache hinzufügen" data-i18n-attr="title:addVideoLink;aria-label:addVideoLink"><img src="icon-link-video.png" alt=""><span class="visually-hidden" data-i18n="addVideoLink">Video-Link hinzufügen</span></button>
+                </span>
               </div>
               <div id="linksEditorList" class="links-editor-list"></div>
             </div>
@@ -185,6 +190,6 @@
     </main>
   </div>
 
-  <script src="app.js?v=20260625-21"></script>
+  <script src="app.js?v=20260627-02"></script>
 </body>
 </html>

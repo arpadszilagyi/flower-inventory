@@ -115,6 +115,9 @@
       flowerData: "Virág adatai",
       cancel: "Mégse",
       save: "Mentés",
+      discardChanges: "Elvetés",
+      unsavedChangesTitle: "Nem mentett módosítások",
+      unsavedChangesText: "A virág módosításai még nincsenek mentve. Szeretnéd menteni őket, vagy elveted a módosításokat?",
       image: "Kép",
       imageNote: "Kötelező mező. A kép helyben, IndexedDB-ben lesz mentve.",
       names: "Nevek",
@@ -136,14 +139,21 @@
       generateDescriptionFailed: "A ChatGPT-leírást nem sikerült elkészíteni.",
       generateDescriptionFailedDetails: "A ChatGPT-leírást nem sikerült elkészíteni: {details}",
       generateDescriptionNetworkError: "A kérés nem érte el az OpenAI API-t. Ellenőrizd az internetkapcsolatot, a böngésző CORS-hibáit vagy a biztonsági beállításokat.",
-      linksTitle: "Links",
-      addLink: "Link hozzáadása",
+      linksTitle: "Linkek a virághoz",
+      linksAddTitle: "Link hozzáadása a virághoz",
+      addLink: "Link hozzáadása az aktuális nyelven",
+      addInfoLink: "Info-link hozzáadása az aktuális nyelven",
+      addImageLink: "Kép-link hozzáadása az aktuális nyelven",
+      addVideoLink: "Videó-link hozzáadása az aktuális nyelven",
       moveLinkUp: "Link feljebb",
       moveLinkDown: "Link lejjebb",
       removeLink: "Link törlése",
       linkNameHu: "Magyar linknév",
       linkNameDe: "Német linknév",
       linkNameEn: "Angol linknév",
+      linkTypeInfo: "Információ",
+      linkTypeImage: "Kép",
+      linkTypeVideo: "Videó",
       linkUrl: "Link címe",
       noLinks: "Nincsenek linkek.",
       formatDescription: "Leírás formázása",
@@ -335,6 +345,9 @@
       flowerData: "Blumendaten",
       cancel: "Abbrechen",
       save: "Speichern",
+      discardChanges: "Verwerfen",
+      unsavedChangesTitle: "Ungespeicherte Änderungen",
+      unsavedChangesText: "Die Änderungen an der Blume sind noch nicht gespeichert. Möchtest du sie speichern oder verwerfen?",
       image: "Bild",
       imageNote: "Pflichtfeld. Das Bild wird lokal in IndexedDB gespeichert.",
       names: "Namen",
@@ -356,14 +369,21 @@
       generateDescriptionFailed: "Die ChatGPT-Beschreibung konnte nicht erstellt werden.",
       generateDescriptionFailedDetails: "Die ChatGPT-Beschreibung konnte nicht erstellt werden: {details}",
       generateDescriptionNetworkError: "Die Anfrage hat die OpenAI API nicht erreicht. Prüfe Internetverbindung, CORS-Fehler im Browser oder Sicherheitseinstellungen.",
-      linksTitle: "Links",
-      addLink: "Link hinzufügen",
+      linksTitle: "Links zu der Blume",
+      linksAddTitle: "Links zu der Blume hinzufügen",
+      addLink: "Link in aktueller Sprache hinzufügen",
+      addInfoLink: "Info-Link in aktueller Sprache hinzufügen",
+      addImageLink: "Bild-Link in aktueller Sprache hinzufügen",
+      addVideoLink: "Video-Link in aktueller Sprache hinzufügen",
       moveLinkUp: "Link nach oben",
       moveLinkDown: "Link nach unten",
       removeLink: "Link entfernen",
       linkNameHu: "Ungarischer Linkname",
       linkNameDe: "Deutscher Linkname",
       linkNameEn: "Englischer Linkname",
+      linkTypeInfo: "Information",
+      linkTypeImage: "Bild",
+      linkTypeVideo: "Video",
       linkUrl: "Link-Adresse",
       noLinks: "Keine Links vorhanden.",
       formatDescription: "Beschreibung formatieren",
@@ -555,6 +575,9 @@
       flowerData: "Flower data",
       cancel: "Cancel",
       save: "Save",
+      discardChanges: "Discard",
+      unsavedChangesTitle: "Unsaved changes",
+      unsavedChangesText: "The changes to this flower have not been saved yet. Do you want to save them or discard them?",
       image: "Image",
       imageNote: "Required field. The image is stored locally in IndexedDB.",
       names: "Names",
@@ -576,14 +599,21 @@
       generateDescriptionFailed: "The ChatGPT description could not be created.",
       generateDescriptionFailedDetails: "The ChatGPT description could not be created: {details}",
       generateDescriptionNetworkError: "The request did not reach the OpenAI API. Check internet access, browser CORS errors, or security settings.",
-      linksTitle: "Links",
-      addLink: "Add link",
+      linksTitle: "Links for this flower",
+      linksAddTitle: "Add links for this flower",
+      addLink: "Add link in current language",
+      addInfoLink: "Add info link in current language",
+      addImageLink: "Add image link in current language",
+      addVideoLink: "Add video link in current language",
       moveLinkUp: "Move link up",
       moveLinkDown: "Move link down",
       removeLink: "Remove link",
       linkNameHu: "Hungarian link name",
       linkNameDe: "German link name",
       linkNameEn: "English link name",
+      linkTypeInfo: "Information",
+      linkTypeImage: "Image",
+      linkTypeVideo: "Video",
       linkUrl: "Link address",
       noLinks: "No links available.",
       formatDescription: "Format description",
@@ -753,6 +783,7 @@
     detailView: document.getElementById("detailView"),
     topDetailActions: document.getElementById("topDetailActions"),
     formTopActions: document.getElementById("formTopActions"),
+    formWebSearchButton: document.getElementById("formWebSearchButton"),
     flowerForm: document.getElementById("flowerForm"),
     formModeLabel: document.getElementById("formModeLabel"),
     imagePreview: document.getElementById("imagePreview"),
@@ -768,7 +799,8 @@
     descriptionFontSizeSelect: document.getElementById("descriptionFontSizeSelect"),
     descriptionLanguageTabs: document.querySelector(".description-language-tabs"),
     generateDescriptionButton: document.getElementById("generateDescriptionButton"),
-    addLinkButton: document.getElementById("addLinkButton"),
+    addLinkButtons: document.querySelectorAll("[data-link-add-type]"),
+    linksEditorHeader: document.querySelector(".links-editor-header"),
     linksEditorList: document.getElementById("linksEditorList"),
     editorToolbar: document.querySelector(".editor-toolbar"),
     languageSwitcher: document.querySelector(".language-switcher"),
@@ -893,13 +925,22 @@
     elements.generateDescriptionButton.addEventListener("click", function () {
       generateDescriptionWithChatGpt();
     });
-    elements.addLinkButton.addEventListener("click", function () {
-      addLinkEditorRow();
+    elements.linksEditorHeader.addEventListener("click", function (event) {
+      var button = event.target.closest("[data-link-add-type]");
+      if (!button) {
+        return;
+      }
+      event.preventDefault();
+      focusLinkEditorRow(addLinkEditorRow({
+        type: button.dataset.linkAddType
+      }));
     });
-
     elements.cancelButton.addEventListener("click", function () {
       closeForm();
       render();
+    });
+    elements.formWebSearchButton.addEventListener("click", function () {
+      searchFlowerOnlineFromForm();
     });
 
     elements.flowerForm.addEventListener("submit", function (event) {
@@ -1901,26 +1942,89 @@
 
   function renderLinksEditor(links) {
     elements.linksEditorList.innerHTML = "";
-    normalizeLinks(links).forEach(function (link) {
+    normalizeLinkDrafts(links).forEach(function (link) {
       addLinkEditorRow(link);
     });
     updateLinkEditorLabels();
   }
 
-  function addLinkEditorRow(link) {
-    var normalizedLink = link || {
-      id: createId(),
-      names: { hu: "", de: "", en: "" },
-      url: ""
+  function normalizeLinkDrafts(links) {
+    if (!Array.isArray(links)) {
+      return [];
+    }
+    return links.reduce(function (drafts, link) {
+      var names = {
+        hu: String(link && link.names && link.names.hu || "").trim(),
+        de: String(link && link.names && link.names.de || "").trim(),
+        en: String(link && link.names && link.names.en || "").trim()
+      };
+      var language = getValidLinkLanguage(link && link.language);
+      var baseDraft = {
+        id: link && link.id ? String(link.id) : createId(),
+        type: getValidLinkType(link && link.type),
+        names: names,
+        url: String(link && link.url || "").trim()
+      };
+      if (language) {
+        drafts.push(createLanguageLinkDraft(baseDraft, language));
+        return drafts;
+      }
+      var filledLanguages = ["hu", "de", "en"].filter(function (nameLanguage) {
+        return Boolean(names[nameLanguage]);
+      });
+      filledLanguages.forEach(function (nameLanguage) {
+        if (names[nameLanguage]) {
+          drafts.push(createLanguageLinkDraft(Object.assign({}, baseDraft, {
+            id: filledLanguages.length > 1 ? baseDraft.id + "-" + nameLanguage : baseDraft.id
+          }), nameLanguage));
+        }
+      });
+      if (!names.hu && !names.de && !names.en) {
+        drafts.push(createLanguageLinkDraft(baseDraft, getCurrentLinkLanguage()));
+      }
+      return drafts;
+    }, []);
+  }
+
+  function createLanguageLinkDraft(link, language) {
+    var names = { hu: "", de: "", en: "" };
+    names[language] = link.names && link.names[language] || "";
+    return {
+      id: link.id || createId(),
+      language: language,
+      type: getValidLinkType(link.type),
+      names: names,
+      url: link.url || ""
     };
+  }
+
+  function addLinkEditorRow(link) {
+    var sourceLink = link || {};
+    var normalizedLink = {
+      id: sourceLink.id || createId(),
+      language: getValidLinkLanguage(sourceLink.language),
+      type: getValidLinkType(sourceLink.type),
+      names: {
+        hu: String(sourceLink.names && sourceLink.names.hu || ""),
+        de: String(sourceLink.names && sourceLink.names.de || ""),
+        en: String(sourceLink.names && sourceLink.names.en || "")
+      },
+      url: String(sourceLink.url || "")
+    };
+    var linkLanguage = getValidLinkLanguage(normalizedLink.language) || getCurrentLinkLanguage();
+    var linkType = getValidLinkType(normalizedLink.type);
     var row = document.createElement("div");
+    var main = document.createElement("div");
     row.className = "link-editor-row";
     row.dataset.linkId = normalizedLink.id || createId();
+    row.dataset.linkLanguage = linkLanguage;
+    row.dataset.linkType = linkType;
 
-    row.appendChild(createLinkInput("hu", t("linkNameHu"), normalizedLink.names.hu));
-    row.appendChild(createLinkInput("de", t("linkNameDe"), normalizedLink.names.de));
-    row.appendChild(createLinkInput("en", t("linkNameEn"), normalizedLink.names.en));
-    row.appendChild(createLinkInput("url", t("linkUrl"), normalizedLink.url));
+    main.className = "link-editor-main";
+    main.appendChild(createLinkLanguageIcon(linkLanguage));
+    main.appendChild(createLinkTypeButton(row, linkType));
+    main.appendChild(createLinkInput(linkLanguage, getLinkNameLabel(linkLanguage), normalizedLink.names[linkLanguage], false));
+    main.appendChild(createLinkInput("url", t("linkUrl"), normalizedLink.url, false));
 
     var actions = document.createElement("div");
     actions.className = "link-editor-actions";
@@ -1949,9 +2053,11 @@
 
     var removeButton = document.createElement("button");
     removeButton.type = "button";
-    removeButton.className = "danger";
+    removeButton.className = "link-remove-button";
     removeButton.dataset.linkRemove = "true";
-    removeButton.textContent = t("removeLink");
+    removeButton.appendChild(createIconImage("icon-delete.png"));
+    removeButton.title = t("removeLink");
+    removeButton.setAttribute("aria-label", t("removeLink"));
     removeButton.addEventListener("click", function () {
       row.remove();
       updateLinkMoveButtons();
@@ -1959,24 +2065,139 @@
     actions.appendChild(moveUpButton);
     actions.appendChild(moveDownButton);
     actions.appendChild(removeButton);
-    row.appendChild(actions);
+    main.appendChild(actions);
+    row.appendChild(main);
     elements.linksEditorList.appendChild(row);
     updateLinkMoveButtons();
+    return row;
   }
 
-  function createLinkInput(field, labelText, value) {
+  function focusLinkEditorRow(row) {
+    if (!row) {
+      return;
+    }
+    var input = row.querySelector("input");
+    if (input) {
+      input.focus();
+      input.select();
+    }
+    row.scrollIntoView({ block: "nearest", behavior: "smooth" });
+  }
+
+  function getCurrentLinkLanguage() {
+    return state.language === "hu" || state.language === "en" ? state.language : "de";
+  }
+
+  function getValidLinkLanguage(language) {
+    return language === "hu" || language === "de" || language === "en" ? language : "";
+  }
+
+  function getValidLinkType(type) {
+    return type === "image" || type === "video" ? type : "info";
+  }
+
+  function getNextLinkType(type) {
+    var types = ["info", "image", "video"];
+    var currentIndex = types.indexOf(getValidLinkType(type));
+    return types[(currentIndex + 1) % types.length];
+  }
+
+  function createLinkLanguageIcon(language) {
+    var icon = document.createElement("span");
+    var linkLanguage = getValidLinkLanguage(language) || getCurrentLinkLanguage();
+    icon.className = "link-language-icon";
+    icon.title = getLinkNameLabel(linkLanguage);
+    icon.setAttribute("aria-label", getLinkNameLabel(linkLanguage));
+    icon.appendChild(createLinkLabelIcon(linkLanguage));
+    return icon;
+  }
+
+  function createLinkTypeButton(row, type) {
+    var button = document.createElement("button");
+    button.type = "button";
+    button.className = "link-type-button";
+    button.dataset.linkTypeButton = "true";
+    updateLinkTypeButton(button, getValidLinkType(type));
+    button.addEventListener("click", function () {
+      var nextType = getNextLinkType(row.dataset.linkType);
+      row.dataset.linkType = nextType;
+      updateLinkTypeButton(button, nextType);
+    });
+    return button;
+  }
+
+  function updateLinkTypeButton(button, type) {
+    var linkType = getValidLinkType(type);
+    var label = getLinkTypeLabel(linkType);
+    button.dataset.linkTypeIcon = linkType;
+    button.title = label;
+    button.setAttribute("aria-label", label);
+    button.innerHTML = "";
+    button.appendChild(createIconImage(getLinkTypeIconSrc(linkType)));
+  }
+
+  function createLinkTypeIcon(type) {
+    var icon = document.createElement("span");
+    var label = getLinkTypeLabel(type);
+    icon.className = "link-type-icon";
+    icon.dataset.linkTypeIcon = getValidLinkType(type);
+    icon.title = label;
+    icon.setAttribute("aria-label", label);
+    icon.appendChild(createIconImage(getLinkTypeIconSrc(type)));
+    return icon;
+  }
+
+  function getLinkTypeLabel(type) {
+    if (type === "image") {
+      return t("linkTypeImage");
+    }
+    if (type === "video") {
+      return t("linkTypeVideo");
+    }
+    return t("linkTypeInfo");
+  }
+
+  function getLinkTypeIconSrc(type) {
+    if (type === "image") {
+      return "icon-link-image.png";
+    }
+    if (type === "video") {
+      return "icon-link-video.png";
+    }
+    return "icon-web-search.png";
+  }
+
+  function getLinkNameLabel(language) {
+    if (language === "hu") {
+      return t("linkNameHu");
+    }
+    if (language === "en") {
+      return t("linkNameEn");
+    }
+    return t("linkNameDe");
+  }
+
+  function createLinkInput(field, labelText, value, showIcon) {
     var label = document.createElement("label");
     label.className = "link-input-field link-input-" + field;
-    var labelSpan = document.createElement("span");
-    labelSpan.dataset.linkLabel = field;
-    labelSpan.title = labelText;
-    labelSpan.setAttribute("aria-label", labelText);
-    labelSpan.appendChild(createLinkLabelIcon(field));
+    if (showIcon === false) {
+      label.classList.add("link-input-plain");
+      label.title = labelText;
+      label.setAttribute("aria-label", labelText);
+    }
     var input = document.createElement("input");
     input.dataset.linkField = field;
     input.type = field === "url" ? "url" : "text";
     input.value = value || "";
-    label.appendChild(labelSpan);
+    input.placeholder = labelText;
+    if (showIcon !== false) {
+      var labelSpan = document.createElement("span");
+      labelSpan.dataset.linkLabel = field;
+      labelSpan.title = labelText;
+      labelSpan.setAttribute("aria-label", labelText);
+      labelSpan.appendChild(createLinkLabelIcon(field));
+      label.appendChild(labelSpan);
+    }
     label.appendChild(input);
     return label;
   }
@@ -2279,7 +2500,8 @@
     });
 
     elements.linksEditorList.querySelectorAll("[data-link-remove]").forEach(function (button) {
-      button.textContent = t("removeLink");
+      button.title = t("removeLink");
+      button.setAttribute("aria-label", t("removeLink"));
     });
 
     elements.linksEditorList.querySelectorAll("[data-link-move=\"up\"]").forEach(function (button) {
@@ -2323,21 +2545,29 @@
   }
 
   function collectLinksFromForm() {
-    var links = Array.prototype.slice.call(elements.linksEditorList.querySelectorAll(".link-editor-row")).map(function (row) {
-      var names = {
-        hu: getLinkInputValue(row, "hu"),
-        de: getLinkInputValue(row, "de"),
-        en: getLinkInputValue(row, "en")
-      };
-      return {
-        id: row.dataset.linkId || createId(),
-        names: names,
-        url: getLinkInputValue(row, "url")
-      };
-    }).filter(function (link) {
+    var links = collectLinkDraftsFromForm().filter(function (link) {
       return link.url && (link.names.hu || link.names.de || link.names.en);
     });
     return normalizeLinks(links);
+  }
+
+  function collectLinkDraftsFromForm() {
+    return Array.prototype.slice.call(elements.linksEditorList.querySelectorAll(".link-editor-row")).map(function (row) {
+      var language = getValidLinkLanguage(row.dataset.linkLanguage) || getCurrentLinkLanguage();
+      var names = {
+        hu: "",
+        de: "",
+        en: ""
+      };
+      names[language] = getLinkInputValue(row, language);
+      return {
+        id: row.dataset.linkId || createId(),
+        language: language,
+        type: getValidLinkType(row.dataset.linkType),
+        names: names,
+        url: getLinkInputValue(row, "url")
+      };
+    });
   }
 
   function getLinkInputValue(row, field) {
@@ -2504,7 +2734,7 @@
         en: flower.names && flower.names.en ? String(flower.names.en).trim() : ""
       },
       description: createDescriptionForStorage(descriptionPanels),
-      links: normalizeLinks(flower.links),
+      links: normalizeLinks(normalizeLinkDrafts(flower.links)),
       imageData: promoted.images[0] || flower.imageData || "",
       images: promoted.images,
       imageSources: promoted.sources,
@@ -2745,11 +2975,13 @@
   }
 
   function openFlowerFromList(flower, normalizedSearchQuery) {
-    setSelectedFlower(flower.id);
-    selectFilterMatchLanguage(flower, normalizeSearchText(elements.filterInput.value));
-    selectSearchMatchImage(flower, normalizedSearchQuery);
-    closeForm();
-    render();
+    runAfterPendingFormChanges(flower.id, function () {
+      setSelectedFlower(flower.id);
+      selectFilterMatchLanguage(flower, normalizeSearchText(elements.filterInput.value));
+      selectSearchMatchImage(flower, normalizedSearchQuery);
+      closeForm();
+      render();
+    });
   }
 
   function createFlowerMarkButton(flower) {
@@ -2802,12 +3034,14 @@
       return;
     }
 
-    setSelectedFlower(target.id);
-    selectFilterMatchLanguage(target, filterQuery);
-    selectSearchMatchImage(target, normalizeSearchText(elements.searchInput.value));
-    closeForm();
-    render();
-    scrollToFlower(target.id);
+    runAfterPendingFormChanges(target.id, function () {
+      setSelectedFlower(target.id);
+      selectFilterMatchLanguage(target, filterQuery);
+      selectSearchMatchImage(target, normalizeSearchText(elements.searchInput.value));
+      closeForm();
+      render();
+      scrollToFlower(target.id);
+    });
   }
 
   function applyFilterAndSearch(direction) {
@@ -2831,16 +3065,24 @@
         }) || filterFlowers[0];
     }
 
-    if (target) {
+    if (!target) {
+      if (state.editingId !== null) {
+        renderFlowerList();
+        return;
+      }
+      closeForm();
+      render();
+      return;
+    }
+
+    runAfterPendingFormChanges(target.id, function () {
       setSelectedFlower(target.id);
       selectFilterMatchLanguage(target, normalizeSearchText(elements.filterInput.value));
       selectSearchMatchImage(target, searchQuery);
-    }
-    closeForm();
-    render();
-    if (target) {
+      closeForm();
+      render();
       scrollToFlower(target.id);
-    }
+    });
   }
 
   function getVisibleFlowers() {
@@ -4671,13 +4913,16 @@
   function createLinksTabButton(count) {
     var button = createInfoTabButton("", false);
     var icon = createIconImage("icon-link.png");
+    var label = document.createElement("span");
     var counter = document.createElement("span");
     button.classList.add("links-tab-button");
     button.title = t("linksTitle") + " [" + count + "]";
     button.setAttribute("aria-label", button.title);
+    label.textContent = t("linksTitle");
     counter.className = "links-tab-count";
     counter.textContent = "[" + count + "]";
     button.appendChild(icon);
+    button.appendChild(label);
     button.appendChild(counter);
     return button;
   }
@@ -4700,10 +4945,19 @@
     links.forEach(function (link) {
       var item = document.createElement("li");
       var anchor = document.createElement("a");
+      var languageIcon = document.createElement("span");
+      var typeIcon = createLinkTypeIcon(link.type);
+      languageIcon.className = "link-display-language";
+      languageIcon.title = getLinkNameLabel(getLinkDisplayLanguage(link));
+      languageIcon.setAttribute("aria-label", languageIcon.title);
+      languageIcon.appendChild(createLinkLabelIcon(getLinkDisplayLanguage(link)));
+      typeIcon.classList.add("link-display-type");
       anchor.href = link.url;
       anchor.target = "_blank";
       anchor.rel = "noopener noreferrer";
       anchor.textContent = getLocalizedLinkName(link);
+      item.appendChild(languageIcon);
+      item.appendChild(typeIcon);
       item.appendChild(anchor);
       list.appendChild(item);
     });
@@ -5337,8 +5591,8 @@
     if (!canNavigateDetailHistory(offset)) {
       return;
     }
-    state.detailHistoryIndex += offset;
-    var entry = state.detailHistory[state.detailHistoryIndex];
+    var nextHistoryIndex = state.detailHistoryIndex + offset;
+    var entry = state.detailHistory[nextHistoryIndex];
     var id = getHistoryEntryId(entry);
     if (!getFlowerById(id)) {
       state.detailHistory = state.detailHistory.filter(function (historyEntry) {
@@ -5347,15 +5601,18 @@
       state.detailHistoryIndex = Math.min(state.detailHistoryIndex, state.detailHistory.length - 1);
       return;
     }
-    state.selectedId = id;
-    state.imageIndexes[id] = getHistoryEntryImageIndex(entry);
-    var target = getSelectedFlower();
-    if (target) {
-      selectFilterMatchLanguage(target, normalizeSearchText(elements.filterInput.value));
-    }
-    closeForm();
-    render();
-    scrollToFlower(state.selectedId);
+    runAfterPendingFormChanges(id, function () {
+      state.detailHistoryIndex = nextHistoryIndex;
+      state.selectedId = id;
+      state.imageIndexes[id] = getHistoryEntryImageIndex(entry);
+      var target = getSelectedFlower();
+      if (target) {
+        selectFilterMatchLanguage(target, normalizeSearchText(elements.filterInput.value));
+      }
+      closeForm();
+      render();
+      scrollToFlower(state.selectedId);
+    });
   }
 
   function selectFlowerByOffset(offset) {
@@ -5365,12 +5622,14 @@
       return;
     }
 
-    setSelectedFlower(target.id);
-    selectFilterMatchLanguage(target, normalizeSearchText(elements.filterInput.value));
-    selectSearchMatchImage(target, normalizeSearchText(elements.searchInput.value));
-    closeForm();
-    render();
-    scrollToFlower(state.selectedId);
+    runAfterPendingFormChanges(target.id, function () {
+      setSelectedFlower(target.id);
+      selectFilterMatchLanguage(target, normalizeSearchText(elements.filterInput.value));
+      selectSearchMatchImage(target, normalizeSearchText(elements.searchInput.value));
+      closeForm();
+      render();
+      scrollToFlower(state.selectedId);
+    });
   }
 
   function selectFlowerEdge(edge) {
@@ -5380,12 +5639,14 @@
       return;
     }
 
-    setSelectedFlower(target.id);
-    selectFilterMatchLanguage(target, normalizeSearchText(elements.filterInput.value));
-    selectSearchMatchImage(target, normalizeSearchText(elements.searchInput.value));
-    closeForm();
-    render();
-    scrollToFlower(state.selectedId);
+    runAfterPendingFormChanges(target.id, function () {
+      setSelectedFlower(target.id);
+      selectFilterMatchLanguage(target, normalizeSearchText(elements.filterInput.value));
+      selectSearchMatchImage(target, normalizeSearchText(elements.searchInput.value));
+      closeForm();
+      render();
+      scrollToFlower(state.selectedId);
+    });
   }
 
   function searchFlowerOnline(flower) {
@@ -5394,6 +5655,30 @@
       return;
     }
     window.open("https://www.google.com/search?q=" + encodeURIComponent(query), "_blank", "noopener");
+  }
+
+  function searchFlowerOnlineFromForm() {
+    var query = getOnlineSearchNameFromForm();
+    if (!query) {
+      return;
+    }
+    window.open("https://www.google.com/search?q=" + encodeURIComponent(query), "_blank", "noopener");
+  }
+
+  function getOnlineSearchNameFromForm() {
+    var names = {
+      hu: elements.nameHu.value.trim(),
+      la: elements.nameLa.value.trim(),
+      de: elements.nameDe.value.trim(),
+      en: elements.nameEn.value.trim()
+    };
+    if (state.language === "de") {
+      return getFirstNamePart(names.de || names.hu || names.en || names.la);
+    }
+    if (state.language === "en") {
+      return getFirstNamePart(names.en || names.hu || names.de || names.la);
+    }
+    return getFirstNamePart(names.hu || names.de || names.en || names.la);
   }
 
   function openAppInfo() {
@@ -5813,10 +6098,121 @@
     setAutoFillStatus("");
   }
 
-  function saveFlowerFromForm() {
-    autoFillNamesFromLatin(true).then(function () {
-      persistFlowerFromForm();
+  function runAfterPendingFormChanges(targetFlowerId, action) {
+    confirmPendingFormNavigation(targetFlowerId).then(function (allowed) {
+      if (allowed && typeof action === "function") {
+        action();
+      }
     });
+  }
+
+  function confirmPendingFormNavigation(targetFlowerId) {
+    if (state.editingId === null || !isFormDirty()) {
+      return Promise.resolve(true);
+    }
+    if (targetFlowerId && targetFlowerId === state.editingId) {
+      return Promise.resolve(true);
+    }
+    return showUnsavedChangesDialog().then(function (choice) {
+      if (choice === "save") {
+        return autoFillNamesFromLatin(true).then(persistFlowerFromForm).then(function () {
+          return true;
+        }).catch(function () {
+          return false;
+        });
+      }
+      if (choice === "discard") {
+        closeForm();
+        return true;
+      }
+      return false;
+    });
+  }
+
+  function showUnsavedChangesDialog() {
+    return showAppChoiceDialog({
+      title: t("unsavedChangesTitle"),
+      message: t("unsavedChangesText"),
+      messageIcon: "icon-warning.png",
+      messageType: "error",
+      acceptLabel: t("save"),
+      acceptIcon: "icon-save.png?v=20260625-2",
+      acceptValue: "save",
+      cancelLabel: t("discardChanges"),
+      cancelIcon: "icon-exit.png",
+      cancelValue: "discard",
+      dismissValue: null,
+      iconOnly: true,
+      noPrimary: true
+    });
+  }
+
+  function isFormDirty() {
+    if (state.editingId === null) {
+      return false;
+    }
+    var draft = createComparableFlowerFromForm();
+    var original = state.editingId ? createComparableFlower(getFlowerById(state.editingId)) : createEmptyComparableFlower();
+    return JSON.stringify(draft) !== JSON.stringify(original);
+  }
+
+  function createComparableFlowerFromForm() {
+    saveCurrentDescriptionDraft();
+    var images = normalizeImages(state.pendingImages);
+    return {
+      names: {
+        hu: elements.nameHu.value.trim(),
+        la: elements.nameLa.value.trim(),
+        de: elements.nameDe.value.trim(),
+        en: elements.nameEn.value.trim()
+      },
+      description: createDescriptionForStorage(state.descriptionDrafts),
+      links: collectLinksFromForm(),
+      images: images,
+      imageSources: normalizeImageSources(state.pendingImageSources, images.length),
+      imageNames: normalizeImageNames(state.pendingImageNames, images.length, elements.nameHu.value.trim() || "blume"),
+      imageInfos: normalizeImageInfos(state.pendingImageInfos, images.length),
+      favoriteImageIndex: normalizeFavoriteImageIndex(state.pendingFavoriteImageIndex, images)
+    };
+  }
+
+  function createComparableFlower(flower) {
+    if (!flower) {
+      return createEmptyComparableFlower();
+    }
+    var images = getFlowerImages(flower);
+    return {
+      names: {
+        hu: String(flower.names && flower.names.hu || "").trim(),
+        la: String(flower.names && flower.names.la || "").trim(),
+        de: String(flower.names && flower.names.de || "").trim(),
+        en: String(flower.names && flower.names.en || "").trim()
+      },
+      description: createDescriptionForStorage(getDescriptionDrafts(flower.description)),
+      links: normalizeLinks(normalizeLinkDrafts(flower.links)),
+      images: images,
+      imageSources: normalizeImageSources(flower.imageSources, images.length),
+      imageNames: normalizeImageNames(flower.imageNames, images.length, String(flower.names && flower.names.hu || "blume").trim() || "blume"),
+      imageInfos: normalizeImageInfos(flower.imageInfos, images.length),
+      favoriteImageIndex: normalizeFavoriteImageIndex(flower.favoriteImageIndex, images)
+    };
+  }
+
+  function createEmptyComparableFlower() {
+    return {
+      names: { hu: "", la: "", de: "", en: "" },
+      description: createDescriptionForStorage(getEmptyDescriptionDrafts()),
+      links: [],
+      images: [],
+      imageSources: [],
+      imageNames: [],
+      imageInfos: [],
+      favoriteImageIndex: 0
+    };
+  }
+
+  function saveFlowerFromForm() {
+    autoFillNamesFromLatin(true).then(persistFlowerFromForm).catch(function () {});
   }
 
   function persistFlowerFromForm() {
@@ -5832,12 +6228,12 @@
     if (!hu) {
       showFormError(t("huRequired"));
       elements.nameHu.focus();
-      return;
+      return Promise.reject(new Error("validation"));
     }
 
     if (!imageData) {
       showFormError(t("imageRequired"));
-      return;
+      return Promise.reject(new Error("validation"));
     }
 
     var flower = {
@@ -5859,15 +6255,17 @@
       updatedAt: new Date().toISOString()
     };
 
-    saveFlower(flower)
+    return saveFlower(flower)
       .then(loadFlowers)
       .then(function () {
         setSelectedFlower(flower.id);
         closeForm();
         render();
+        return flower;
       })
-      .catch(function () {
+      .catch(function (error) {
         showFormError(t("saveFailed"));
+        return Promise.reject(error);
       });
   }
 
@@ -9675,6 +10073,8 @@
       var url = String(link && link.url || "").trim();
       return {
         id: link && link.id ? String(link.id) : createId(),
+        language: getValidLinkLanguage(link && link.language) || "",
+        type: getValidLinkType(link && link.type),
         names: {
           hu: String(link && link.names && link.names.hu || "").trim(),
           de: String(link && link.names && link.names.de || "").trim(),
@@ -9698,6 +10098,9 @@
   }
 
   function getLocalizedLinkName(link) {
+    if (link && link.language && link.names && link.names[link.language]) {
+      return link.names[link.language];
+    }
     if (state.language === "de") {
       return link.names.de || link.names.hu || link.names.en || link.url;
     }
@@ -9705,6 +10108,27 @@
       return link.names.en || link.names.hu || link.names.de || link.url;
     }
     return link.names.hu || link.names.de || link.names.en || link.url;
+  }
+
+  function getLinkDisplayLanguage(link) {
+    if (link && getValidLinkLanguage(link.language)) {
+      return link.language;
+    }
+    if (link && link.names) {
+      if (link.names[state.language]) {
+        return state.language;
+      }
+      if (link.names.hu) {
+        return "hu";
+      }
+      if (link.names.de) {
+        return "de";
+      }
+      if (link.names.en) {
+        return "en";
+      }
+    }
+    return "de";
   }
 
   function getSearchableLinks(flower) {

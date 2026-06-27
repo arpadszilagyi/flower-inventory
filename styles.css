@@ -2274,10 +2274,39 @@ button.field-icon-label.active {
   list-style: none;
 }
 
+.links-list li {
+  display: grid;
+  grid-template-columns: 28px 28px minmax(0, 1fr);
+  gap: 8px;
+  align-items: center;
+}
+
+.link-display-language,
+.link-type-icon {
+  display: inline-flex;
+  width: 24px;
+  height: 24px;
+  align-items: center;
+  justify-content: center;
+}
+
+.link-display-language img,
+.link-type-icon img {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.link-type-icon img {
+  border-radius: 6px;
+  object-fit: contain;
+}
+
 .links-list a {
   color: var(--accent-strong);
   font-size: 17px;
-  font-weight: 700;
+  font-weight: 400;
   overflow-wrap: anywhere;
 }
 
@@ -2289,8 +2318,42 @@ button.field-icon-label.active {
 .links-editor-header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 10px;
+  justify-content: flex-start;
+  gap: 8px;
+}
+
+.links-add-type-group {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.links-add-button {
+  display: inline-flex;
+  width: 34px;
+  height: 34px;
+  min-height: 34px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+  padding: 2px;
+}
+
+.links-add-button img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: contain;
+}
+
+.links-add-button:hover,
+.links-add-button:focus-visible {
+  border-color: var(--accent);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(47, 125, 98, 0.15);
 }
 
 .links-editor-list {
@@ -2300,12 +2363,19 @@ button.field-icon-label.active {
 
 .link-editor-row {
   display: grid;
-  grid-template-columns: repeat(3, minmax(150px, 1fr)) minmax(240px, 1.8fr);
   gap: 10px;
   border: 1px solid var(--line);
   border-radius: var(--radius);
-  background: #faf9f6;
-  padding: 10px;
+  background: var(--image-surface);
+  font-weight: 400;
+  padding: 10px 12px;
+}
+
+.link-editor-main {
+  display: grid;
+  grid-template-columns: 30px 30px minmax(180px, 0.9fr) minmax(240px, 1.5fr) auto;
+  gap: 10px;
+  align-items: center;
 }
 
 .link-editor-row label {
@@ -2313,6 +2383,15 @@ button.field-icon-label.active {
   grid-template-columns: 34px minmax(0, 1fr);
   align-items: center;
   gap: 8px;
+  font-weight: 400;
+}
+
+.link-editor-row label.link-input-plain {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.link-editor-row input {
+  font-weight: 400;
 }
 
 .link-editor-row label span[data-link-label] {
@@ -2341,11 +2420,48 @@ button.field-icon-label.active {
 .link-editor-actions {
   display: flex;
   justify-content: flex-end;
-  gap: 8px;
-  grid-column: 1 / -1;
+  gap: 6px;
 }
 
-.link-move-button {
+.link-language-icon,
+.link-type-button,
+.link-editor-main > .link-type-icon {
+  display: inline-flex;
+  width: 30px;
+  height: 30px;
+  align-items: center;
+  justify-content: center;
+}
+
+.link-language-icon img,
+.link-type-button img,
+.link-editor-main > .link-type-icon img {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+}
+
+.link-language-icon img {
+  border-radius: 50%;
+}
+
+.link-type-button {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: transparent;
+  cursor: pointer;
+  padding: 1px;
+}
+
+.link-type-button:hover,
+.link-type-button:focus-visible {
+  border-color: var(--accent);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(47, 125, 98, 0.14);
+}
+
+.link-move-button,
+.link-remove-button {
   display: inline-flex;
   width: 38px;
   min-width: 38px;
@@ -2354,11 +2470,16 @@ button.field-icon-label.active {
   padding: 3px;
 }
 
-.link-move-button img {
+.link-move-button img,
+.link-remove-button img {
   width: 26px;
   height: 26px;
   border-radius: 50%;
   object-fit: contain;
+}
+
+.link-remove-button img {
+  border-radius: 6px;
 }
 
 .form-error {
@@ -2466,6 +2587,14 @@ button.field-icon-label.active {
 
   .link-editor-row {
     grid-template-columns: 1fr;
+  }
+
+  .link-editor-main {
+    grid-template-columns: 1fr;
+  }
+
+  .link-editor-actions {
+    justify-content: flex-start;
   }
 
   .icon-action {
